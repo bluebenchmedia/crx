@@ -1,0 +1,32 @@
+services:
+  # ── Proxy Server (Web Service) ─────────────────────────────────────────────
+  - type: web
+    name: clearedrx-proxy
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: DOSABLE_API_KEY
+        sync: false   # Set manually in Render dashboard
+      - key: DOSABLE_BASE_URL
+        value: https://staging.intake.dosable.com
+      - key: DOSABLE_TENANT_ID
+        value: "32"
+      - key: CHECKOUT_BASE_URL
+        value: https://staging-buy-hrt.clearedrx.com/checkout
+      - key: PORT
+        value: "3001"
+      - key: FRONTEND_URL
+        sync: false   # Set to your deployed frontend URL
+
+  # ── Frontend (Static Site) ─────────────────────────────────────────────────
+  - type: web
+    name: clearedrx-frontend
+    runtime: static
+    rootDir: frontend
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
