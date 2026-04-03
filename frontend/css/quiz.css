@@ -81,6 +81,35 @@ body {
 }
 
 /* ============================================================
+   BACK BUTTON — subtle, fixed bottom-left
+   ============================================================ */
+.quiz-back-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--charcoal-60);
+  padding: 8px 12px;
+  border-radius: 50px;
+  transition: color 0.15s, background 0.15s;
+  z-index: 50;
+  letter-spacing: 0.01em;
+  font-family: var(--font-sans);
+}
+.quiz-back-btn:hover {
+  color: var(--charcoal);
+  background: rgba(44,44,44,0.06);
+}
+.quiz-back-btn.visible { display: flex; }
+
+/* ============================================================
    QUIZ CONTAINER — Full viewport height layout
    ============================================================ */
 .quiz-container {

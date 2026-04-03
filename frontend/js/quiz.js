@@ -1,5 +1,5 @@
 /* ============================================================
-   ClearedRx Quiz Funnel — quiz.js v9
+   ClearedRx Quiz Funnel — quiz.js v10
    ============================================================
    STEP MAP (34 steps total):
     1  Primary goal (single-select, auto-advance)
@@ -64,7 +64,30 @@
   var userId       = null;
   var leadCaptured = false;
 
-  /* ── Disqualifying values per step ──────────────────────────────────────── */
+  /* ── Disqualifying values per step ──────────────────────────────────────────── */
+  var DISQUALIFY_REASON = null; // stores last disqualifying value for back-button restore
+
+  var DQ_MESSAGES = {
+    'active-breast-cancer':  { headline: 'Your safety comes first.', body: 'A history of active breast cancer means HRT is not clinically appropriate at this time. We strongly recommend speaking with your oncologist or a specialist who can review your full medical history.' },
+    'family-cancer':         { headline: 'Your safety comes first.', body: 'A personal or family history of hormone-sensitive cancers means our physicians cannot safely prescribe HRT. Please consult with your primary care physician or OB-GYN for personalized guidance.' },
+    'blood-clots':           { headline: 'Your safety comes first.', body: 'A history of blood clots or deep vein thrombosis means HRT carries significant risks that our physicians cannot manage remotely. Please speak with a specialist who can review your full history.' },
+    'stroke-tia':            { headline: 'Your safety comes first.', body: 'A history of stroke or TIA means HRT is not appropriate at this time. We recommend speaking with your neurologist or primary care physician.' },
+    'heart-disease':         { headline: 'Your safety comes first.', body: 'A history of heart disease means HRT requires in-person specialist oversight. Please consult with your cardiologist or primary care physician.' },
+    'unexplained-bleeding':  { headline: 'We need you to see a doctor first.', body: 'Unexplained vaginal bleeding needs to be evaluated by a physician before starting HRT. Please see your OB-GYN \u2014 this is an important first step.' },
+    'liver-disease':         { headline: 'Your safety comes first.', body: 'Active liver disease affects how your body processes hormones, making HRT unsafe without specialist oversight. Please speak with your hepatologist or primary care physician.' },
+    'carbamazepine':         { headline: 'A medication interaction was detected.', body: 'One of your current medications interacts with HRT in a way that requires in-person specialist management. Please speak with your prescribing physician before starting hormone therapy.' },
+    'phenytoin':             { headline: 'A medication interaction was detected.', body: 'One of your current medications interacts with HRT in a way that requires in-person specialist management. Please speak with your prescribing physician before starting hormone therapy.' },
+    'rifampin':              { headline: 'A medication interaction was detected.', body: 'One of your current medications interacts with HRT in a way that requires in-person specialist management. Please speak with your prescribing physician before starting hormone therapy.' },
+    'st-johns-wort':         { headline: 'A supplement interaction was detected.', body: "St. John\u2019s Wort significantly reduces the effectiveness of hormone therapy. Please speak with your physician about alternatives before starting HRT." },
+    'topiramate':            { headline: 'A medication interaction was detected.', body: 'One of your current medications interacts with HRT in a way that requires in-person specialist management. Please speak with your prescribing physician before starting hormone therapy.' },
+    'lamotrigine':           { headline: 'A medication interaction was detected.', body: 'One of your current medications interacts with HRT in a way that requires in-person specialist management. Please speak with your prescribing physician before starting hormone therapy.' },
+    'barbiturates':          { headline: 'A medication interaction was detected.', body: 'One of your current medications interacts with HRT in a way that requires in-person specialist management. Please speak with your prescribing physician before starting hormone therapy.' },
+    'pregnant':              { headline: 'HRT is not appropriate during pregnancy.', body: 'Hormone replacement therapy is not safe during pregnancy. Please speak with your OB-GYN for appropriate prenatal care and support.' },
+    'breastfeeding':         { headline: 'HRT is not appropriate while breastfeeding.', body: 'Hormone replacement therapy is not recommended while breastfeeding. Please speak with your OB-GYN once you have finished breastfeeding.' },
+    'male':                  { headline: 'This program is designed for women.', body: "ClearedRx\u2019s HRT program is specifically designed for women experiencing menopause or perimenopause. If you were looking for a different type of hormone therapy, please visit our main site." },
+    'high-160-plus':         { headline: 'Your blood pressure needs attention first.', body: 'A blood pressure reading of 160+ systolic means HRT is not safe to prescribe remotely. Please see your primary care physician to get your blood pressure managed before starting hormone therapy.' },
+  };
+
   var DISQUALIFY = {
     'step-13': ['active-breast-cancer','family-cancer','blood-clots','stroke-tia',
                 'heart-disease','unexplained-bleeding','liver-disease'],
@@ -98,10 +121,10 @@
     bindDosageOptions();
     bindAllergyFlow();
     bindContactNextButtons();
+    bindBackButton();
   });
 
-  /* ── Session persistence ─
-─────────────────────────── */
+  /* ── Session persistence ─────────────────────────────────────────────────── */
   function saveSession() {
     sessionStorage.setItem('crx_session', JSON.stringify({
       sessionId: sessionId,
@@ -135,6 +158,13 @@
     currentStep = n;
     updateProgress(n);
     window.scrollTo(0, 0);
+
+    // Show/hide back button (hidden on step 1 and pure interstitials)
+    var backBtn = document.getElementById('quizBackBtn');
+    if (backBtn) {
+      var noBackSteps = [1, 2, 5, 8, 12, 17, 26, 33, 34];
+      backBtn.style.display = (noBackSteps.indexOf(n) === -1) ? 'flex' : 'none';
+    }
 
     // Auto-focus first visible input/textarea in this step
     setTimeout(function() {
@@ -186,6 +216,37 @@
   function recordAnswer(key, value) {
     answers[key] = value;
     saveSession();
+  }
+
+  /* ── Back button ─────────────────────────────────────────────────────────── */
+  function bindBackButton() {
+    var backBtn = document.getElementById('quizBackBtn');
+    if (!backBtn) return;
+    backBtn.addEventListener('click', function() {
+      if (currentStep <= 1) return;
+      // Compute previous step (reverse of getNextStep)
+      var prev = currentStep - 1;
+      // If we're on step 24 and hysterectomy was yes, skip back over 22+23
+      if (currentStep === 24) {
+        var hyst = answers['step-21'] || '';
+        if (hyst !== 'no' && hyst !== '') {
+          prev = 21;
+        } else {
+          var st = answers['step-22'] || '';
+          prev = (st === 'neither') ? 22 : 23;
+        }
+      }
+      var cur = document.getElementById('step-' + currentStep);
+      if (cur) {
+        cur.classList.add('exit');
+        setTimeout(function() {
+          cur.classList.remove('active', 'exit');
+          showStep(prev);
+        }, 220);
+      } else {
+        showStep(prev);
+      }
+    });
   }
 
   /* ── Bind single/multi select options ───────────────────────────────────── */
@@ -240,7 +301,8 @@
 
             // Check for disqualifying answer
             if (DISQUALIFY[stepEl.id] && DISQUALIFY[stepEl.id].indexOf(btn.dataset.value) !== -1) {
-              setTimeout(showDisqualify, 320);
+              var dqVal = btn.dataset.value;
+              setTimeout(function() { showDisqualify(dqVal); }, 320);
               return;
             }
             setTimeout(advance, 320);
@@ -461,7 +523,11 @@
         // Check for disqualifying selections
         if (DISQUALIFY[stepEl.id]) {
           for (var i = 0; i < vals.length; i++) {
-            if (DISQUALIFY[stepEl.id].indexOf(vals[i]) !== -1) { showDisqualify(); return; }
+            if (DISQUALIFY[stepEl.id].indexOf(vals[i]) !== -1) {
+              var dqVal = vals[i];
+              showDisqualify(dqVal);
+              return;
+            }
           }
         }
         advance();
@@ -484,13 +550,40 @@
   }
 
   /* ── Disqualify screen ───────────────────────────────────────────────────── */
-  function showDisqualify() {
+  function showDisqualify(dqValue) {
+    DISQUALIFY_REASON = dqValue || null;
     document.querySelectorAll('.quiz-step').forEach(function(el) { el.classList.remove('active','exit'); });
     var dq = document.getElementById('disqualify-screen');
     if (dq) dq.style.display = 'flex';
     var fill = document.getElementById('progressFill');
     if (fill) fill.style.width = '0%';
+    // Hide back button while disqualify screen is showing
+    var backBtn = document.getElementById('quizBackBtn');
+    if (backBtn) backBtn.style.display = 'none';
+    // Populate reason-specific messaging
+    var msg = (dqValue && DQ_MESSAGES[dqValue]) ? DQ_MESSAGES[dqValue] : null;
+    var headline = document.getElementById('dqHeadline');
+    var bodyEl   = document.getElementById('dqBody');
+    if (headline) headline.textContent = msg ? msg.headline : "We want to make sure you're safe.";
+    if (bodyEl)   bodyEl.textContent   = msg ? msg.body : 'Based on one of your answers, our physicians may not be able to prescribe HRT at this time. This is for your safety \u2014 hormone therapy is not appropriate for everyone. We recommend speaking with your primary care physician or OB-GYN who can review your full medical history.';
   }
+
+  window.hideDisqualify = function() {
+    var dq = document.getElementById('disqualify-screen');
+    if (dq) dq.style.display = 'none';
+    // Return to the step that triggered the disqualify
+    showStep(currentStep);
+    // Deselect the disqualifying option so user can change their answer
+    var stepEl = document.getElementById('step-' + currentStep);
+    if (stepEl && DISQUALIFY_REASON) {
+      var btn = stepEl.querySelector('[data-value="' + DISQUALIFY_REASON + '"]');
+      if (btn) btn.classList.remove('selected');
+      // Also clear the stored answer for this step
+      delete answers['step-' + currentStep];
+      saveSession();
+    }
+    DISQUALIFY_REASON = null;
+  };
 
   /* ── Timeline animation (step 8) ────────────────────────────────────────── */
   function animateTimeline() {
@@ -622,8 +715,8 @@
 
     // Nicotine: dedicated step-20 answer (yes/no)
     // Also block oral if blood clots in conditions
-    var nicotineUse  = (a['nicotine-use'] === 'yes');
-    var bloodClots   = conditions.indexOf('blood-clots') !== -1;
+    var nicotineUse    = (a['nicotine-use'] === 'yes');
+    var bloodClots     = conditions.indexOf('blood-clots') !== -1;
     var nicotineOrClot = nicotineUse || bloodClots;
 
     // Transdermal side effects: from HRT history step

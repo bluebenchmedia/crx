@@ -25,6 +25,14 @@
     </div>
   </div>
 
+  <!-- BACK BUTTON — fixed bottom-left, shown from step 2 onwards -->
+  <button class="quiz-back-btn" id="quizBackBtn" aria-label="Go back">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back
+  </button>
+
   <!-- QUIZ CONTAINER -->
   <div class="quiz-container">
 
@@ -646,10 +654,12 @@
   <!-- DISQUALIFY SCREEN -->
   <div id="disqualify-screen" class="disqualify-overlay" style="display:none;">
     <div class="disqualify-box">
-      <span class="disqualify-icon">&#128149;</span>
-      <h2 class="disqualify-headline">We want to make sure you're safe.</h2>
-      <p class="disqualify-body">Based on one of your answers, our physicians may not be able to prescribe HRT at this time. This is for your safety &mdash; hormone therapy is not appropriate for everyone. We recommend speaking with your primary care physician or OB-GYN who can review your full medical history.</p>
+      <span class="disqualify-icon">&#9888;&#65039;</span>
+      <h2 class="disqualify-headline" id="dqHeadline">We want to make sure you're safe.</h2>
+      <p class="disqualify-reason" id="dqReason" style="font-size:13px;font-weight:600;color:var(--rose);margin-bottom:8px;display:none;"></p>
+      <p class="disqualify-body" id="dqBody">Based on one of your answers, our physicians may not be able to prescribe HRT at this time. This is for your safety &mdash; hormone therapy is not appropriate for everyone. We recommend speaking with your primary care physician or OB-GYN who can review your full medical history.</p>
       <a href="https://clearedrx.com/contact" class="disqualify-cta">Speak With a Physician</a>
+      <button onclick="hideDisqualify()" style="display:block;width:100%;margin-top:12px;background:none;border:1.5px solid var(--taupe);cursor:pointer;font-size:14px;color:var(--charcoal-60);font-family:var(--font-sans);padding:12px;border-radius:var(--radius);transition:all 0.15s;">&#8592; Go back &amp; change my answer</button>
       <a href="#" onclick="location.reload()" class="disqualify-restart">Retake Assessment</a>
     </div>
   </div>
