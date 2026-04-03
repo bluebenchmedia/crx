@@ -45,10 +45,10 @@
       badgeColor: 'rose',
       image: 'images/vaginal-cream.jpg',
       benefits: [
-        'Relieves vaginal dryness &amp; discomfort directly',
-        'Full systemic estrogen + progesterone protection',
-        'Reduces painful intercourse and urgency',
-        'Helps prevent recurrent UTIs'
+        'Delivers estrogen and progesterone directly where vaginal tissue needs it most, relieving dryness, irritation, and painful intercourse at the source',
+        'Also provides full systemic hormone support for hot flashes, mood, sleep, and bone health',
+        'Applied vaginally once daily using a pre-measured applicator &mdash; no pills, patches, or guesswork',
+        'Compounded fresh by a licensed US pharmacy to your exact prescribed dose'
       ],
       monthly:      { cpid: 119, price: 189 },
       quarterly:    { cpid: 157, price: 469 },
@@ -63,14 +63,14 @@
       id: 'cream',
       name: 'Estrogen + Progesterone Body Cream',
       subtitle: 'Compounded cream, applied once daily',
-      badge: 'All-in-One',
-      badgeColor: 'rose',
+      badge: null,
+      badgeColor: null,
       image: 'images/compounded-cream.jpg',
       benefits: [
-        'Estrogen + progesterone in one application',
-        'Compounded to your exact prescribed dose',
-        'TopiClick&#8482; dispenser — no measuring',
-        'No separate progesterone pill needed'
+        'Combines estrogen and progesterone in a single daily application &mdash; no separate progesterone pill needed',
+        'Applied to clean, dry skin once daily using a medical-grade TopiClick&trade; dispenser that delivers your exact 1g dose every time',
+        'Absorbs quickly, non-greasy, and non-comedogenic &mdash; designed for comfortable everyday use',
+        'Compounded fresh by a licensed US pharmacy specifically for your prescription'
       ],
       monthly:      { cpid: 41,  price: 189 },
       quarterly:    { cpid: 151, price: 469 },
@@ -85,14 +85,14 @@
       id: 'gel',
       name: 'Estrogen Gel',
       subtitle: 'Applied to arm or shoulder once daily',
-      badge: 'Most Flexible',
-      badgeColor: 'green',
+      badge: null,
+      badgeColor: null,
       image: 'images/estradiol-gel.jpg',
       benefits: [
-        'Apply once daily — absorbs in seconds',
-        'Easy to dose-adjust with your physician',
-        'No adhesive — great for sensitive skin',
-        'Discreet and travel-friendly'
+        'A clear, fast-absorbing gel applied once daily to your upper arm or shoulder &mdash; dries in under a minute with no residue',
+        'Delivers estradiol (the primary estrogen your body loses during menopause) through the skin for steady, consistent hormone levels',
+        'No adhesive and nothing to swallow &mdash; an ideal option if you have sensitive skin or prefer not to take pills',
+        'Easy for your physician to adjust your dose over time as your body responds to treatment'
       ],
       monthly:      { cpid: 15,  price: 151 },
       quarterly:    { cpid: 125, price: 379 },
@@ -110,10 +110,10 @@
       badge: null,
       image: 'images/estradiol-patch.jpg',
       benefits: [
-        'Change twice a week — set and forget',
-        'Steady hormone delivery 24/7',
-        'No daily routine required',
-        'Water-resistant and discreet'
+        'A small, discreet patch worn on your lower abdomen, buttock, or upper thigh &mdash; changed just twice a week',
+        'Delivers a steady, consistent stream of estradiol 24/7 so your hormone levels stay balanced between applications',
+        'No daily routine to remember &mdash; apply it and forget about it until your next change day',
+        'Water-resistant and designed to stay in place through showers, exercise, and daily life'
       ],
       monthly:      { cpid: 21,  price: 151 },
       quarterly:    { cpid: 131, price: 379 },
@@ -128,14 +128,14 @@
       id: 'pill',
       name: 'Estrogen Pills',
       subtitle: 'One pill, taken once daily',
-      badge: 'Simplest Routine',
-      badgeColor: 'sage',
+      badge: null,
+      badgeColor: null,
       image: 'images/estradiol-pill.jpg',
       benefits: [
-        'One pill, once daily — nothing to apply',
-        'Familiar, easy-to-follow format',
-        'No topical application needed',
-        'Progesterone pill prescribed alongside'
+        'One small pill taken once daily &mdash; the simplest possible HRT routine with nothing to apply, stick on, or measure',
+        'A familiar format that fits seamlessly into your existing routine, just like any other daily vitamin or medication',
+        'Estradiol is absorbed through your digestive system and metabolized by the liver, delivering effective systemic hormone support',
+        'Your physician may prescribe a separate progesterone pill to take at bedtime for complete uterine protection'
       ],
       monthly:      { cpid: 27,  price: 151 },
       quarterly:    { cpid: 137, price: 379 },
@@ -212,9 +212,12 @@
     // Pre-check vaginal add-on if patient reported vaginal symptoms
     vaginalChecked = !!flags.vaginalSymptoms;
 
-    // vcream is always the default; fall back to first eligible if blocked
+    // vcream is the default for patients with a uterus; gel for hysterectomy patients
     var eligible = getEligibleProducts();
-    if (eligible.some(function(p) { return p.id === 'vcream'; })) {
+    if (flags.hysterectomy) {
+      // Hysterectomy: default to gel (first non-compounded option)
+      selectedId = eligible.some(function(p) { return p.id === 'gel'; }) ? 'gel' : (eligible.length > 0 ? eligible[0].id : 'gel');
+    } else if (eligible.some(function(p) { return p.id === 'vcream'; })) {
       selectedId = 'vcream';
     } else {
       selectedId = eligible.length > 0 ? eligible[0].id : 'gel';
@@ -231,6 +234,8 @@
       if (p.requiresNoAdhesiveAllergy && flags.adhesiveAllergy)  return false;
       if (p.requiresNoNicotineClot    && flags.nicotineOrClot)   return false;
       if (flags.blockTransdermal && (p.id === 'gel' || p.id === 'patch')) return false;
+      // Compounded E+P products contain progesterone — hide for hysterectomy patients
+      if (p.isCompoundedEP && flags.hysterectomy) return false;
       return true;
     });
   }
@@ -238,6 +243,17 @@
   /* ── Get product by ID ───────────────────────────────────────────────────── */
   function getProduct(id) {
     return PRODUCTS.find(function(p) { return p.id === id; }) || PRODUCTS[0];
+  }
+
+  /* ── Panel title helper ─────────────────────────────────────────────── */
+  function getPanelTitle(p) {
+    if (p.isCompoundedEP) return p.name; // Already says "Estrogen + Progesterone ..."
+    if (!flags.needsProgesterone) return p.name; // Hysterectomy — estrogen only
+    // Non-compounded + needs progesterone: show the full pair
+    if (p.id === 'pill') return 'Estrogen + Progesterone Pills';
+    if (p.id === 'gel')  return 'Estrogen Gel + Progesterone Pills';
+    if (p.id === 'patch') return 'Estrogen Patches + Progesterone Pills';
+    return p.name;
   }
 
   /* ── Price helpers ───────────────────────────────────────────────────────── */
@@ -419,7 +435,7 @@
                'onerror="this.src=\'images/estradiol-gel.jpg\'">' +
         '</div>' +
         '<div class="panel-info">' +
-          '<h2 class="panel-name">' + p.name + '</h2>' +
+          '<h2 class="panel-name">' + getPanelTitle(p) + '</h2>' +
           '<p class="panel-sub">' + p.subtitle + '</p>' +
           '<div class="panel-benefits">' + benefitsHtml + '</div>' +
         '</div>' +

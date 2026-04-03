@@ -194,7 +194,7 @@ function remapAnswers(a, productSelection) {
   const nicotineUse            = (a['nicotine-use'] === 'yes');
   const bloodClotHistory       = conditions.includes('blood-clots');
   const nicotineOrClot         = nicotineUse || bloodClotHistory;
-  const transdermalSideEffects = (a['step-24'] === 'tried-didnt-work');
+  const transdermalSideEffects = (a['step-25'] === 'yes');
   const symptomDurationLong    = (a['step-3'] === '3-plus-years');
   const hysterectomy           = !!(a['step-21'] && a['step-21'] !== 'no');
   const sleepTenderness        = !hysterectomy && !!(a['step-22'] && a['step-22'] !== 'neither');
