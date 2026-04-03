@@ -790,3 +790,94 @@
   }
 
 })();
+
+/* ── Global function wrappers (called by inline onclick attributes in HTML) ─── */
+
+// Called by interstitial CTAs that use onclick="advanceStep()"
+function advanceStep() {
+  var btn = document.querySelector('.quiz-step.active .interstitial-cta');
+  if (btn) btn.click();
+}
+
+// Called by step-36 CTA: onclick="startLoading()"
+function startLoading() {
+  var btn = document.querySelector('#step-36 .interstitial-cta');
+  if (btn) btn.click();
+}
+
+// Called by disqualify screen back button: onclick="hideDisqualify()"
+function hideDisqualify() {
+  var screen = document.getElementById('disqualify-screen');
+  if (screen) screen.style.display = 'none';
+  document.body.style.overflow = '';
+  // Clear the disqualifying selection(s) on the current step
+  var stepEl = document.querySelector('.quiz-step.active');
+  if (stepEl) {
+    stepEl.querySelectorAll('.option-btn.selected').forEach(function(b) { b.classList.remove('selected'); });
+    // Hide the Next button if present
+    var nb = stepEl.querySelector('.quiz-next-btn');
+    if (nb) nb.classList.remove('visible');
+  }
+}
+
+// Consent accordion toggle: onclick="toggleConsent(n)"
+function toggleConsent(n) {
+  var body   = document.getElementById('consent-body-' + n);
+  var toggle = document.getElementById('consent-toggle-' + n);
+  var item   = document.getElementById('consent-' + n);
+  if (!body) return;
+  var isOpen = body.style.display === 'block';
+  // Close all
+  [1,2,3].forEach(function(i) {
+    var b = document.getElementById('consent-body-' + i);
+    var t = document.getElementById('consent-toggle-' + i);
+    var it = document.getElementById('consent-' + i);
+    if (b) b.style.display = 'none';
+    if (t) t.textContent = '+';
+    if (it) it.classList.remove('open');
+  });
+  // Open clicked one if it was closed
+  if (!isOpen) {
+    body.style.display = 'block';
+    if (toggle) toggle.textContent = '−';
+    if (item) item.classList.add('open');
+  }
+}
+
+// Consent agree individual: onclick="agreeConsent(n)"
+var _consentAgreedCount = 0;
+var _consentAgreedSet = {};
+function agreeConsent(n) {
+  if (_consentAgreedSet[n]) return; // already agreed
+  _consentAgreedSet[n] = true;
+  _consentAgreedCount++;
+  var badge = document.getElementById('consent-agreed-' + n);
+  var agreeBtn = document.querySelector('#consent-' + n + ' .consent-agree-btn');
+  if (badge) badge.style.display = 'inline-block';
+  if (agreeBtn) { agreeBtn.style.display = 'none'; }
+  // Close this accordion
+  var body   = document.getElementById('consent-body-' + n);
+  var toggle = document.getElementById('consent-toggle-' + n);
+  var item   = document.getElementById('consent-' + n);
+  if (body) body.style.display = 'none';
+  if (toggle) toggle.textContent = '✓';
+  if (item) item.classList.remove('open');
+  // Check if all 3 agreed
+  if (_consentAgreedCount >= 3) {
+    var allBtn = document.getElementById('consent-agree-all-btn');
+    var nextBtn = document.getElementById('step-35-next');
+    if (allBtn) allBtn.style.display = 'none';
+    if (nextBtn) {
+      nextBtn.classList.add('visible');
+      nextBtn.disabled = false;
+      // Auto-advance after a brief moment so user sees the button appear
+      setTimeout(function() { nextBtn.click(); }, 400);
+    }
+  }
+}
+
+// Agree all at once: onclick="agreeAllConsents()"
+// Agrees all 3 consents — agreeConsent(3) will auto-advance after 400ms
+function agreeAllConsents() {
+  [1,2,3].forEach(function(i) { agreeConsent(i); });
+}

@@ -290,7 +290,7 @@
         <button class="option-btn dq" data-value="liver-disease">Liver cirrhosis, liver failure, or late-stage kidney disease</button>
         <button class="option-btn" data-value="gallbladder">Gallbladder issues</button>
         <button class="option-btn" data-value="osteoporosis">Osteoporosis or low bone density</button>
-        <button class="option-btn none-btn" data-value="none" id="conditions-none-btn">None of the above &mdash; I'm healthy &#8594;</button>
+        <button class="option-btn none-btn" data-value="none" id="conditions-none-btn">None of the above &#8594;</button>
       </div>
       <button class="quiz-next-btn" id="step-13-next">Next &#8594;</button>
     </div>
@@ -403,7 +403,7 @@
       <h2 class="step-question">Do you have an adhesive or tape allergy?</h2>
       <p class="step-sub">This affects which treatments are safe for you.</p>
       <div class="options-list">
-        <button class="option-btn" data-value="no">No &mdash; I have no adhesive allergy</button>
+        <button class="option-btn" data-value="no">No, I do not</button>
         <button class="option-btn" data-value="yes">Yes &mdash; I react to adhesives, tape, or bandages</button>
       </div>
     </div>
@@ -812,9 +812,7 @@
       <h2 class="disqualify-headline" id="dqHeadline">We want to make sure you're safe.</h2>
       <p class="disqualify-reason" id="dqReason" style="font-size:13px;font-weight:600;color:var(--rose);margin-bottom:8px;display:none;"></p>
       <p class="disqualify-body" id="dqBody">Based on one of your answers, our physicians may not be able to prescribe HRT at this time. This is for your safety &mdash; hormone therapy is not appropriate for everyone. We recommend speaking with your primary care physician or OB-GYN who can review your full medical history.</p>
-      <a href="https://clearedrx.com/contact" class="disqualify-cta">Speak With a Physician</a>
-      <button onclick="hideDisqualify()" style="display:block;width:100%;margin-top:12px;background:none;border:1.5px solid var(--taupe);cursor:pointer;font-size:14px;color:var(--charcoal-60);font-family:var(--font-sans);padding:12px;border-radius:var(--radius);transition:all 0.15s;">&#8592; Go back &amp; change my answer</button>
-      <a href="#" onclick="location.reload()" class="disqualify-restart">Retake Assessment</a>
+      <button onclick="hideDisqualify()" style="display:block;width:100%;margin-top:24px;background:none;border:1.5px solid var(--taupe);cursor:pointer;font-size:14px;color:var(--charcoal-60);font-family:var(--font-sans);padding:12px;border-radius:var(--radius);transition:all 0.15s;">← Go back &amp; change my answer</button>
     </div>
   </div>
 
