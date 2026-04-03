@@ -246,9 +246,9 @@ function remapAnswers(a, productSelection) {
     if (symptoms.includes('vaginal-dryness')) vagList.push('Vaginal dryness');
     if (symptoms.includes('low-libido'))      vagList.push('Reduce libido');
     if (vagList.length === 0)                 vagList.push('Vaginal dryness');
-    vaginalSymptomsAnswer = vagList.join(', ');
+    vaginalSymptomsAnswer = vagList; // array format required by Dosable API
   } else {
-    vaginalSymptomsAnswer = 'I do not experience any of these';
+    vaginalSymptomsAnswer = ['I do not experience any of these']; // array format
   }
 
   // ── Symptom checklist mapping ─────────────────────────────────────────────
@@ -267,9 +267,10 @@ function remapAnswers(a, productSelection) {
   const uniqueSymptoms = [...new Set(
     symptoms.map(s => symptomMap[s]).filter(Boolean)
   )];
-  const symptomString = uniqueSymptoms.length > 0
-    ? uniqueSymptoms.join(', ')
-    : 'Hot flashes, Night sweats';
+  // Q3211 expects an array
+  const symptomArray = uniqueSymptoms.length > 0
+    ? uniqueSymptoms
+    : ['Hot flashes', 'Night sweats'];
 
   // ── Medical conditions ────────────────────────────────────────────────────
   // Q3213 group 1: cancer/stroke/CAD/gallbladder
@@ -281,12 +282,13 @@ function remapAnswers(a, productSelection) {
     'gallbladder':          'I have a had current or recent gallbladder issues',
   };
   const conds1 = conditions.map(c => cond1Map[c]).filter(Boolean);
-  const conds1Answer = conds1.length > 0 ? conds1.join(', ') : 'I do NOT have any of these';
+  // Q3213 expects an array
+  const conds1Answer = conds1.length > 0 ? conds1 : ['I do NOT have any of these'];
 
-  // Q3214 group 2: DVT/lupus
+  // Q3214 group 2: DVT/lupus — expects an array
   const conds2Answer = bloodClotHistory
-    ? 'I have a known history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)'
-    : 'I do NOT have any of these';
+    ? ['I have a known history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?']
+    : ['I do NOT have any of these'];
 
   // Free-text for Q3200
   const condFreeMap = {
@@ -331,7 +333,8 @@ function remapAnswers(a, productSelection) {
     'barbiturates':  'Barbiturates',
   };
   const enzymeMeds = meds.map(m => enzymeMap[m]).filter(Boolean);
-  const enzymeMedsAnswer = enzymeMeds.length > 0 ? enzymeMeds.join(', ') : 'None apply';
+  // Q3230 expects an array
+  const enzymeMedsAnswer = enzymeMeds.length > 0 ? enzymeMeds : ['None apply'];
 
   // ── Blood pressure ────────────────────────────────────────────────────────
   const bpMap = {
@@ -352,15 +355,16 @@ function remapAnswers(a, productSelection) {
   const allergyAnswer = (!a['allergies'] || a['allergies'] === 'none') ? 'None' : a['allergies'];
 
   // ── Nicotine / clot (NEVER override) ─────────────────────────────────────
+  // Q3223 expects an array
   let nicotineClotAnswer;
   if (nicotineUse && bloodClotHistory) {
-    nicotineClotAnswer = 'Do you currently use nicotine products?, Do you have a family history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?';
+    nicotineClotAnswer = ['Do you currently use nicotine products?', 'Do you have a family history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?'];
   } else if (nicotineUse) {
-    nicotineClotAnswer = 'Do you currently use nicotine products?';
+    nicotineClotAnswer = ['Do you currently use nicotine products?'];
   } else if (bloodClotHistory) {
-    nicotineClotAnswer = 'Do you have a family history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?';
+    nicotineClotAnswer = ['Do you have a family history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?'];
   } else {
-    nicotineClotAnswer = 'None of these apply to me';
+    nicotineClotAnswer = ['None of these apply to me'];
   }
 
   // ── Assemble final API answers ────────────────────────────────────────────
@@ -385,7 +389,7 @@ function remapAnswers(a, productSelection) {
   apiAnswers[Q.vaginal_bleeding]      = { value: 'No',                question: 'Over the past 6 months, have you had ABNORMAL and UNDIAGNOSED vaginal bleeding?' };
   apiAnswers[Q.liver_kidney]          = { value: 'No',                question: 'Do you have a known diagnosis of liver cirrhosis or late stage CKD?' };
   apiAnswers[Q.menopause_symptoms]    = { value: 'Yes',               question: 'Have you noticed any changes in your menstrual cycle or menopausal symptoms?' };
-  apiAnswers[Q.symptom_checklist]     = { value: symptomString,       question: 'Tell us more about the symptoms that you experience?' };
+  apiAnswers[Q.symptom_checklist]     = { value: symptomArray,        question: 'Tell us more about the symptoms that you experience?' };
   apiAnswers[Q.other_symptoms]        = { value: '',                  question: 'Tell us more about your other symptom(s)' };
   apiAnswers[Q.conditions_1]          = { value: conds1Answer,        question: 'Do you have any of the following? (cancer/stroke/CAD/gallbladder)' };
   apiAnswers[Q.conditions_2]          = { value: conds2Answer,        question: 'Do you have any of the following? (DVT/lupus)' };
