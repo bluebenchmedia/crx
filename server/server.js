@@ -400,7 +400,7 @@ function remapAnswers(a, productSelection) {
   apiAnswers[Q.liver_kidney]          = { value: 'No',                question: 'Do you have a known diagnosis of liver cirrhosis or late stage CKD?' };
   apiAnswers[Q.menopause_symptoms]    = { value: 'Yes',               question: 'Have you noticed any changes in your menstrual cycle or menopausal symptoms?' };
   apiAnswers[Q.symptom_checklist]     = { value: symptomArray,        question: 'Tell us more about the symptoms that you experience?' };
-  apiAnswers[Q.other_symptoms]        = { value: '',                  question: 'Tell us more about your other symptom(s)' };
+  apiAnswers[Q.other_symptoms]        = { value: 'None',              question: 'Tell us more about your other symptom(s)' };
   apiAnswers[Q.conditions_1]          = { value: conds1Answer,        question: 'Do you have any of the following? (cancer/stroke/CAD/gallbladder)' };
   apiAnswers[Q.conditions_2]          = { value: conds2Answer,        question: 'Do you have any of the following? (DVT/lupus)' };
   apiAnswers[Q.adhesive_allergy]      = { value: adhesiveAllergy ? 'Yes' : 'No', question: 'Do you have an adhesive allergy?' };
@@ -595,7 +595,19 @@ app.post('/api/complete', async (req, res) => {
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now() }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v9-debug' }));
+
+// ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
+// Debug endpoint: returns the remapped answers without calling Dosable
+app.post('/api/debug/remap', (req, res) => {
+  const quizAnswers     = req.body.quizAnswers || {};
+  const productSelection = req.body.productSelection || {};
+  const { apiAnswers, flags } = remapAnswers(quizAnswers, productSelection);
+  const answersToSave = Object.fromEntries(
+    Object.entries(apiAnswers).filter(([k]) => k !== '_namedFields')
+  );
+  return res.json({ ok: true, flags, apiAnswers: answersToSave });
+});
 
 // ─── ROUTE: GET /api/states ───────────────────────────────────────────────────
 app.get('/api/states', async (req, res) => {
