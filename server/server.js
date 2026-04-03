@@ -638,8 +638,20 @@ app.post('/api/complete', async (req, res) => {
     console.warn('Bulk save warning (non-fatal):', JSON.stringify(saveRes.data).slice(0, 300));
     // Continue — partial saves are acceptable
   }
-  // Complete session with final truthfulness consent
+  // Build lead fields for the complete payload (Dosable requires these again at complete time)
+  const contactInfo = req.body.contactInfo || {};
+  const completeLead = {
+    first_name: contactInfo.firstName || '',
+    last_name:  contactInfo.lastName  || '',
+    birthday:   contactInfo.birthday  || '01/01/1975',
+    lead_state: contactInfo.state     || 'CA',
+    zip_code:   contactInfo.zip       || '00000',
+    gender:     'Female',
+  };
+
+  // Complete session with final truthfulness consent + lead fields
   const completePayload = {
+    ...completeLead,
     final_answers: {
       [Q.consent_truthfulness]: {
         value:    'I have read the above information and I do consent and wish to move forward',
@@ -660,7 +672,7 @@ app.post('/api/complete', async (req, res) => {
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v12-session-fallback' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v13-complete-lead-fields' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable
