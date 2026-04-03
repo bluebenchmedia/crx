@@ -1,7 +1,7 @@
 /* ============================================================
-   ClearedRx Quiz Funnel — quiz.js v10
+   ClearedRx Quiz Funnel — quiz.js v11
    ============================================================
-   STEP MAP (34 steps total):
+   STEP MAP (37 steps total):
     1  Primary goal (single-select, auto-advance)
     2  Interstitial: You're in the right place
     3  Symptom duration (single-select, auto-advance)
@@ -20,27 +20,30 @@
    16  Sex assigned at birth (single-select, disqualifying)
    17  Interstitial: Privacy
    18  Allergies (Yes/No + conditional text)
-   19  Adhesive allergy (single-select, auto-advance) ← NEW
-   20  Nicotine use (single-select, auto-advance)     ← NEW
+   19  Adhesive allergy (single-select, auto-advance)
+   20  Nicotine use (single-select, auto-advance)
    21  Hysterectomy (single-select, auto-advance)
    22  Sleep / breast tenderness (shown only if no hysterectomy)
    23  Progesterone intolerance (shown only if step-22 != neither)
    24  HRT history (single-select, auto-advance)
-   25  Delivery preference (single-select, auto-advance)
-   26  Interstitial: Testimonial 2
-   27  Blood pressure (single-select, disqualifying)
-   28  What's held you back (single-select, auto-advance)
-   29  Name (text inputs)
-   30  Email (text input)
-   31  Phone (text input + lead capture)
-   32  Informed consent (3 consents)
-   33  Interstitial: You're a great candidate
-   34  Loading screen → redirect to treatments.html
+   25  Transdermal side effects (shown only if step-24 != 'never')
+   26  Delivery preference (single-select, auto-advance)
+   27  Interstitial: Testimonial 2
+   28  Blood pressure (single-select, disqualifying)
+   29  What's held you back (single-select, auto-advance)
+   30  Name (text inputs)
+   31  Email (text input)
+   32  Phone (text input + lead capture)
+   33  Date of Birth (text input)
+   34  State (dropdown)
+   35  Informed consent (3 consents)
+   36  Interstitial: You're a great candidate
+   37  Loading screen → redirect to treatments.html
 
    CLINICAL FLAGS (computed at end, stored in sessionStorage):
    - adhesiveAllergy    → blocks patch on treatment page
    - nicotineOrClot     → blocks oral pill on treatment page
-   - transdermalSE      → blocks gel/patch on treatment page
+   - transdermalSE      → blocks gel/patch on treatment page (from step 25)
    - needsProgesterone  → true for ALL patients with a uterus (no hysterectomy)
    - vaginalSymptoms    → pre-selects vaginal add-on on treatment page
    - doseTier           → 'low' if >3yr duration, 'normal' otherwise
@@ -49,7 +52,7 @@
 (function() {
   'use strict';
 
-  var TOTAL_STEPS   = 34;
+  var TOTAL_STEPS   = 37;
   var currentStep   = 1;
   var answers       = {};
   var consentAgreed = 0;
@@ -65,7 +68,7 @@
   var leadCaptured = false;
 
   /* ── Disqualifying values per step ──────────────────────────────────────────── */
-  var DISQUALIFY_REASON = null; // stores last disqualifying value for back-button restore
+  var DISQUALIFY_REASON = null;
 
   var DQ_MESSAGES = {
     'active-breast-cancer':  { headline: 'Your safety comes first.', body: 'A history of active breast cancer means HRT is not clinically appropriate at this time. We strongly recommend speaking with your oncologist or a specialist who can review your full medical history.' },
@@ -95,12 +98,11 @@
                 'topiramate','lamotrigine','barbiturates'],
     'step-15': ['pregnant','breastfeeding'],
     'step-16': ['male'],
-    'step-27': ['high-160-plus'],
+    'step-28': ['high-160-plus'],
   };
 
   /* ── Init ────────────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function() {
-    // Restore session if available
     var saved = sessionStorage.getItem('crx_session');
     if (saved) {
       try {
@@ -137,6 +139,7 @@
     if (answers['email'])     sessionStorage.setItem('crx_email',       answers['email']);
     if (answers['phone'])     sessionStorage.setItem('crx_phone',       answers['phone']);
     if (answers['state'])     sessionStorage.setItem('crx_state',       answers['state']);
+    if (answers['dob'])       sessionStorage.setItem('crx_dob',         answers['dob']);
   }
 
   /* ── Progress bar ────────────────────────────────────────────────────────── */
@@ -147,7 +150,7 @@
     fill.style.width = Math.max(2, pct) + '%';
   }
 
-  /* ── Show step + auto-focus input fields ─────────────────────────────────── */
+  /* ── Show step ───────────────────────────────────────────────────────────── */
   function showStep(n) {
     document.querySelectorAll('.quiz-step').forEach(function(el) {
       el.classList.remove('active', 'exit');
@@ -159,16 +162,16 @@
     updateProgress(n);
     window.scrollTo(0, 0);
 
-    // Show/hide back button (hidden on step 1 and pure interstitials)
+    // Show/hide back button
     var backBtn = document.getElementById('quizBackBtn');
     if (backBtn) {
-      var noBackSteps = [1, 2, 5, 8, 12, 17, 26, 33, 34];
+      var noBackSteps = [1, 2, 5, 8, 12, 17, 27, 36, 37];
       backBtn.style.display = (noBackSteps.indexOf(n) === -1) ? 'flex' : 'none';
     }
 
-    // Auto-focus first visible input/textarea in this step
+    // Auto-focus first input
     setTimeout(function() {
-      var input = target.querySelector('input[type="text"], input[type="email"], input[type="tel"], textarea');
+      var input = target.querySelector('input[type="text"], input[type="email"], input[type="tel"], textarea, select');
       if (input) {
         try { input.focus(); } catch(e) {}
       }
@@ -182,15 +185,20 @@
     // Step 21 = hysterectomy
     if (from === 21) {
       var hyst = answers['step-21'] || '';
-      // Any hysterectomy → skip steps 22 & 23 (sleep/tenderness + prog intolerance)
       return (hyst !== 'no' && hyst !== '') ? 24 : 22;
     }
 
-    // Step 22 = sleep/breast tenderness (only shown if no hysterectomy)
+    // Step 22 = sleep/breast tenderness
     if (from === 22) {
       var st = answers['step-22'] || '';
-      // 'neither' → skip step 23 (progesterone intolerance)
       return (st === 'neither') ? 24 : 23;
+    }
+
+    // Step 24 = HRT history
+    // If never tried HRT → skip step 25 (transdermal SE — not applicable)
+    if (from === 24) {
+      var hrtHistory = answers['step-24'] || '';
+      return (hrtHistory === 'never') ? 26 : 25;
     }
 
     return from + 1;
@@ -224,8 +232,8 @@
     if (!backBtn) return;
     backBtn.addEventListener('click', function() {
       if (currentStep <= 1) return;
-      // Compute previous step (reverse of getNextStep)
       var prev = currentStep - 1;
+
       // If we're on step 24 and hysterectomy was yes, skip back over 22+23
       if (currentStep === 24) {
         var hyst = answers['step-21'] || '';
@@ -236,6 +244,14 @@
           prev = (st === 'neither') ? 22 : 23;
         }
       }
+
+      // If we're on step 25 (transdermal SE), go back to 24
+      // If we're on step 26 (delivery pref) and HRT history was 'never', go back to 24
+      if (currentStep === 26) {
+        var hrtHistory = answers['step-24'] || '';
+        prev = (hrtHistory === 'never') ? 24 : 25;
+      }
+
       var cur = document.getElementById('step-' + currentStep);
       if (cur) {
         cur.classList.add('exit');
@@ -252,7 +268,7 @@
   /* ── Bind single/multi select options ───────────────────────────────────── */
   function bindOptions() {
     document.querySelectorAll('.options-list').forEach(function(list) {
-      if (list.id === 'allergy-yn-list') return;   // handled separately
+      if (list.id === 'allergy-yn-list') return;
 
       var isMulti = list.classList.contains('multi') || list.dataset.multi === 'true';
       var stepEl  = list.closest('.quiz-step');
@@ -263,7 +279,6 @@
         btn.addEventListener('click', function() {
           if (isMulti) {
             if (btn.dataset.value === 'none') {
-              // "None of the above" — deselect all, select none, auto-advance
               list.querySelectorAll('.option-btn').forEach(function(b) { b.classList.remove('selected'); });
               btn.classList.add('selected');
               recordAnswer(stepKey, 'none');
@@ -271,7 +286,6 @@
               if (nb) nb.classList.remove('visible');
               setTimeout(advance, 320);
             } else {
-              // Real option — deselect "none"
               list.querySelectorAll('[data-value="none"]').forEach(function(b) { b.classList.remove('selected'); });
               btn.classList.toggle('selected');
               var vals = [];
@@ -289,14 +303,17 @@
             btn.classList.add('selected');
             recordAnswer(stepKey, btn.dataset.value);
 
-            // ── Special handling for new dedicated steps ──────────────────
-            // Step 19: adhesive allergy — record to dedicated key
+            // Step 19: adhesive allergy
             if (stepKey === 'step-19') {
               recordAnswer('adhesive-allergy', btn.dataset.value);
             }
-            // Step 20: nicotine use — record to dedicated key
+            // Step 20: nicotine use
             if (stepKey === 'step-20') {
               recordAnswer('nicotine-use', btn.dataset.value);
+            }
+            // Step 25: transdermal side effects
+            if (stepKey === 'step-25') {
+              recordAnswer('transdermal-se', btn.dataset.value);
             }
 
             // Check for disqualifying answer
@@ -358,13 +375,13 @@
 
   /* ── Contact field next buttons ──────────────────────────────────────────── */
   function bindContactNextButtons() {
-    // ── Step 29: First + Last name ────────────────────────────
-    var s29next = document.getElementById('step-29-next-name');
+    // ── Step 30: First + Last name ────────────────────────────
+    var s30next = document.getElementById('step-30-next-name');
     var fnInput = document.getElementById('first-name-input');
     var lnInput = document.getElementById('last-name-input');
 
-    if (s29next) {
-      s29next.addEventListener('click', function() {
+    if (s30next) {
+      s30next.addEventListener('click', function() {
         if (!fnInput || !fnInput.value.trim()) { if (fnInput) fnInput.focus(); return; }
         if (!lnInput || !lnInput.value.trim()) { if (lnInput) lnInput.focus(); return; }
         recordAnswer('firstName', fnInput.value.trim());
@@ -379,16 +396,16 @@
     }
     if (lnInput) {
       lnInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); if (s29next) s29next.click(); }
+        if (e.key === 'Enter') { e.preventDefault(); if (s30next) s30next.click(); }
       });
     }
 
-    // ── Step 30: Email ────────────────────────────────────────
-    var s30next    = document.getElementById('step-30-next-email');
+    // ── Step 31: Email ────────────────────────────────────────
+    var s31next    = document.getElementById('step-30-next-email');
     var emailInput = document.getElementById('email-input');
 
-    if (s30next) {
-      s30next.addEventListener('click', function() {
+    if (s31next) {
+      s31next.addEventListener('click', function() {
         var email = emailInput ? emailInput.value.trim() : '';
         if (!email || email.indexOf('@') === -1 || email.indexOf('.') === -1) {
           if (emailInput) { emailInput.style.borderColor = 'var(--rose)'; emailInput.focus(); }
@@ -401,15 +418,14 @@
     }
     if (emailInput) {
       emailInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); if (s30next) s30next.click(); }
+        if (e.key === 'Enter') { e.preventDefault(); if (s31next) s31next.click(); }
       });
     }
 
-    // ── Step 31: Phone (triggers lead capture) ────────────────
-    var s31next    = document.getElementById('step-31-next');
+    // ── Step 32: Phone (triggers lead capture) ────────────────
+    var s32next    = document.getElementById('step-31-next');
     var phoneInput = document.getElementById('phone-input');
 
-    // Live phone formatting
     if (phoneInput) {
       phoneInput.addEventListener('input', function() {
         var digits    = this.value.replace(/\D/g, '').slice(0, 10);
@@ -428,12 +444,12 @@
             this.value = val.slice(0, -2);
           }
         }
-        if (e.key === 'Enter') { e.preventDefault(); if (s31next) s31next.click(); }
+        if (e.key === 'Enter') { e.preventDefault(); if (s32next) s32next.click(); }
       });
     }
 
-    if (s31next) {
-      s31next.addEventListener('click', function() {
+    if (s32next) {
+      s32next.addEventListener('click', function() {
         var phone       = phoneInput ? phoneInput.value.trim() : '';
         var phoneDigits = phone.replace(/\D/g, '');
         if (!phoneDigits || phoneDigits.length < 10) {
@@ -449,6 +465,73 @@
         }
       });
     }
+
+    // ── Step 33: Date of Birth ────────────────────────────────
+    var s33next  = document.getElementById('step-33-next-dob');
+    var dobInput = document.getElementById('dob-input');
+
+    // Live DOB formatting: MM/DD/YYYY
+    if (dobInput) {
+      dobInput.addEventListener('input', function() {
+        var digits = this.value.replace(/\D/g, '').slice(0, 8);
+        var formatted = '';
+        if      (digits.length <= 2) formatted = digits;
+        else if (digits.length <= 4) formatted = digits.slice(0,2) + '/' + digits.slice(2);
+        else                         formatted = digits.slice(0,2) + '/' + digits.slice(2,4) + '/' + digits.slice(4);
+        this.value = formatted;
+      });
+      dobInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); if (s33next) s33next.click(); }
+      });
+    }
+
+    if (s33next) {
+      s33next.addEventListener('click', function() {
+        var dob = dobInput ? dobInput.value.trim() : '';
+        // Validate MM/DD/YYYY format
+        var dobRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/(19|20)\d{2}$/;
+        if (!dobRegex.test(dob)) {
+          if (dobInput) { dobInput.style.borderColor = 'var(--rose)'; dobInput.focus(); }
+          // Show inline error
+          var hint = dobInput ? dobInput.parentNode.querySelector('.contact-field-hint') : null;
+          if (hint) { hint.style.color = 'var(--rose)'; hint.textContent = 'Please enter a valid date in MM/DD/YYYY format.'; }
+          return;
+        }
+        if (dobInput) dobInput.style.borderColor = '';
+        var hint = dobInput ? dobInput.parentNode.querySelector('.contact-field-hint') : null;
+        if (hint) { hint.style.color = ''; hint.textContent = '\uD83D\uDD12 Used only for your medical record. Never shared.'; }
+        recordAnswer('dob', dob);
+        advance();
+      });
+    }
+
+    // ── Step 34: State ────────────────────────────────────────
+    var s34next    = document.getElementById('step-34-next-state');
+    var stateInput = document.getElementById('state-input');
+
+    if (s34next) {
+      s34next.addEventListener('click', function() {
+        var state = stateInput ? stateInput.value.trim() : '';
+        if (!state) {
+          if (stateInput) { stateInput.style.borderColor = 'var(--rose)'; stateInput.focus(); }
+          return;
+        }
+        if (stateInput) stateInput.style.borderColor = '';
+        recordAnswer('state', state);
+        advance();
+      });
+    }
+    if (stateInput) {
+      stateInput.addEventListener('change', function() {
+        if (this.value) this.style.borderColor = '';
+      });
+    }
+
+    // ── Step 35: Consent "Continue" button ───────────────────
+    var s35next = document.getElementById('step-35-next');
+    if (s35next) {
+      s35next.addEventListener('click', function() { advance(); });
+    }
   }
 
   /* ── Early lead capture ──────────────────────────────────────────────────── */
@@ -461,9 +544,9 @@
       lastName:  answers['lastName']  || '',
       email:     answers['email']     || '',
       phone:     answers['phone']     || '',
-      state:     answers['state']     || 'CA',
+      state:     answers['state']     || '',
       zip:       answers['zip']       || '00000',
-      dob:       answers['dob']       || '01/01/1975',
+      dob:       answers['dob']       || '',
     };
 
     fetch(PROXY_BASE + '/api/lead', {
@@ -493,26 +576,11 @@
     });
   }
 
-  /* ── Emoji scale ─────────────────────────────────────────────────────────── */
-  function bindEmojiScale() {
-    document.querySelectorAll('.emoji-scale').forEach(function(scale) {
-      var stepEl  = scale.closest('.quiz-step');
-      var stepKey = stepEl ? stepEl.id : 'emoji';
-      scale.querySelectorAll('.emoji-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          scale.querySelectorAll('.emoji-btn').forEach(function(b) { b.classList.remove('selected'); });
-          btn.classList.add('selected');
-          recordAnswer(stepKey, btn.dataset.value);
-          setTimeout(advance, 350);
-        });
-      });
-    });
-  }
-
   /* ── Next buttons (multi-select steps) ──────────────────────────────────── */
   function bindNextButtons() {
-    var skipIds = ['step-29-next-name','step-30-next-email','step-31-next',
-                   'step-18-allergy-next','step-32-next'];
+    var skipIds = ['step-30-next-name','step-30-next-email','step-31-next',
+                   'step-33-next-dob','step-34-next-state',
+                   'step-18-allergy-next','step-35-next'];
     document.querySelectorAll('.quiz-next-btn').forEach(function(btn) {
       if (skipIds.indexOf(btn.id) !== -1) return;
       btn.addEventListener('click', function() {
@@ -520,7 +588,6 @@
         if (!stepEl) { advance(); return; }
         var vals = [];
         stepEl.querySelectorAll('.option-btn.selected').forEach(function(s) { vals.push(s.dataset.value); });
-        // Check for disqualifying selections
         if (DISQUALIFY[stepEl.id]) {
           for (var i = 0; i < vals.length; i++) {
             if (DISQUALIFY[stepEl.id].indexOf(vals[i]) !== -1) {
@@ -534,10 +601,10 @@
       });
     });
 
-    // Step 32 consent "Continue" button
-    var s32next = document.getElementById('step-32-next');
-    if (s32next) {
-      s32next.addEventListener('click', function() { advance(); });
+    // Step 35 consent "Continue" button
+    var s35next = document.getElementById('step-35-next');
+    if (s35next) {
+      s35next.addEventListener('click', function() { advance(); });
     }
   }
 
@@ -557,10 +624,8 @@
     if (dq) dq.style.display = 'flex';
     var fill = document.getElementById('progressFill');
     if (fill) fill.style.width = '0%';
-    // Hide back button while disqualify screen is showing
     var backBtn = document.getElementById('quizBackBtn');
     if (backBtn) backBtn.style.display = 'none';
-    // Populate reason-specific messaging
     var msg = (dqValue && DQ_MESSAGES[dqValue]) ? DQ_MESSAGES[dqValue] : null;
     var headline = document.getElementById('dqHeadline');
     var bodyEl   = document.getElementById('dqBody');
@@ -571,14 +636,11 @@
   window.hideDisqualify = function() {
     var dq = document.getElementById('disqualify-screen');
     if (dq) dq.style.display = 'none';
-    // Return to the step that triggered the disqualify
     showStep(currentStep);
-    // Deselect the disqualifying option so user can change their answer
     var stepEl = document.getElementById('step-' + currentStep);
     if (stepEl && DISQUALIFY_REASON) {
       var btn = stepEl.querySelector('[data-value="' + DISQUALIFY_REASON + '"]');
       if (btn) btn.classList.remove('selected');
-      // Also clear the stored answer for this step
       delete answers['step-' + currentStep];
       saveSession();
     }
@@ -625,7 +687,7 @@
 
   function checkConsentComplete() {
     if (consentAgreed >= CONSENT_REQUIRED) {
-      var nb = document.getElementById('step-32-next');
+      var nb = document.getElementById('step-35-next');
       if (nb) { nb.classList.add('visible'); nb.removeAttribute('disabled'); }
       var agreeAll = document.getElementById('consent-agree-all-btn');
       if (agreeAll) agreeAll.style.display = 'none';
@@ -634,20 +696,19 @@
 
   /* ── Loading screen & handoff to treatment page ──────────────────────────── */
   window.startLoading = function() {
-    var loader = document.getElementById('step-34');
+    var loader = document.getElementById('step-37');
     var fill   = document.getElementById('progressFill');
     if (fill) fill.style.width = '100%';
     window.scrollTo(0, 0);
 
-    // Exit-animate step-33 before showing step-34 (prevents flash)
-    var step33 = document.getElementById('step-33');
+    var step36 = document.getElementById('step-36');
     function activateLoader() {
       document.querySelectorAll('.quiz-step').forEach(function(el) { el.classList.remove('active','exit'); });
       if (loader) loader.classList.add('active');
       runLoadingAnimation();
     }
-    if (step33 && step33.classList.contains('active')) {
-      step33.classList.add('exit');
+    if (step36 && step36.classList.contains('active')) {
+      step36.classList.add('exit');
       setTimeout(activateLoader, 220);
     } else {
       activateLoader();
@@ -655,7 +716,7 @@
   };
 
   function runLoadingAnimation() {
-    var loader = document.getElementById('step-34');
+    var loader = document.getElementById('step-37');
     var bar    = loader ? loader.querySelector('.loading-bar-fill') : null;
     var status = loader ? loader.querySelector('.loading-status')   : null;
     var msgs   = [
@@ -666,7 +727,6 @@
     ];
     var pct = 0, mi = 0;
 
-    // Compute and store clinical flags BEFORE animation completes
     var flags = computeClinicalFlags(answers);
     sessionStorage.setItem('crx_flags',   JSON.stringify(flags));
     sessionStorage.setItem('crx_answers', JSON.stringify(answers));
@@ -676,6 +736,7 @@
     if (answers['email'])     sessionStorage.setItem('crx_email',       answers['email']);
     if (answers['phone'])     sessionStorage.setItem('crx_phone',       answers['phone']);
     if (answers['state'])     sessionStorage.setItem('crx_state',       answers['state']);
+    if (answers['dob'])       sessionStorage.setItem('crx_dob',         answers['dob']);
 
     var iv = setInterval(function() {
       pct += Math.random() * 18 + 8;
@@ -699,49 +760,37 @@
   }
 
   /* ── Compute clinical flags ──────────────────────────────────────────────── */
-  // These flags are stored in sessionStorage and read by treatments.js
-  // to determine which products to show/hide on the treatment page.
-  //
-  // CRITICAL: needsProgesterone = !hysterectomy (everyone with a uterus)
-  // NOT the old logic (!hysterectomy && sleepTenderness)
-  //
   function computeClinicalFlags(a) {
     var symptoms   = (a['step-6']  || '').split(',').map(function(s) { return s.trim(); });
     var conditions = (a['step-13'] || '').split(',').map(function(s) { return s.trim(); });
 
-    // ── Hard disqualifiers (NEVER overridden by server) ───────────────────
-    // Adhesive allergy: dedicated step-19 answer (yes/no)
+    // Adhesive allergy: step-19
     var adhesiveAllergy = (a['adhesive-allergy'] === 'yes');
 
-    // Nicotine: dedicated step-20 answer (yes/no)
-    // Also block oral if blood clots in conditions
+    // Nicotine: step-20; also block oral if blood clots in conditions
     var nicotineUse    = (a['nicotine-use'] === 'yes');
     var bloodClots     = conditions.indexOf('blood-clots') !== -1;
     var nicotineOrClot = nicotineUse || bloodClots;
 
-    // Transdermal side effects: from HRT history step
-    var transdermalSideEffects = (a['step-24'] === 'tried-didnt-work');
+    // Transdermal side effects: dedicated step-25 (only asked if HRT history != 'never')
+    var transdermalSideEffects = (a['transdermal-se'] === 'yes');
 
-    // ── Clinical routing flags ────────────────────────────────────────────
+    // Clinical routing flags
     var longDuration = (a['step-3'] === '3-plus-years');
     var hysterectomy = !!(a['step-21'] && a['step-21'] !== 'no');
 
-    // Sleep/breast tenderness (only relevant if no hysterectomy)
     var sleepTenderness = !hysterectomy && !!(a['step-22'] && a['step-22'] !== 'neither');
-
-    // Progesterone intolerance (only relevant if sleepTenderness)
     var progIntolerance = sleepTenderness && (a['step-23'] === 'yes');
 
-    // needsProgesterone: EVERYONE with a uterus (no hysterectomy) gets progesterone
-    // This is the correct clinical logic — progesterone protects the uterine lining
+    // needsProgesterone: EVERYONE with a uterus (no hysterectomy)
     var needsProgesterone = !hysterectomy;
 
     // Vaginal symptoms
     var vaginalSymptoms = symptoms.indexOf('vaginal-dryness') !== -1 ||
                           symptoms.indexOf('low-libido')      !== -1;
 
-    // Delivery preference (from step 25)
-    var deliveryPreference = a['step-25'] || 'no-preference';
+    // Delivery preference (from step 26)
+    var deliveryPreference = a['step-26'] || 'no-preference';
 
     return {
       adhesiveAllergy:        adhesiveAllergy,
@@ -764,6 +813,8 @@
       lastName:               a['lastName']  || '',
       email:                  a['email']     || '',
       phone:                  a['phone']     || '',
+      state:                  a['state']     || '',
+      dob:                    a['dob']       || '',
       sessionId:              sessionId      || '',
     };
   }
@@ -773,50 +824,43 @@
     var wrap = document.createElement('div');
     wrap.className = 'confetti-wrap';
     document.body.appendChild(wrap);
-    var colors = ['#C4826A','#7A9E7E','#F5A623','#E8D5C4','#2C2C2C'];
-    for (var i = 0; i < 70; i++) {
-      (function() {
-        var p = document.createElement('div');
-        p.className = 'confetti-piece';
-        p.style.cssText =
-          'left:'              + Math.random() * 100 + 'vw;' +
-          'top:-10px;' +
-          'background:'        + colors[Math.floor(Math.random() * colors.length)] + ';' +
-          'width:'             + (Math.random() * 8 + 5) + 'px;' +
-          'height:'            + (Math.random() * 8 + 5) + 'px;' +
-          'animation-duration:'+ (Math.random() * 2 + 1.5) + 's;' +
-          'animation-delay:'   + (Math.random() * 0.8) + 's;' +
-          'border-radius:'     + (Math.random() > 0.5 ? '50%' : '2px');
-        wrap.appendChild(p);
-        setTimeout(function() { p.remove(); }, 4000);
-      })();
+    var colors = ['#C4826A','#7A9E7E','#FAF7F4','#2C3E2D','#E0D8D0'];
+    for (var i = 0; i < 60; i++) {
+      var piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.cssText = [
+        'left:' + Math.random() * 100 + '%',
+        'background:' + colors[Math.floor(Math.random() * colors.length)],
+        'animation-duration:' + (Math.random() * 2 + 1.5) + 's',
+        'animation-delay:' + (Math.random() * 0.5) + 's',
+        'width:' + (Math.random() * 6 + 5) + 'px',
+        'height:' + (Math.random() * 6 + 5) + 'px',
+        'border-radius:' + (Math.random() > 0.5 ? '50%' : '2px'),
+      ].join(';');
+      wrap.appendChild(piece);
     }
-    setTimeout(function() { wrap.remove(); }, 4500);
+    setTimeout(function() { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 4000);
   }
 
-  /* ── FAQ accordion ───────────────────────────────────────────────────────── */
-  function bindFAQ() {
-    document.querySelectorAll('.faq-question').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var item = btn.closest('.faq-item');
-        if (item) item.classList.toggle('open');
+  /* ── Stub bindings for unused features ──────────────────────────────────── */
+  function bindFAQ() {}
+  function bindDosageOptions() {}
+
+  /* ── Emoji scale ─────────────────────────────────────────────────────────── */
+  function bindEmojiScale() {
+    document.querySelectorAll('.emoji-scale').forEach(function(scale) {
+      var stepEl  = scale.closest('.quiz-step');
+      var stepKey = stepEl ? stepEl.id : 'emoji';
+
+      scale.querySelectorAll('.emoji-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          scale.querySelectorAll('.emoji-btn').forEach(function(b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          recordAnswer(stepKey, btn.dataset.value);
+          setTimeout(advance, 350);
+        });
       });
     });
   }
-
-  /* ── Dosage selection ────────────────────────────────────────────────────── */
-  function bindDosageOptions() {
-    document.querySelectorAll('.dosage-option').forEach(function(opt) {
-      opt.addEventListener('click', function() {
-        var panel = opt.closest('.product-panel');
-        if (panel) panel.querySelectorAll('.dosage-option').forEach(function(o) { o.classList.remove('selected'); });
-        opt.classList.add('selected');
-      });
-    });
-  }
-
-  // Debug helpers
-  window.quizAnswers = answers;
-  window.quizSession = function() { return { sessionId: sessionId, userId: userId, answers: answers }; };
 
 })();

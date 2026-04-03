@@ -33,9 +33,10 @@
     .back-link{display:inline-flex;align-items:center;gap:.3rem;font-size:.8125rem;color:var(--light);text-decoration:none;margin-bottom:.75rem;transition:color .15s;}
     .back-link:hover{color:var(--forest);}
     .selector-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.25rem;font-weight:600;color:var(--forest);text-align:center;margin-bottom:.875rem;}
-    .treatment-options{display:grid;grid-template-columns:1fr;gap:.625rem;max-width:900px;margin:0 auto;}
-    @media(min-width:640px){.treatment-options{grid-template-columns:repeat(2,1fr);}}
-    @media(min-width:1024px){.treatment-options{grid-template-columns:repeat(4,1fr);}}
+    .treatment-options{display:grid;grid-template-columns:1fr;gap:.625rem;max-width:1000px;margin:0 auto;}
+    @media(min-width:480px){.treatment-options{grid-template-columns:repeat(2,1fr);}}
+    @media(min-width:768px){.treatment-options{grid-template-columns:repeat(3,1fr);}}
+    @media(min-width:1024px){.treatment-options{grid-template-columns:repeat(5,1fr);}}
 
     .treatment-opt{position:relative;display:flex;cursor:pointer;border-radius:.75rem;overflow:hidden;border:2px solid var(--taupe);background:white;transition:border-color .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;}
     .treatment-opt:hover{border-color:var(--sage);box-shadow:0 2px 8px rgba(44,62,45,.1);}
@@ -284,7 +285,7 @@
 
     /* Add-on rows */
     .addons-wrap{margin-bottom:1.25rem;}
-    .addon-row{display:flex;align-items:flex-start;flex-wrap:wrap;gap:.5rem .75rem;padding:.75rem;border:1px solid var(--taupe);border-radius:.625rem;background:var(--cream);margin-bottom:.625rem;}
+    .addon-row{display:flex;align-items:flex-start;flex-wrap:wrap;gap:.5rem .75rem;padding:.75rem;border:1px solid var(--taupe);border-radius:.625rem;background:var(--cream);margin-bottom:.625rem;justify-content:space-between;}
     .addon-row--required{background:rgba(16,185,129,.05);border-color:rgba(16,185,129,.3);}
     .addon-row--included{background:rgba(122,158,126,.08);border-color:rgba(122,158,126,.3);}
     .addon-row-left{display:flex;align-items:flex-start;gap:.625rem;flex:1;min-width:0;}
@@ -324,6 +325,31 @@
     /* Required addon row */
     .addon-row--required{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.3);}
     .addon-required-badge{display:inline-block;background:var(--forest);color:white;font-size:.6rem;font-weight:700;padding:.1rem .4rem;border-radius:.25rem;vertical-align:middle;margin-left:.25rem;letter-spacing:.04em;text-transform:uppercase;}
+
+    /* ── Panel benefits (used by renderPanel) ── */
+    .panel-benefits{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem;}
+    .panel-benefit{display:flex;align-items:flex-start;gap:.5rem;font-size:.9rem;color:var(--mid);line-height:1.45;}
+    .benefit-check{color:var(--sage);font-weight:700;flex-shrink:0;margin-top:.05rem;}
+
+    /* ── Schedule wrap ── */
+    .sched-wrap{display:grid;grid-template-columns:1fr 1fr;gap:.625rem;margin-bottom:1.25rem;}
+
+    /* ── Addon info/name/sub/price (used by renderPanel) ── */
+    .addon-info{flex:1;min-width:0;}
+    .addon-name{font-size:.875rem;font-weight:700;color:var(--forest);}
+    .addon-sub{font-size:.8125rem;color:var(--light);margin-top:.1rem;}
+    .addon-price{font-size:.875rem;font-weight:700;color:var(--mid);flex-shrink:0;white-space:nowrap;}
+    .addon-price--included{color:var(--sage);}
+
+    /* Included progesterone row */
+    .addon-row--included{background:rgba(122,158,126,.08);border-color:rgba(122,158,126,.3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+
+    /* Vaginal add-on toggle row */
+    .addon-row--toggle{display:flex;flex-direction:column;gap:.375rem;}
+    .addon-row--recommended{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.04);}
+    .addon-recommended{font-size:.75rem;color:var(--sage);font-weight:600;}
+    .addon-toggle-label{display:flex;align-items:center;gap:.75rem;cursor:pointer;width:100%;}
+    .addon-toggle-label input[type="checkbox"]{width:1.125rem;height:1.125rem;accent-color:var(--forest);flex-shrink:0;cursor:pointer;}
 
     /* Discount banner */
     .discount-banner{background:var(--forest);color:white;text-align:center;padding:.375rem 1rem;font-size:.8125rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
