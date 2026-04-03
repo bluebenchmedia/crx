@@ -458,6 +458,40 @@ function remapAnswers(a, productSelection) {
   return { apiAnswers, flags };
 }
 
+// ─── Helper: Format DOB to MM/DD/YYYY ───────────────────────────────────────
+// Accepts MM/DD/YYYY (quiz native), YYYY-MM-DD (ISO), or M/D/YYYY.
+// Returns MM/DD/YYYY as expected by Dosable, or null if unparseable.
+function formatDob(raw) {
+  if (!raw) return null;
+  const s = String(raw).trim();
+
+  // Already MM/DD/YYYY (quiz native format)
+  const mmddyyyy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (mmddyyyy) {
+    const mm = mmddyyyy[1].padStart(2, '0');
+    const dd = mmddyyyy[2].padStart(2, '0');
+    const yyyy = mmddyyyy[3];
+    return `${mm}/${dd}/${yyyy}`;
+  }
+
+  // ISO format YYYY-MM-DD
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) {
+    return `${iso[2]}/${iso[3]}/${iso[1]}`;
+  }
+
+  // Fallback: try Date.parse
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(d.getUTCDate()).padStart(2, '0');
+    const yyyy = d.getUTCFullYear();
+    return `${mm}/${dd}/${yyyy}`;
+  }
+
+  return null; // unparseable — caller should omit or handle
+}
+
 // ─── Helper: Dosable API call ─────────────────────────────────────────────────
 async function dosable(method, urlPath, data) {
   try {
@@ -598,11 +632,13 @@ app.post('/api/lead', async (req, res) => {
     last_name:  lastName,
     email,
     phone:      phone.replace(/\D/g, ''),
-    birthday:   dob || '01/01/1975',
-    lead_state: state || 'CA',
-    zip_code:   zip || '00000',
+    birthday:   formatDob(dob) || undefined,
+    lead_state: state || undefined,
+    zip_code:   zip   || undefined,
     gender:     'Female',
   };
+  // Remove undefined fields so Dosable doesn't receive null/empty values
+  Object.keys(leadPayload).forEach(k => leadPayload[k] === undefined && delete leadPayload[k]);
 
   const leadRes = await dosable('post', '/leads/', leadPayload);
   if (!leadRes.ok) {
@@ -683,9 +719,8 @@ app.post('/api/complete', async (req, res) => {
         last_name:  lastName,
         email,
         phone:      phone.replace(/\D/g, ''),
-        birthday:   '01/01/1975',
-        lead_state: state || 'CA',
-        zip_code:   '00000',
+        ...(contactInfo.dob   && { birthday:   formatDob(contactInfo.dob) }),
+        ...(contactInfo.state && { lead_state: contactInfo.state }),
         gender:     'Female',
       };
       const newLeadRes = await dosable('post', '/leads/', newLeadPayload);
@@ -731,9 +766,8 @@ app.post('/api/complete', async (req, res) => {
   const completeLead = {
     first_name: contactInfo.firstName || '',
     last_name:  contactInfo.lastName  || '',
-    birthday:   contactInfo.birthday  || '01/01/1975',
-    lead_state: contactInfo.state     || 'CA',
-    zip_code:   contactInfo.zip       || '00000',
+    ...(contactInfo.dob   && { birthday:   formatDob(contactInfo.dob) }),
+    ...(contactInfo.state && { lead_state: contactInfo.state }),
     gender:     'Female',
   };
 

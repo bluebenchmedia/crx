@@ -458,11 +458,8 @@
         }
         if (phoneInput) phoneInput.style.borderColor = '';
         recordAnswer('phone', phoneDigits);
-        if (!leadCaptured) {
-          captureLead(function() { advance(); });
-        } else {
-          advance();
-        }
+        // Lead capture is deferred to step 34 (state) so DOB and state are included
+        advance();
       });
     }
 
@@ -518,7 +515,12 @@
         }
         if (stateInput) stateInput.style.borderColor = '';
         recordAnswer('state', state);
-        advance();
+        // Fire lead capture now — all contact fields (name, email, phone, DOB, state) are available
+        if (!leadCaptured) {
+          captureLead(function() { advance(); });
+        } else {
+          advance();
+        }
       });
     }
     if (stateInput) {
@@ -527,17 +529,18 @@
       });
     }
 
-    // ── Step 35: Consent "Continue" button ───────────────────
+    // ── Step 35: Consent "Continue" button ───────────────────────────────────
     var s35next = document.getElementById('step-35-next');
     if (s35next) {
       s35next.addEventListener('click', function() { advance(); });
     }
   }
 
-  /* ── Early lead capture ──────────────────────────────────────────────────── */
+  /* ── Early lead capture ──────────────────────────────────────────────────────────────────────────── */
+  // Fires at step 34 (state) — all contact fields (name, email, phone, DOB, state) are available
   function captureLead(callback) {
-    var btn = document.getElementById('step-31-next');
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving\u2026'; }
+    var btn = document.getElementById('step-34-next-state');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
 
     var payload = {
       firstName: answers['firstName'] || '',
