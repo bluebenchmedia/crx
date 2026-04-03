@@ -764,11 +764,11 @@ app.post('/api/complete', async (req, res) => {
   // Build lead fields for the complete payload (Dosable requires these again at complete time)
   const contactInfo = req.body.contactInfo || {};
   const completeLead = {
-    first_name: contactInfo.firstName || '',
-    last_name:  contactInfo.lastName  || '',
-    ...(contactInfo.dob   && { birthday:   formatDob(contactInfo.dob) }),
-    ...(contactInfo.state && { lead_state: contactInfo.state }),
-    gender:     'Female',
+    ...(contactInfo.firstName && { first_name: contactInfo.firstName }),
+    ...(contactInfo.lastName  && { last_name:  contactInfo.lastName }),
+    ...(contactInfo.dob       && { birthday:   formatDob(contactInfo.dob) }),
+    ...(contactInfo.state     && { lead_state: contactInfo.state }),
+    gender: 'Female',
   };
 
   // Complete session with final truthfulness consent + lead fields

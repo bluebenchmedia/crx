@@ -479,6 +479,7 @@
     var email     = sessionStorage.getItem('crx_email')      || '';
     var phone     = sessionStorage.getItem('crx_phone')      || '';
     var state     = sessionStorage.getItem('crx_state')      || 'CA';
+    var dob       = sessionStorage.getItem('crx_dob')        || '';
 
     var quizAnswers = {};
     var flagsToSend = {};
@@ -508,6 +509,7 @@
           email:     email,
           phone:     phone,
           state:     state,
+          dob:       dob,
         },
       }),
     })
