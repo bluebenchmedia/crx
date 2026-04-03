@@ -582,8 +582,40 @@ app.post('/api/complete', async (req, res) => {
     vaginalAddon: !!(req.body.vaginalAddon),
   };
 
-  if (!sessionId) {
-    return res.status(400).json({ error: 'Missing sessionId' });
+  // If sessionId is missing (e.g., 409 conflict on lead creation), try to create a new session
+  let resolvedSessionId = sessionId;
+  if (!resolvedSessionId) {
+    const contactInfo = req.body.contactInfo || {};
+    const { firstName, lastName, email, phone, state } = contactInfo;
+    if (email && firstName && lastName && phone) {
+      console.log('No sessionId — creating new session for:', email);
+      const newLeadPayload = {
+        tenant_id:  TENANT_ID,
+        first_name: firstName,
+        last_name:  lastName,
+        email,
+        phone:      phone.replace(/\D/g, ''),
+        birthday:   '01/01/1975',
+        lead_state: state || 'CA',
+        zip_code:   '00000',
+        gender:     'Female',
+      };
+      const newLeadRes = await dosable('post', '/leads/', newLeadPayload);
+      if (newLeadRes.ok && newLeadRes.data && newLeadRes.data.session_id) {
+        resolvedSessionId = newLeadRes.data.session_id;
+        console.log('Created new session at complete time:', resolvedSessionId);
+      } else if (newLeadRes.status === 409) {
+        // Still 409 — try session creation directly
+        const sessRes = await dosable('post', '/sessions/', { tenant_id: TENANT_ID, email });
+        if (sessRes.ok && sessRes.data && sessRes.data.session_id) {
+          resolvedSessionId = sessRes.data.session_id;
+          console.log('Created session via /sessions/ at complete time:', resolvedSessionId);
+        }
+      }
+    }
+    if (!resolvedSessionId) {
+      return res.status(400).json({ error: 'Missing sessionId and could not create new session' });
+    }
   }
 
   // Remap answers with soft routing
@@ -600,13 +632,12 @@ app.post('/api/complete', async (req, res) => {
     Object.entries(answersToSave).filter(([k]) => k !== finalQid)
   );
 
-  // Bulk save all answers
-  const saveRes = await dosable('put', `/sessions/${sessionId}`, bulkAnswers);
+   // Bulk save all answers
+  const saveRes = await dosable('put', `/sessions/${resolvedSessionId}`, bulkAnswers);
   if (!saveRes.ok) {
     console.warn('Bulk save warning (non-fatal):', JSON.stringify(saveRes.data).slice(0, 300));
     // Continue — partial saves are acceptable
   }
-
   // Complete session with final truthfulness consent
   const completePayload = {
     final_answers: {
@@ -616,25 +647,20 @@ app.post('/api/complete', async (req, res) => {
       },
     },
   };
-
-  const completeRes = await dosable('post', `/sessions/${sessionId}/complete`, completePayload);
-
+  const completeRes = await dosable('post', `/sessions/${resolvedSessionId}/complete`, completePayload);
   if (!completeRes.ok) {
     console.error('Session complete failed:', JSON.stringify(completeRes.data).slice(0, 500));
     return res.status(502).json({ error: 'Session completion failed', detail: completeRes.data });
   }
-
   // Take the checkout URL EXACTLY as Dosable returns it — NEVER alter products=
   const rawCheckoutUrl = completeRes.data.checkout_url || '';
-
   // Append cc_custom_cid and coupon=50 only
   const finalCheckoutUrl = appendCheckoutParams(rawCheckoutUrl, clickId);
-
-  return res.json({ ok: true, checkoutUrl: finalCheckoutUrl, flags, sessionId });
+  return res.json({ ok: true, checkoutUrl: finalCheckoutUrl, flags, sessionId: resolvedSessionId });
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v11-409-fix' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v12-session-fallback' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable
