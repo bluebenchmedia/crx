@@ -600,7 +600,7 @@ app.post('/api/complete', async (req, res) => {
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v9-debug' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v10-cors-fix' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable
