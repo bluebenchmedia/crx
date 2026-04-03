@@ -4,13 +4,14 @@
    ARCHITECTURE:
    - Creates Dosable leads and sessions
    - Remaps user quiz answers to Dosable's exact Q-ID format
-   - SOFT ROUTING: manipulates ANSWERS to steer Dosable toward
+     SOFT ROUTING: manipulates ANSWERS to steer Dosable toward
      the product the user selected on the treatment page.
-     We NEVER manually alter the products= param in the checkout URL.
-     The URL returned by Dosable's /complete endpoint is passed
-     through untouched, with only two appended params:
+     After /complete, we OVERRIDE the products= param in the checkout URL
+     with the exact CPIDs for the user's selected product + add-ons.
+     We also append:
        cc_custom_cid={click_id from original URL}
        coupon=50
+       firstName, lastName, emailAddress, shipState, phoneNumber (pre-fill)
    - Hard disqualifiers are enforced by the quiz (frontend) and
      respected here — we NEVER route a user to a product they
      themselves indicated they cannot use.
