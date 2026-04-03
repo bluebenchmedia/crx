@@ -485,8 +485,9 @@
     try { quizAnswers = JSON.parse(sessionStorage.getItem('crx_answers') || '{}'); } catch(e) {}
     try { flagsToSend = JSON.parse(sessionStorage.getItem('crx_flags')   || '{}'); } catch(e) {}
 
-    if (!sessionId) {
-      // No Dosable session — show error, do not fall back to manual URL
+    // sessionId may be empty if lead capture failed (e.g. 409 conflict) — server will create one
+    // Only block if we also have no contact info to create a new session
+    if (!sessionId && !email) {
       showCheckoutError(btn, 'Your session has expired. Please retake the quiz to continue.');
       return;
     }
