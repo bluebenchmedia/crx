@@ -58,7 +58,7 @@
   // API base: same origin in production, localhost in dev
   var PROXY_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:3001'
-    : '';  // same-origin: /api routes served by Express
+    : 'https://crx-server-hzyh.onrender.com';
 
   var sessionId    = null;
   var userId       = null;

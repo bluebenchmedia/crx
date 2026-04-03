@@ -29,7 +29,7 @@
   // Same-origin in production; localhost in dev
   var PROXY_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:3001'
-    : '';
+    : 'https://crx-server-hzyh.onrender.com';
 
   /* ── Product Catalog ─────────────────────────────────────────────────────
    * CPIDs verified against server.js PRODUCTS catalog.

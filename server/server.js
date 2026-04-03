@@ -72,7 +72,17 @@ const cors     = require('cors');
 try { require('dotenv').config(); } catch(e) {}
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://crx-frontend.vercel.app',
+    'https://quiz.clearedrx.com',
+    /\.vercel\.app$/,
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 
 // ─── Config ───────────────────────────────────────────────────────────────────
