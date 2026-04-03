@@ -518,6 +518,40 @@ app.post('/api/lead', async (req, res) => {
 
   const leadRes = await dosable('post', '/leads/', leadPayload);
   if (!leadRes.ok) {
+    if (leadRes.status === 409) {
+      // Email already exists — try to extract session from 409 response body
+      console.log('Lead 409 conflict, checking response body:', JSON.stringify(leadRes.data).slice(0, 200));
+      const d = leadRes.data || {};
+      const existingSessionId = d.session_id || d.sessionId || null;
+      const existingUserId    = d.id || d.user_id || d.userId || null;
+      if (existingSessionId) {
+        console.log('Reusing session from 409 body:', existingSessionId);
+        return res.json({ ok: true, sessionId: existingSessionId, userId: existingUserId, returning: true });
+      }
+      // Try GET /leads/ with email filter
+      const lookupRes = await dosable('get', `/leads/?email=${encodeURIComponent(email)}&tenant_id=${TENANT_ID}`);
+      console.log('Lead lookup result:', lookupRes.status, JSON.stringify(lookupRes.data).slice(0, 300));
+      if (lookupRes.ok && lookupRes.data) {
+        const items = Array.isArray(lookupRes.data) ? lookupRes.data
+          : (lookupRes.data.items || lookupRes.data.results || []);
+        const match = items.find(l => l.email === email);
+        if (match) {
+          const sid = match.session_id || match.sessionId;
+          const uid = match.id || match.user_id;
+          console.log('Found existing lead via lookup:', sid);
+          return res.json({ ok: true, sessionId: sid, userId: uid, returning: true });
+        }
+      }
+      // Last resort: create a new session directly
+      const sessRes = await dosable('post', '/sessions/', { tenant_id: TENANT_ID, email });
+      if (sessRes.ok && sessRes.data && sessRes.data.session_id) {
+        console.log('Created new session for existing lead:', sessRes.data.session_id);
+        return res.json({ ok: true, sessionId: sessRes.data.session_id, userId: null, returning: true });
+      }
+      // Absolute fallback: proceed without sessionId (complete will fail gracefully)
+      console.warn('Could not resolve 409 — proceeding without sessionId');
+      return res.json({ ok: false, sessionId: null, userId: null, returning: true, error: 'existing_user' });
+    }
     console.error('Lead creation failed:', leadRes.data);
     return res.status(leadRes.status).json({ error: 'Lead creation failed', detail: leadRes.data });
   }
@@ -600,7 +634,7 @@ app.post('/api/complete', async (req, res) => {
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v10-cors-fix' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v11-409-fix' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable
