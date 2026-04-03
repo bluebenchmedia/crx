@@ -85,8 +85,9 @@ body {
    ============================================================ */
 .quiz-back-btn {
   position: fixed;
-  bottom: 24px;
-  left: 24px;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(calc(-280px - 20px)); /* aligns to left edge of 560px container */
   background: none;
   border: none;
   cursor: pointer;
@@ -118,7 +119,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px 20px 32px;
+  padding: 24px 20px 80px; /* bottom padding keeps content clear of back button */
   max-width: 560px;
   margin: 0 auto;
   width: 100%;
@@ -1043,6 +1044,7 @@ select.quiz-input:focus, select.quiz-select:focus {
    ============================================================ */
 @media (max-width: 600px) {
   .quiz-container { padding: 16px 16px 24px; min-height: calc(100vh - 72px); }
+  .quiz-back-btn { left: 20px; transform: none; }
   .step-question { font-size: 19px; }
   .option-btn { padding: 13px 14px; font-size: 13px; }
   .emoji-btn { padding: 12px 6px; font-size: 22px; }
