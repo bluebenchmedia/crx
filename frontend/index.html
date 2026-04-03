@@ -387,10 +387,37 @@
     </div>
 
     <!-- ============================================================
-         STEP 19: Hysterectomy (single-select, auto-advance)
-         "No" at top
+         STEP 19: Adhesive Allergy (single-select, auto-advance)
+         HARD DISQUALIFIER for patches — never overridden
     ============================================================ -->
     <div class="quiz-step" id="step-19">
+      <span class="step-eyebrow">Allergy check</span>
+      <h2 class="step-question">Do you have an adhesive or tape allergy?</h2>
+      <p class="step-sub">This affects which treatments are safe for you.</p>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No &mdash; I have no adhesive allergy</button>
+        <button class="option-btn" data-value="yes">Yes &mdash; I react to adhesives, tape, or bandages</button>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         STEP 20: Nicotine use (single-select, auto-advance)
+         HARD DISQUALIFIER for oral pills — never overridden
+    ============================================================ -->
+    <div class="quiz-step" id="step-20">
+      <span class="step-eyebrow">Lifestyle check</span>
+      <h2 class="step-question">Do you currently use any nicotine products?</h2>
+      <p class="step-sub">Cigarettes, vaping, patches, or any other nicotine products.</p>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No &mdash; I don't use nicotine</button>
+        <button class="option-btn" data-value="yes">Yes &mdash; I currently use nicotine</button>
+      </div>
+    </div>
+
+    <!-- STEP 21: Hysterectomy (single-select, auto-advance)
+         "No" at top
+    ============================================================ -->
+    <div class="quiz-step" id="step-21">
       <span class="step-eyebrow">Surgical history</span>
       <h2 class="step-question">Have you had a hysterectomy?</h2>
       <p class="step-sub">This helps us determine whether progesterone is part of your treatment plan.</p>
@@ -401,8 +428,8 @@
       </div>
     </div>
 
-    <!-- STEP 20: Sleep & breast tenderness (shown only if hysterectomy=no) -->
-    <div class="quiz-step" id="step-20">
+    <!-- STEP 22: Sleep & breast tenderness (shown only if hysterectomy=no) -->
+    <div class="quiz-step" id="step-22">
       <span class="step-eyebrow">Your symptoms</span>
       <h2 class="step-question">Do you experience any of the following?</h2>
       <p class="step-sub">Select all that apply &mdash; this helps us determine if progesterone should be part of your plan.</p>
@@ -414,8 +441,8 @@
       </div>
     </div>
 
-    <!-- STEP 21: Progesterone intolerance (shown only if step-20 != neither) -->
-    <div class="quiz-step" id="step-21">
+    <!-- STEP 23: Progesterone intolerance (shown only if step-22 != neither) -->
+    <div class="quiz-step" id="step-23">
       <span class="step-eyebrow">Treatment history</span>
       <h2 class="step-question">Have you ever had a reaction or side effects from progesterone?</h2>
       <p class="step-sub">This helps us choose the right progesterone formulation for you.</p>
@@ -425,8 +452,8 @@
       </div>
     </div>
 
-    <!-- STEP 22: HRT history -->
-    <div class="quiz-step" id="step-22">
+    <!-- STEP 24: HRT history -->
+    <div class="quiz-step" id="step-24">
       <span class="step-eyebrow">Treatment history</span>
       <h2 class="step-question">Have you tried hormone therapy before?</h2>
       <div class="options-list">
@@ -437,8 +464,8 @@
       </div>
     </div>
 
-    <!-- STEP 23: Delivery preference -->
-    <div class="quiz-step" id="step-23">
+    <!-- STEP 25: Delivery preference -->
+    <div class="quiz-step" id="step-25">
       <span class="step-eyebrow">Your preference</span>
       <h2 class="step-question">How do you prefer to take your medication?</h2>
       <div class="options-list">
@@ -450,8 +477,8 @@
       </div>
     </div>
 
-    <!-- STEP 24: Testimonial 2 -->
-    <div class="quiz-step" id="step-24">
+    <!-- STEP 26: Testimonial 2 -->
+    <div class="quiz-step" id="step-26">
       <div class="interstitial">
         <p class="interstitial-eyebrow">From our community</p>
         <div class="testimonial-card">
@@ -469,8 +496,8 @@
       </div>
     </div>
 
-    <!-- STEP 25: Blood pressure -->
-    <div class="quiz-step" id="step-25">
+    <!-- STEP 27: Blood pressure -->
+    <div class="quiz-step" id="step-27">
       <span class="step-eyebrow">Cardiovascular health</span>
       <h2 class="step-question">How has your blood pressure been over the last 6 months?</h2>
       <div class="options-list">
@@ -483,8 +510,8 @@
       </div>
     </div>
 
-    <!-- STEP 26: What's held you back -->
-    <div class="quiz-step" id="step-26">
+    <!-- STEP 28: What's held you back -->
+    <div class="quiz-step" id="step-28">
       <span class="step-eyebrow">One more thing</span>
       <h2 class="step-question">What's held you back from trying HRT before?</h2>
       <p class="step-sub">Be honest &mdash; this helps us personalize your experience.</p>
@@ -497,8 +524,8 @@
       </div>
     </div>
 
-    <!-- STEP 27: Name -->
-    <div class="quiz-step" id="step-27">
+    <!-- STEP 29: Name -->
+    <div class="quiz-step" id="step-29">
       <span class="step-eyebrow">Almost there</span>
       <h2 class="step-question">What's your name?</h2>
       <p class="step-sub">Your physician will use this to personalize your consultation.</p>
@@ -510,11 +537,11 @@
         <label>Last name</label>
         <input type="text" class="quiz-input" id="last-name-input" placeholder="e.g. Johnson" autocomplete="family-name" style="font-size:16px">
       </div>
-      <button class="quiz-next-btn visible" id="step-27-next-name">Continue &#8594;</button>
+      <button class="quiz-next-btn visible" id="step-29-next-name">Continue &#8594;</button>
     </div>
 
-    <!-- STEP 28: Email -->
-    <div class="quiz-step" id="step-28">
+    <!-- STEP 30: Email -->
+    <div class="quiz-step" id="step-30">
       <span class="step-eyebrow">Almost there</span>
       <h2 class="step-question">Where should we send your results?</h2>
       <p class="step-sub">Your personalized treatment plan will be waiting in your inbox.</p>
@@ -523,11 +550,11 @@
         <input type="email" class="quiz-input" id="email-input" placeholder="you@email.com" autocomplete="email" style="font-size:16px">
         <div class="contact-field-hint">&#128274; We never share your email. No spam, ever.</div>
       </div>
-      <button class="quiz-next-btn visible" id="step-28-next-email">Continue &#8594;</button>
+      <button class="quiz-next-btn visible" id="step-30-next-email">Continue &#8594;</button>
     </div>
 
-    <!-- STEP 29: Phone -->
-    <div class="quiz-step" id="step-29">
+    <!-- STEP 31: Phone -->
+    <div class="quiz-step" id="step-31">
       <span class="step-eyebrow">Almost there</span>
       <h2 class="step-question">What's the best number to reach you?</h2>
       <p class="step-sub">Your physician may reach out to confirm your prescription.</p>
@@ -536,11 +563,11 @@
         <input type="tel" class="quiz-input" id="phone-input" placeholder="(555) 000-0000" autocomplete="tel" style="font-size:16px">
         <div class="contact-field-hint">By providing your number, you consent to receive SMS updates about your order. Reply STOP to opt out at any time.</div>
       </div>
-      <button class="quiz-next-btn visible" id="step-29-next">Continue &#8594;</button>
+      <button class="quiz-next-btn visible" id="step-31-next">Continue &#8594;</button>
     </div>
 
-    <!-- STEP 30: Informed Consent -->
-    <div class="quiz-step" id="step-30">
+    <!-- STEP 32: Informed Consent -->
+    <div class="quiz-step" id="step-32">
       <span class="step-eyebrow">Final step</span>
       <h2 class="step-question">Please review and agree to the following</h2>
       <p class="step-sub">Your physician needs your acknowledgment before reviewing your case.</p>
@@ -580,11 +607,11 @@
         </div>
       </div>
       <button class="consent-agree-all-btn" id="consent-agree-all-btn" onclick="agreeAllConsents()">Agree &amp; Continue &#8594;</button>
-      <button class="quiz-next-btn" id="step-30-next" disabled>Continue &#8594;</button>
+      <button class="quiz-next-btn" id="step-32-next" disabled>Continue &#8594;</button>
     </div>
 
-    <!-- STEP 31: You're a great candidate -->
-    <div class="quiz-step" id="step-31">
+    <!-- STEP 33: You're a great candidate -->
+    <div class="quiz-step" id="step-33">
       <div class="interstitial">
         <div class="interstitial-icon celebrate">&#127881;</div>
         <p class="interstitial-eyebrow">Great news</p>
@@ -594,8 +621,8 @@
       </div>
     </div>
 
-    <!-- STEP 32: Loading Screen -->
-    <div class="quiz-step" id="step-32">
+    <!-- STEP 34: Loading Screen -->
+    <div class="quiz-step" id="step-34">
       <div class="loading-screen">
         <div class="loading-content" id="loading-content">
           <div class="loading-spinner"></div>
