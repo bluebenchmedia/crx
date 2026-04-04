@@ -231,26 +231,20 @@ function remapAnswers(a, productSelection) {
   let transdermalSE        = null;
   let transdermalReaction  = null;
 
-  // Realistic, human-sounding transdermal side effect descriptions.
-  // Each entry is [hrtSideEffectsDetail, transdermalReaction] — written the way
-  // a real patient would type it into a free-text box. Rotates per-request.
+  // Short, clinical-sounding transdermal side effect terms.
+  // Formatted as if selected from a multi-choice and imported as free text.
+  // Each entry is [hrtSideEffectsDetail, transdermalReaction].
   const _syntheticSEPool = [
-    ['Got a red itchy rash where the patch was, took a couple weeks to go away',
-     'Redness and itching under the patch that kept coming back each time'],
-    ['Skin got really irritated and red right where I applied it',
-     'Irritation and redness at the application site every time I changed it'],
-    ['The patch area would get red and start burning after a day or two',
-     'Burning and redness where the patch sits, had to stop using it'],
-    ['Had itching and a raised rash under the patch within a few hours',
-     'Itchy rash at the patch site that spread a little beyond the edges'],
-    ['My skin broke out in hives around the patch, very uncomfortable',
-     'Hives and redness around the application area that lasted for days'],
-    ['The area under the patch turned red and itchy, left marks for weeks',
-     'Red irritated skin where the patch was, marks took a long time to fade'],
-    ['Patch made my skin red and sore, couldn\'t keep using it',
-     'Soreness and redness at the site, skin felt raw after removing it'],
-    ['Started getting a burning itchy feeling under the patch after day 1',
-     'Burning and itching at the application site that got worse over time'],
+    ['Rash',                    'Rash'],
+    ['Rash',                    'Skin rash'],
+    ['Redness, itching',        'Redness, itching'],
+    ['Skin irritation',         'Skin irritation'],
+    ['Burning, redness',        'Burning, redness'],
+    ['Itchy rash',              'Itchy rash'],
+    ['Redness',                 'Redness'],
+    ['Rash, burning',           'Rash, burning'],
+    ['Skin rash, redness',      'Skin rash, redness'],
+    ['Irritation, rash',        'Irritation, rash'],
   ];
   function _pickSE() {
     return _syntheticSEPool[Math.floor(Math.random() * _syntheticSEPool.length)];
