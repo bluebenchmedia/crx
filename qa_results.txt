@@ -1,0 +1,1497 @@
+============================================================
+SCENARIO 1: Standard Patient (has uterus, no allergies)
+  Expected: vcream default, needsProgesterone=true, no blocks
+  Expected CPIDs: 119:1 (vcream monthly)
+============================================================
+{
+    "ok": true,
+    "flags": {
+        "adhesiveAllergy": false,
+        "nicotineUse": false,
+        "nicotineOrClot": false,
+        "transdermalSideEffects": false,
+        "symptomDurationLong": false,
+        "hysterectomy": false,
+        "sleepTenderness": false,
+        "progIntolerance": false,
+        "vaginalSymptoms": false,
+        "osteoporosis": false,
+        "needsProgesterone": true,
+        "doseTier": "normal",
+        "blockPatch": false,
+        "blockOral": false,
+        "blockTransdermal": false
+    },
+    "apiAnswers": {
+        "3200": {
+            "value": "None",
+            "question": "Please identify all your current medical conditions"
+        },
+        "3201": {
+            "value": "None",
+            "question": "Please list all your current medications including dosages"
+        },
+        "3202": {
+            "value": "None",
+            "question": "Please list all of your known allergies"
+        },
+        "3203": {
+            "value": "Female",
+            "question": "What was your sex assigned at birth?"
+        },
+        "3204": {
+            "value": "I have read and understand the above information. I understand the risks and wish to proceed",
+            "question": "Consent (pregnancy)"
+        },
+        "3205": {
+            "value": "No",
+            "question": "Are you currently pregnant or planning to become pregnant?"
+        },
+        "3206": {
+            "value": "No",
+            "question": "Is there any possibility of you being pregnant?"
+        },
+        "3207": {
+            "value": "No",
+            "question": "Are you currently breastfeeding?"
+        },
+        "3208": {
+            "value": "No",
+            "question": "Over the past 6 months, have you had ABNORMAL and UNDIAGNOSED vaginal bleeding?"
+        },
+        "3209": {
+            "value": "No",
+            "question": "Do you have a known diagnosis of liver cirrhosis or late stage CKD?"
+        },
+        "3210": {
+            "value": "Yes",
+            "question": "Have you noticed any changes in your menstrual cycle or menopausal symptoms?"
+        },
+        "3211": {
+            "value": [
+                "Hot flashes",
+                "Night sweats",
+                "Sleep disturbances"
+            ],
+            "question": "Tell us more about the symptoms that you experience?"
+        },
+        "3212": {
+            "value": "None",
+            "question": "Tell us more about your other symptom(s)"
+        },
+        "3213": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (cancer/stroke/CAD/gallbladder)"
+        },
+        "3214": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (DVT/lupus)"
+        },
+        "3215": {
+            "value": "No",
+            "question": "Do you have an adhesive allergy?"
+        },
+        "3216": {
+            "value": "Less than 5 years",
+            "question": "How long have you experienced symptoms of menopause?"
+        },
+        "3217": {
+            "value": "No, I have never taken HRT",
+            "question": "Are you currently or have you ever been on hormone replacement therapy (HRT)?"
+        },
+        "3223": {
+            "value": [
+                "None of these apply to me"
+            ],
+            "question": "Do you have any of the following? (nicotine/clot history)"
+        },
+        "3224": {
+            "value": "No",
+            "question": "Have you had a surgical resection of your uterus (hysterectomy)?"
+        },
+        "3226": {
+            "value": "No",
+            "question": "Do you experience difficulty with your sleep or breast tenderness?"
+        },
+        "3227": {
+            "value": "No",
+            "question": "Have you had intolerance to micronized progesterone in the past?"
+        },
+        "3228": {
+            "value": [
+                "I do not experience any of these"
+            ],
+            "question": "Do you experience any of the following? (vaginal symptoms)"
+        },
+        "3229": {
+            "value": "No",
+            "question": "Do you have thinning of your bones such as osteopenia or osteoporosis?"
+        },
+        "3230": {
+            "value": [
+                "None apply"
+            ],
+            "question": "Are you currently taking any of the following medications?"
+        },
+        "3231": {
+            "value": "My blood pressure has always been normal",
+            "question": "What has your blood pressure been over the last six months?"
+        },
+        "3232": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (Fibroid)"
+        },
+        "3233": {
+            "value": "No",
+            "question": "Do you have uterine fibroids?"
+        },
+        "3234": {
+            "value": "No",
+            "question": "Do you have polycystic ovary syndrome (PCOS)?"
+        },
+        "3235": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (PCOS)"
+        },
+        "3236": {
+            "value": "No",
+            "question": "Do you have a diagnosis of endometriosis?"
+        },
+        "3237": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (endometriosis)"
+        },
+        "3238": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Acknowledgement of Continued Screening"
+        },
+        "3239": {
+            "value": "No additional information",
+            "question": "What other information or questions do you have for the doctor?"
+        },
+        "3240": {
+            "value": "I have read the above information, I understand the risks, and I would like to proceed.",
+            "question": "Consent (Hormone Replacement Therapy (HRT))"
+        },
+        "3242": {
+            "value": "Compounded estrogen/progesterone cream (combined formulation)",
+            "question": "Standard of care menopause treatment... which option would you prefer?"
+        }
+    }
+}
+
+============================================================
+SCENARIO 2: Hysterectomy Patient
+  Expected: needsProgesterone=false, hysterectomy=true
+  Expected: gel default (vcream/cream hidden on frontend)
+  Expected CPIDs: 15:1 (gel monthly, NO progesterone addon)
+============================================================
+{
+    "ok": true,
+    "flags": {
+        "adhesiveAllergy": false,
+        "nicotineUse": false,
+        "nicotineOrClot": false,
+        "transdermalSideEffects": false,
+        "symptomDurationLong": false,
+        "hysterectomy": true,
+        "sleepTenderness": false,
+        "progIntolerance": false,
+        "vaginalSymptoms": false,
+        "osteoporosis": false,
+        "needsProgesterone": false,
+        "doseTier": "normal",
+        "blockPatch": false,
+        "blockOral": false,
+        "blockTransdermal": false
+    },
+    "apiAnswers": {
+        "3200": {
+            "value": "None",
+            "question": "Please identify all your current medical conditions"
+        },
+        "3201": {
+            "value": "None",
+            "question": "Please list all your current medications including dosages"
+        },
+        "3202": {
+            "value": "None",
+            "question": "Please list all of your known allergies"
+        },
+        "3203": {
+            "value": "Female",
+            "question": "What was your sex assigned at birth?"
+        },
+        "3204": {
+            "value": "I have read and understand the above information. I understand the risks and wish to proceed",
+            "question": "Consent (pregnancy)"
+        },
+        "3205": {
+            "value": "No",
+            "question": "Are you currently pregnant or planning to become pregnant?"
+        },
+        "3206": {
+            "value": "No",
+            "question": "Is there any possibility of you being pregnant?"
+        },
+        "3207": {
+            "value": "No",
+            "question": "Are you currently breastfeeding?"
+        },
+        "3208": {
+            "value": "No",
+            "question": "Over the past 6 months, have you had ABNORMAL and UNDIAGNOSED vaginal bleeding?"
+        },
+        "3209": {
+            "value": "No",
+            "question": "Do you have a known diagnosis of liver cirrhosis or late stage CKD?"
+        },
+        "3210": {
+            "value": "Yes",
+            "question": "Have you noticed any changes in your menstrual cycle or menopausal symptoms?"
+        },
+        "3211": {
+            "value": [
+                "Hot flashes",
+                "Mood swings"
+            ],
+            "question": "Tell us more about the symptoms that you experience?"
+        },
+        "3212": {
+            "value": "None",
+            "question": "Tell us more about your other symptom(s)"
+        },
+        "3213": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (cancer/stroke/CAD/gallbladder)"
+        },
+        "3214": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (DVT/lupus)"
+        },
+        "3215": {
+            "value": "No",
+            "question": "Do you have an adhesive allergy?"
+        },
+        "3216": {
+            "value": "Less than 5 years",
+            "question": "How long have you experienced symptoms of menopause?"
+        },
+        "3217": {
+            "value": "No, I have never taken HRT",
+            "question": "Are you currently or have you ever been on hormone replacement therapy (HRT)?"
+        },
+        "3223": {
+            "value": [
+                "None of these apply to me"
+            ],
+            "question": "Do you have any of the following? (nicotine/clot history)"
+        },
+        "3224": {
+            "value": "Yes",
+            "question": "Have you had a surgical resection of your uterus (hysterectomy)?"
+        },
+        "3225": {
+            "value": "Medical necessity",
+            "question": "Please provide further information about why you have had a hysterectomy"
+        },
+        "3228": {
+            "value": [
+                "I do not experience any of these"
+            ],
+            "question": "Do you experience any of the following? (vaginal symptoms)"
+        },
+        "3229": {
+            "value": "No",
+            "question": "Do you have thinning of your bones such as osteopenia or osteoporosis?"
+        },
+        "3230": {
+            "value": [
+                "None apply"
+            ],
+            "question": "Are you currently taking any of the following medications?"
+        },
+        "3231": {
+            "value": "My blood pressure has always been normal",
+            "question": "What has your blood pressure been over the last six months?"
+        },
+        "3232": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (Fibroid)"
+        },
+        "3233": {
+            "value": "No",
+            "question": "Do you have uterine fibroids?"
+        },
+        "3234": {
+            "value": "No",
+            "question": "Do you have polycystic ovary syndrome (PCOS)?"
+        },
+        "3235": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (PCOS)"
+        },
+        "3236": {
+            "value": "No",
+            "question": "Do you have a diagnosis of endometriosis?"
+        },
+        "3237": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (endometriosis)"
+        },
+        "3238": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Acknowledgement of Continued Screening"
+        },
+        "3239": {
+            "value": "No additional information",
+            "question": "What other information or questions do you have for the doctor?"
+        },
+        "3240": {
+            "value": "I have read the above information, I understand the risks, and I would like to proceed.",
+            "question": "Consent (Hormone Replacement Therapy (HRT))"
+        }
+    }
+}
+
+============================================================
+SCENARIO 3: Adhesive Allergy Patient
+  Expected: adhesiveAllergy=true, blockPatch=true
+  Expected: patch hidden on frontend, gel default
+  Expected CPIDs: 15:1;35:1 (gel + prog monthly)
+============================================================
+{
+    "ok": true,
+    "flags": {
+        "adhesiveAllergy": true,
+        "nicotineUse": false,
+        "nicotineOrClot": false,
+        "transdermalSideEffects": false,
+        "symptomDurationLong": false,
+        "hysterectomy": false,
+        "sleepTenderness": false,
+        "progIntolerance": false,
+        "vaginalSymptoms": true,
+        "osteoporosis": false,
+        "needsProgesterone": true,
+        "doseTier": "normal",
+        "blockPatch": true,
+        "blockOral": false,
+        "blockTransdermal": false
+    },
+    "apiAnswers": {
+        "3200": {
+            "value": "None",
+            "question": "Please identify all your current medical conditions"
+        },
+        "3201": {
+            "value": "None",
+            "question": "Please list all your current medications including dosages"
+        },
+        "3202": {
+            "value": "None",
+            "question": "Please list all of your known allergies"
+        },
+        "3203": {
+            "value": "Female",
+            "question": "What was your sex assigned at birth?"
+        },
+        "3204": {
+            "value": "I have read and understand the above information. I understand the risks and wish to proceed",
+            "question": "Consent (pregnancy)"
+        },
+        "3205": {
+            "value": "No",
+            "question": "Are you currently pregnant or planning to become pregnant?"
+        },
+        "3206": {
+            "value": "No",
+            "question": "Is there any possibility of you being pregnant?"
+        },
+        "3207": {
+            "value": "No",
+            "question": "Are you currently breastfeeding?"
+        },
+        "3208": {
+            "value": "No",
+            "question": "Over the past 6 months, have you had ABNORMAL and UNDIAGNOSED vaginal bleeding?"
+        },
+        "3209": {
+            "value": "No",
+            "question": "Do you have a known diagnosis of liver cirrhosis or late stage CKD?"
+        },
+        "3210": {
+            "value": "Yes",
+            "question": "Have you noticed any changes in your menstrual cycle or menopausal symptoms?"
+        },
+        "3211": {
+            "value": [
+                "Hot flashes",
+                "Vaginal dryness"
+            ],
+            "question": "Tell us more about the symptoms that you experience?"
+        },
+        "3212": {
+            "value": "None",
+            "question": "Tell us more about your other symptom(s)"
+        },
+        "3213": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (cancer/stroke/CAD/gallbladder)"
+        },
+        "3214": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (DVT/lupus)"
+        },
+        "3215": {
+            "value": "Yes",
+            "question": "Do you have an adhesive allergy?"
+        },
+        "3216": {
+            "value": "Less than 5 years",
+            "question": "How long have you experienced symptoms of menopause?"
+        },
+        "3217": {
+            "value": "No, I have never taken HRT",
+            "question": "Are you currently or have you ever been on hormone replacement therapy (HRT)?"
+        },
+        "3223": {
+            "value": [
+                "None of these apply to me"
+            ],
+            "question": "Do you have any of the following? (nicotine/clot history)"
+        },
+        "3224": {
+            "value": "No",
+            "question": "Have you had a surgical resection of your uterus (hysterectomy)?"
+        },
+        "3226": {
+            "value": "No",
+            "question": "Do you experience difficulty with your sleep or breast tenderness?"
+        },
+        "3227": {
+            "value": "No",
+            "question": "Have you had intolerance to micronized progesterone in the past?"
+        },
+        "3228": {
+            "value": [
+                "Vaginal dryness"
+            ],
+            "question": "Do you experience any of the following? (vaginal symptoms)"
+        },
+        "3229": {
+            "value": "No",
+            "question": "Do you have thinning of your bones such as osteopenia or osteoporosis?"
+        },
+        "3230": {
+            "value": [
+                "None apply"
+            ],
+            "question": "Are you currently taking any of the following medications?"
+        },
+        "3231": {
+            "value": "My blood pressure has always been normal",
+            "question": "What has your blood pressure been over the last six months?"
+        },
+        "3232": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (Fibroid)"
+        },
+        "3233": {
+            "value": "No",
+            "question": "Do you have uterine fibroids?"
+        },
+        "3234": {
+            "value": "No",
+            "question": "Do you have polycystic ovary syndrome (PCOS)?"
+        },
+        "3235": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (PCOS)"
+        },
+        "3236": {
+            "value": "No",
+            "question": "Do you have a diagnosis of endometriosis?"
+        },
+        "3237": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (endometriosis)"
+        },
+        "3238": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Acknowledgement of Continued Screening"
+        },
+        "3239": {
+            "value": "No additional information",
+            "question": "What other information or questions do you have for the doctor?"
+        },
+        "3240": {
+            "value": "I have read the above information, I understand the risks, and I would like to proceed.",
+            "question": "Consent (Hormone Replacement Therapy (HRT))"
+        },
+        "3242": {
+            "value": "FDA-approved estrogen and progesterone products (standard of care)",
+            "question": "Standard of care menopause treatment... which option would you prefer?"
+        }
+    }
+}
+
+============================================================
+SCENARIO 4: Nicotine/Clot Patient
+  Expected: nicotineOrClot=true, blockOral=true
+  Expected: pill hidden on frontend
+  Expected CPIDs: 119:1 (vcream monthly)
+============================================================
+{
+    "ok": true,
+    "flags": {
+        "adhesiveAllergy": false,
+        "nicotineUse": true,
+        "nicotineOrClot": true,
+        "transdermalSideEffects": false,
+        "symptomDurationLong": false,
+        "hysterectomy": false,
+        "sleepTenderness": false,
+        "progIntolerance": false,
+        "vaginalSymptoms": false,
+        "osteoporosis": false,
+        "needsProgesterone": true,
+        "doseTier": "normal",
+        "blockPatch": false,
+        "blockOral": true,
+        "blockTransdermal": false
+    },
+    "apiAnswers": {
+        "3200": {
+            "value": "None",
+            "question": "Please identify all your current medical conditions"
+        },
+        "3201": {
+            "value": "None",
+            "question": "Please list all your current medications including dosages"
+        },
+        "3202": {
+            "value": "None",
+            "question": "Please list all of your known allergies"
+        },
+        "3203": {
+            "value": "Female",
+            "question": "What was your sex assigned at birth?"
+        },
+        "3204": {
+            "value": "I have read and understand the above information. I understand the risks and wish to proceed",
+            "question": "Consent (pregnancy)"
+        },
+        "3205": {
+            "value": "No",
+            "question": "Are you currently pregnant or planning to become pregnant?"
+        },
+        "3206": {
+            "value": "No",
+            "question": "Is there any possibility of you being pregnant?"
+        },
+        "3207": {
+            "value": "No",
+            "question": "Are you currently breastfeeding?"
+        },
+        "3208": {
+            "value": "No",
+            "question": "Over the past 6 months, have you had ABNORMAL and UNDIAGNOSED vaginal bleeding?"
+        },
+        "3209": {
+            "value": "No",
+            "question": "Do you have a known diagnosis of liver cirrhosis or late stage CKD?"
+        },
+        "3210": {
+            "value": "Yes",
+            "question": "Have you noticed any changes in your menstrual cycle or menopausal symptoms?"
+        },
+        "3211": {
+            "value": [
+                "Hot flashes",
+                "Night sweats"
+            ],
+            "question": "Tell us more about the symptoms that you experience?"
+        },
+        "3212": {
+            "value": "None",
+            "question": "Tell us more about your other symptom(s)"
+        },
+        "3213": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (cancer/stroke/CAD/gallbladder)"
+        },
+        "3214": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (DVT/lupus)"
+        },
+        "3215": {
+            "value": "No",
+            "question": "Do you have an adhesive allergy?"
+        },
+        "3216": {
+            "value": "Less than 5 years",
+            "question": "How long have you experienced symptoms of menopause?"
+        },
+        "3217": {
+            "value": "No, I have never taken HRT",
+            "question": "Are you currently or have you ever been on hormone replacement therapy (HRT)?"
+        },
+        "3223": {
+            "value": [
+                "Do you currently use nicotine products?"
+            ],
+            "question": "Do you have any of the following? (nicotine/clot history)"
+        },
+        "3224": {
+            "value": "No",
+            "question": "Have you had a surgical resection of your uterus (hysterectomy)?"
+        },
+        "3226": {
+            "value": "No",
+            "question": "Do you experience difficulty with your sleep or breast tenderness?"
+        },
+        "3227": {
+            "value": "No",
+            "question": "Have you had intolerance to micronized progesterone in the past?"
+        },
+        "3228": {
+            "value": [
+                "I do not experience any of these"
+            ],
+            "question": "Do you experience any of the following? (vaginal symptoms)"
+        },
+        "3229": {
+            "value": "No",
+            "question": "Do you have thinning of your bones such as osteopenia or osteoporosis?"
+        },
+        "3230": {
+            "value": [
+                "None apply"
+            ],
+            "question": "Are you currently taking any of the following medications?"
+        },
+        "3231": {
+            "value": "My blood pressure has always been normal",
+            "question": "What has your blood pressure been over the last six months?"
+        },
+        "3232": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (Fibroid)"
+        },
+        "3233": {
+            "value": "No",
+            "question": "Do you have uterine fibroids?"
+        },
+        "3234": {
+            "value": "No",
+            "question": "Do you have polycystic ovary syndrome (PCOS)?"
+        },
+        "3235": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (PCOS)"
+        },
+        "3236": {
+            "value": "No",
+            "question": "Do you have a diagnosis of endometriosis?"
+        },
+        "3237": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (endometriosis)"
+        },
+        "3238": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Acknowledgement of Continued Screening"
+        },
+        "3239": {
+            "value": "No additional information",
+            "question": "What other information or questions do you have for the doctor?"
+        },
+        "3240": {
+            "value": "I have read the above information, I understand the risks, and I would like to proceed.",
+            "question": "Consent (Hormone Replacement Therapy (HRT))"
+        },
+        "3242": {
+            "value": "Compounded estrogen/progesterone cream (combined formulation)",
+            "question": "Standard of care menopause treatment... which option would you prefer?"
+        }
+    }
+}
+
+============================================================
+SCENARIO 5: Quarterly Supply
+  Expected: same flags as scenario 1
+  Expected CPIDs: 157:1 (vcream quarterly)
+============================================================
+{
+    "ok": true,
+    "flags": {
+        "adhesiveAllergy": false,
+        "nicotineUse": false,
+        "nicotineOrClot": false,
+        "transdermalSideEffects": false,
+        "symptomDurationLong": false,
+        "hysterectomy": false,
+        "sleepTenderness": false,
+        "progIntolerance": false,
+        "vaginalSymptoms": false,
+        "osteoporosis": false,
+        "needsProgesterone": true,
+        "doseTier": "normal",
+        "blockPatch": false,
+        "blockOral": false,
+        "blockTransdermal": false
+    },
+    "apiAnswers": {
+        "3200": {
+            "value": "None",
+            "question": "Please identify all your current medical conditions"
+        },
+        "3201": {
+            "value": "None",
+            "question": "Please list all your current medications including dosages"
+        },
+        "3202": {
+            "value": "None",
+            "question": "Please list all of your known allergies"
+        },
+        "3203": {
+            "value": "Female",
+            "question": "What was your sex assigned at birth?"
+        },
+        "3204": {
+            "value": "I have read and understand the above information. I understand the risks and wish to proceed",
+            "question": "Consent (pregnancy)"
+        },
+        "3205": {
+            "value": "No",
+            "question": "Are you currently pregnant or planning to become pregnant?"
+        },
+        "3206": {
+            "value": "No",
+            "question": "Is there any possibility of you being pregnant?"
+        },
+        "3207": {
+            "value": "No",
+            "question": "Are you currently breastfeeding?"
+        },
+        "3208": {
+            "value": "No",
+            "question": "Over the past 6 months, have you had ABNORMAL and UNDIAGNOSED vaginal bleeding?"
+        },
+        "3209": {
+            "value": "No",
+            "question": "Do you have a known diagnosis of liver cirrhosis or late stage CKD?"
+        },
+        "3210": {
+            "value": "Yes",
+            "question": "Have you noticed any changes in your menstrual cycle or menopausal symptoms?"
+        },
+        "3211": {
+            "value": [
+                "Hot flashes",
+                "Night sweats"
+            ],
+            "question": "Tell us more about the symptoms that you experience?"
+        },
+        "3212": {
+            "value": "None",
+            "question": "Tell us more about your other symptom(s)"
+        },
+        "3213": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (cancer/stroke/CAD/gallbladder)"
+        },
+        "3214": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (DVT/lupus)"
+        },
+        "3215": {
+            "value": "No",
+            "question": "Do you have an adhesive allergy?"
+        },
+        "3216": {
+            "value": "Less than 5 years",
+            "question": "How long have you experienced symptoms of menopause?"
+        },
+        "3217": {
+            "value": "No, I have never taken HRT",
+            "question": "Are you currently or have you ever been on hormone replacement therapy (HRT)?"
+        },
+        "3223": {
+            "value": [
+                "None of these apply to me"
+            ],
+            "question": "Do you have any of the following? (nicotine/clot history)"
+        },
+        "3224": {
+            "value": "No",
+            "question": "Have you had a surgical resection of your uterus (hysterectomy)?"
+        },
+        "3226": {
+            "value": "No",
+            "question": "Do you experience difficulty with your sleep or breast tenderness?"
+        },
+        "3227": {
+            "value": "No",
+            "question": "Have you had intolerance to micronized progesterone in the past?"
+        },
+        "3228": {
+            "value": [
+                "I do not experience any of these"
+            ],
+            "question": "Do you experience any of the following? (vaginal symptoms)"
+        },
+        "3229": {
+            "value": "No",
+            "question": "Do you have thinning of your bones such as osteopenia or osteoporosis?"
+        },
+        "3230": {
+            "value": [
+                "None apply"
+            ],
+            "question": "Are you currently taking any of the following medications?"
+        },
+        "3231": {
+            "value": "My blood pressure has always been normal",
+            "question": "What has your blood pressure been over the last six months?"
+        },
+        "3232": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (Fibroid)"
+        },
+        "3233": {
+            "value": "No",
+            "question": "Do you have uterine fibroids?"
+        },
+        "3234": {
+            "value": "No",
+            "question": "Do you have polycystic ovary syndrome (PCOS)?"
+        },
+        "3235": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (PCOS)"
+        },
+        "3236": {
+            "value": "No",
+            "question": "Do you have a diagnosis of endometriosis?"
+        },
+        "3237": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (endometriosis)"
+        },
+        "3238": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Acknowledgement of Continued Screening"
+        },
+        "3239": {
+            "value": "No additional information",
+            "question": "What other information or questions do you have for the doctor?"
+        },
+        "3240": {
+            "value": "I have read the above information, I understand the risks, and I would like to proceed.",
+            "question": "Consent (Hormone Replacement Therapy (HRT))"
+        },
+        "3242": {
+            "value": "Compounded estrogen/progesterone cream (combined formulation)",
+            "question": "Standard of care menopause treatment... which option would you prefer?"
+        }
+    }
+}
+
+============================================================
+SCENARIO 6: Transdermal Side Effects Patient
+  Expected: transdermalSideEffects=true, blockTransdermal=true
+  Expected: gel and patch hidden on frontend
+  Expected: pill selected with soft routing for oral route
+  Expected CPIDs: 27:1;35:1 (pill + prog monthly)
+============================================================
+{
+    "ok": true,
+    "flags": {
+        "adhesiveAllergy": false,
+        "nicotineUse": false,
+        "nicotineOrClot": false,
+        "transdermalSideEffects": true,
+        "symptomDurationLong": false,
+        "hysterectomy": false,
+        "sleepTenderness": false,
+        "progIntolerance": false,
+        "vaginalSymptoms": false,
+        "osteoporosis": false,
+        "needsProgesterone": true,
+        "doseTier": "normal",
+        "blockPatch": false,
+        "blockOral": false,
+        "blockTransdermal": true
+    },
+    "apiAnswers": {
+        "3200": {
+            "value": "None",
+            "question": "Please identify all your current medical conditions"
+        },
+        "3201": {
+            "value": "None",
+            "question": "Please list all your current medications including dosages"
+        },
+        "3202": {
+            "value": "None",
+            "question": "Please list all of your known allergies"
+        },
+        "3203": {
+            "value": "Female",
+            "question": "What was your sex assigned at birth?"
+        },
+        "3204": {
+            "value": "I have read and understand the above information. I understand the risks and wish to proceed",
+            "question": "Consent (pregnancy)"
+        },
+        "3205": {
+            "value": "No",
+            "question": "Are you currently pregnant or planning to become pregnant?"
+        },
+        "3206": {
+            "value": "No",
+            "question": "Is there any possibility of you being pregnant?"
+        },
+        "3207": {
+            "value": "No",
+            "question": "Are you currently breastfeeding?"
+        },
+        "3208": {
+            "value": "No",
+            "question": "Over the past 6 months, have you had ABNORMAL and UNDIAGNOSED vaginal bleeding?"
+        },
+        "3209": {
+            "value": "No",
+            "question": "Do you have a known diagnosis of liver cirrhosis or late stage CKD?"
+        },
+        "3210": {
+            "value": "Yes",
+            "question": "Have you noticed any changes in your menstrual cycle or menopausal symptoms?"
+        },
+        "3211": {
+            "value": [
+                "Hot flashes",
+                "Mood swings",
+                "Sleep disturbances"
+            ],
+            "question": "Tell us more about the symptoms that you experience?"
+        },
+        "3212": {
+            "value": "None",
+            "question": "Tell us more about your other symptom(s)"
+        },
+        "3213": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (cancer/stroke/CAD/gallbladder)"
+        },
+        "3214": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (DVT/lupus)"
+        },
+        "3215": {
+            "value": "No",
+            "question": "Do you have an adhesive allergy?"
+        },
+        "3216": {
+            "value": "Less than 5 years",
+            "question": "How long have you experienced symptoms of menopause?"
+        },
+        "3217": {
+            "value": "Yes, I have taken HRT in the past",
+            "question": "Are you currently or have you ever been on hormone replacement therapy (HRT)?"
+        },
+        "3218": {
+            "value": "Estradiol patch",
+            "question": "What HRT formulation are you on or have you tried?"
+        },
+        "3219": {
+            "value": "Yes",
+            "question": "Have you ever experienced side effects from your HRT?"
+        },
+        "3220": {
+            "value": "Skin irritation at application site",
+            "question": "Please tell us which product you had side effects to and what symptoms"
+        },
+        "3221": {
+            "value": "Yes",
+            "question": "Have you ever had side effects to TRANSDERMAL gel, spray, or cream estrogen products?"
+        },
+        "3222": {
+            "value": "Skin irritation at application site",
+            "question": "Please tell us about your reaction to TRANSDERMAL estrogen products"
+        },
+        "3223": {
+            "value": [
+                "None of these apply to me"
+            ],
+            "question": "Do you have any of the following? (nicotine/clot history)"
+        },
+        "3224": {
+            "value": "No",
+            "question": "Have you had a surgical resection of your uterus (hysterectomy)?"
+        },
+        "3226": {
+            "value": "No",
+            "question": "Do you experience difficulty with your sleep or breast tenderness?"
+        },
+        "3227": {
+            "value": "No",
+            "question": "Have you had intolerance to micronized progesterone in the past?"
+        },
+        "3228": {
+            "value": [
+                "I do not experience any of these"
+            ],
+            "question": "Do you experience any of the following? (vaginal symptoms)"
+        },
+        "3229": {
+            "value": "No",
+            "question": "Do you have thinning of your bones such as osteopenia or osteoporosis?"
+        },
+        "3230": {
+            "value": [
+                "None apply"
+            ],
+            "question": "Are you currently taking any of the following medications?"
+        },
+        "3231": {
+            "value": "My blood pressure has always been normal",
+            "question": "What has your blood pressure been over the last six months?"
+        },
+        "3232": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (Fibroid)"
+        },
+        "3233": {
+            "value": "No",
+            "question": "Do you have uterine fibroids?"
+        },
+        "3234": {
+            "value": "No",
+            "question": "Do you have polycystic ovary syndrome (PCOS)?"
+        },
+        "3235": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (PCOS)"
+        },
+        "3236": {
+            "value": "No",
+            "question": "Do you have a diagnosis of endometriosis?"
+        },
+        "3237": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (endometriosis)"
+        },
+        "3238": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Acknowledgement of Continued Screening"
+        },
+        "3239": {
+            "value": "No additional information",
+            "question": "What other information or questions do you have for the doctor?"
+        },
+        "3240": {
+            "value": "I have read the above information, I understand the risks, and I would like to proceed.",
+            "question": "Consent (Hormone Replacement Therapy (HRT))"
+        },
+        "3242": {
+            "value": "FDA-approved estrogen and progesterone products (standard of care)",
+            "question": "Standard of care menopause treatment... which option would you prefer?"
+        }
+    }
+}
+
+============================================================
+BONUS SCENARIO 7: Gel + Progesterone + Vaginal Addon (quarterly)
+  Expected: needsProgesterone=true, vaginalAddon=true
+  Expected CPIDs: 125:1;145:1;141:1 (gel+prog+vag quarterly)
+============================================================
+{
+    "ok": true,
+    "flags": {
+        "adhesiveAllergy": false,
+        "nicotineUse": false,
+        "nicotineOrClot": false,
+        "transdermalSideEffects": false,
+        "symptomDurationLong": false,
+        "hysterectomy": false,
+        "sleepTenderness": false,
+        "progIntolerance": false,
+        "vaginalSymptoms": true,
+        "osteoporosis": false,
+        "needsProgesterone": true,
+        "doseTier": "normal",
+        "blockPatch": false,
+        "blockOral": false,
+        "blockTransdermal": false
+    },
+    "apiAnswers": {
+        "3200": {
+            "value": "None",
+            "question": "Please identify all your current medical conditions"
+        },
+        "3201": {
+            "value": "None",
+            "question": "Please list all your current medications including dosages"
+        },
+        "3202": {
+            "value": "None",
+            "question": "Please list all of your known allergies"
+        },
+        "3203": {
+            "value": "Female",
+            "question": "What was your sex assigned at birth?"
+        },
+        "3204": {
+            "value": "I have read and understand the above information. I understand the risks and wish to proceed",
+            "question": "Consent (pregnancy)"
+        },
+        "3205": {
+            "value": "No",
+            "question": "Are you currently pregnant or planning to become pregnant?"
+        },
+        "3206": {
+            "value": "No",
+            "question": "Is there any possibility of you being pregnant?"
+        },
+        "3207": {
+            "value": "No",
+            "question": "Are you currently breastfeeding?"
+        },
+        "3208": {
+            "value": "No",
+            "question": "Over the past 6 months, have you had ABNORMAL and UNDIAGNOSED vaginal bleeding?"
+        },
+        "3209": {
+            "value": "No",
+            "question": "Do you have a known diagnosis of liver cirrhosis or late stage CKD?"
+        },
+        "3210": {
+            "value": "Yes",
+            "question": "Have you noticed any changes in your menstrual cycle or menopausal symptoms?"
+        },
+        "3211": {
+            "value": [
+                "Hot flashes",
+                "Vaginal dryness"
+            ],
+            "question": "Tell us more about the symptoms that you experience?"
+        },
+        "3212": {
+            "value": "None",
+            "question": "Tell us more about your other symptom(s)"
+        },
+        "3213": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (cancer/stroke/CAD/gallbladder)"
+        },
+        "3214": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (DVT/lupus)"
+        },
+        "3215": {
+            "value": "No",
+            "question": "Do you have an adhesive allergy?"
+        },
+        "3216": {
+            "value": "Less than 5 years",
+            "question": "How long have you experienced symptoms of menopause?"
+        },
+        "3217": {
+            "value": "No, I have never taken HRT",
+            "question": "Are you currently or have you ever been on hormone replacement therapy (HRT)?"
+        },
+        "3223": {
+            "value": [
+                "None of these apply to me"
+            ],
+            "question": "Do you have any of the following? (nicotine/clot history)"
+        },
+        "3224": {
+            "value": "No",
+            "question": "Have you had a surgical resection of your uterus (hysterectomy)?"
+        },
+        "3226": {
+            "value": "No",
+            "question": "Do you experience difficulty with your sleep or breast tenderness?"
+        },
+        "3227": {
+            "value": "No",
+            "question": "Have you had intolerance to micronized progesterone in the past?"
+        },
+        "3228": {
+            "value": [
+                "Vaginal dryness"
+            ],
+            "question": "Do you experience any of the following? (vaginal symptoms)"
+        },
+        "3229": {
+            "value": "No",
+            "question": "Do you have thinning of your bones such as osteopenia or osteoporosis?"
+        },
+        "3230": {
+            "value": [
+                "None apply"
+            ],
+            "question": "Are you currently taking any of the following medications?"
+        },
+        "3231": {
+            "value": "My blood pressure has always been normal",
+            "question": "What has your blood pressure been over the last six months?"
+        },
+        "3232": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (Fibroid)"
+        },
+        "3233": {
+            "value": "No",
+            "question": "Do you have uterine fibroids?"
+        },
+        "3234": {
+            "value": "No",
+            "question": "Do you have polycystic ovary syndrome (PCOS)?"
+        },
+        "3235": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (PCOS)"
+        },
+        "3236": {
+            "value": "No",
+            "question": "Do you have a diagnosis of endometriosis?"
+        },
+        "3237": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (endometriosis)"
+        },
+        "3238": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Acknowledgement of Continued Screening"
+        },
+        "3239": {
+            "value": "No additional information",
+            "question": "What other information or questions do you have for the doctor?"
+        },
+        "3240": {
+            "value": "I have read the above information, I understand the risks, and I would like to proceed.",
+            "question": "Consent (Hormone Replacement Therapy (HRT))"
+        },
+        "3242": {
+            "value": "FDA-approved estrogen and progesterone products (standard of care)",
+            "question": "Standard of care menopause treatment... which option would you prefer?"
+        }
+    }
+}
+
+============================================================
+BONUS SCENARIO 8: Hysterectomy + Adhesive Allergy
+  Expected: hysterectomy=true, adhesiveAllergy=true
+  Expected: vcream/cream hidden (hyst), patch hidden (allergy)
+  Expected: only gel and pill available
+  Expected CPIDs: 15:1 (gel monthly, NO prog)
+============================================================
+{
+    "ok": true,
+    "flags": {
+        "adhesiveAllergy": true,
+        "nicotineUse": false,
+        "nicotineOrClot": false,
+        "transdermalSideEffects": false,
+        "symptomDurationLong": true,
+        "hysterectomy": true,
+        "sleepTenderness": false,
+        "progIntolerance": false,
+        "vaginalSymptoms": false,
+        "osteoporosis": false,
+        "needsProgesterone": false,
+        "doseTier": "low",
+        "blockPatch": true,
+        "blockOral": false,
+        "blockTransdermal": false
+    },
+    "apiAnswers": {
+        "3200": {
+            "value": "None",
+            "question": "Please identify all your current medical conditions"
+        },
+        "3201": {
+            "value": "None",
+            "question": "Please list all your current medications including dosages"
+        },
+        "3202": {
+            "value": "None",
+            "question": "Please list all of your known allergies"
+        },
+        "3203": {
+            "value": "Female",
+            "question": "What was your sex assigned at birth?"
+        },
+        "3204": {
+            "value": "I have read and understand the above information. I understand the risks and wish to proceed",
+            "question": "Consent (pregnancy)"
+        },
+        "3205": {
+            "value": "No",
+            "question": "Are you currently pregnant or planning to become pregnant?"
+        },
+        "3206": {
+            "value": "No",
+            "question": "Is there any possibility of you being pregnant?"
+        },
+        "3207": {
+            "value": "No",
+            "question": "Are you currently breastfeeding?"
+        },
+        "3208": {
+            "value": "No",
+            "question": "Over the past 6 months, have you had ABNORMAL and UNDIAGNOSED vaginal bleeding?"
+        },
+        "3209": {
+            "value": "No",
+            "question": "Do you have a known diagnosis of liver cirrhosis or late stage CKD?"
+        },
+        "3210": {
+            "value": "Yes",
+            "question": "Have you noticed any changes in your menstrual cycle or menopausal symptoms?"
+        },
+        "3211": {
+            "value": [
+                "Hot flashes",
+                "Night sweats",
+                "Mood swings"
+            ],
+            "question": "Tell us more about the symptoms that you experience?"
+        },
+        "3212": {
+            "value": "None",
+            "question": "Tell us more about your other symptom(s)"
+        },
+        "3213": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (cancer/stroke/CAD/gallbladder)"
+        },
+        "3214": {
+            "value": [
+                "I do NOT have any of these"
+            ],
+            "question": "Do you have any of the following? (DVT/lupus)"
+        },
+        "3215": {
+            "value": "Yes",
+            "question": "Do you have an adhesive allergy?"
+        },
+        "3216": {
+            "value": "Greater than 5 years",
+            "question": "How long have you experienced symptoms of menopause?"
+        },
+        "3217": {
+            "value": "Yes, I have taken HRT in the past",
+            "question": "Are you currently or have you ever been on hormone replacement therapy (HRT)?"
+        },
+        "3223": {
+            "value": [
+                "None of these apply to me"
+            ],
+            "question": "Do you have any of the following? (nicotine/clot history)"
+        },
+        "3224": {
+            "value": "Yes",
+            "question": "Have you had a surgical resection of your uterus (hysterectomy)?"
+        },
+        "3225": {
+            "value": "Medical necessity",
+            "question": "Please provide further information about why you have had a hysterectomy"
+        },
+        "3228": {
+            "value": [
+                "I do not experience any of these"
+            ],
+            "question": "Do you experience any of the following? (vaginal symptoms)"
+        },
+        "3229": {
+            "value": "No",
+            "question": "Do you have thinning of your bones such as osteopenia or osteoporosis?"
+        },
+        "3230": {
+            "value": [
+                "None apply"
+            ],
+            "question": "Are you currently taking any of the following medications?"
+        },
+        "3231": {
+            "value": "My blood pressure has always been normal",
+            "question": "What has your blood pressure been over the last six months?"
+        },
+        "3232": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (Fibroid)"
+        },
+        "3233": {
+            "value": "No",
+            "question": "Do you have uterine fibroids?"
+        },
+        "3234": {
+            "value": "No",
+            "question": "Do you have polycystic ovary syndrome (PCOS)?"
+        },
+        "3235": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (PCOS)"
+        },
+        "3236": {
+            "value": "No",
+            "question": "Do you have a diagnosis of endometriosis?"
+        },
+        "3237": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Consent (endometriosis)"
+        },
+        "3238": {
+            "value": "I have read and understand the above information and I wish to proceed with therapy",
+            "question": "Acknowledgement of Continued Screening"
+        },
+        "3239": {
+            "value": "No additional information",
+            "question": "What other information or questions do you have for the doctor?"
+        },
+        "3240": {
+            "value": "I have read the above information, I understand the risks, and I would like to proceed.",
+            "question": "Consent (Hormone Replacement Therapy (HRT))"
+        }
+    }
+}
+
+============================================================
+ALL SCENARIOS COMPLETE
+============================================================
