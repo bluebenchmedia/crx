@@ -275,6 +275,10 @@
       q: 'Do I need progesterone after a hysterectomy?',
       a: 'No. If you have had a hysterectomy (removal of the uterus), you do not have a uterine lining to protect, so progesterone is not medically necessary. Estrogen-only therapy is the standard of care for women who have had a hysterectomy, and it is safe and effective for managing menopause symptoms.'
     },
+    {
+      q: 'What happens after I purchase?',
+      a: 'When you click \'Get My Treatment,\' your card is authorized but not charged. Within 24 hours, a board-certified ClearedRx physician reviews your health questionnaire and, if everything looks good, approves and signs your prescription. Your card is only charged once the prescription is approved. Your order is then sent to our licensed US compounding pharmacy, where your treatment is prepared fresh to your exact prescribed dose. Once compounded and packaged, it ships to you via USPS Priority Mail and typically arrives within 1–2 business days of shipment.'
+    },
   ];
 
   function initFaq() {

@@ -282,7 +282,11 @@
     },
     {
       q: 'What is bioidentical hormone therapy?',
-      a: 'Bioidentical hormones are chemically identical to the hormones your body naturally produces. They are derived from plant sources and compounded to match your body’s own estrogen and progesterone. Many women prefer bioidentical HRT because it closely mimics natural hormone activity.'
+      a: 'Bioidentical hormones are chemically identical to the hormones your body naturally produces. They are derived from plant sources and compounded to match your body\'s own estrogen and progesterone. Many women prefer bioidentical HRT because it closely mimics natural hormone activity.'
+    },
+    {
+      q: 'What happens after I purchase?',
+      a: 'When you click \'Get My Treatment,\' your card is authorized but not charged. Within 24 hours, a board-certified ClearedRx physician reviews your health questionnaire and, if everything looks good, approves and signs your prescription. Your card is only charged once the prescription is approved. Your order is then sent to our licensed US compounding pharmacy, where your treatment is prepared fresh to your exact prescribed dose. Once compounded and packaged, it ships to you via USPS Priority Mail and typically arrives within 1–2 business days of shipment.'
     },
   ];
 
@@ -482,18 +486,23 @@
     var qSave  = mPerMo - qPerMo;
 
     // ── Schedule cards ────────────────────────────────────────────────────
+    // Include progesterone cost in schedule card prices for non-compounded products
+    var progMonthlyPrice   = needsSeparateProg ? PROG_ADDON.monthly.price   : 0;
+    var progQuarterlyPrice = needsSeparateProg ? PROG_ADDON.quarterly.price : 0;
+    var schedMonthlyFull   = mPerMo + progMonthlyPrice;
+    var schedQuarterlyFull = qData.price + progQuarterlyPrice;
     var scheduleHtml =
       '<div class="sched-wrap">' +
         '<div class="sched-card' + (selectedSchedule === 'monthly' ? ' sched-card--active' : '') + '" data-schedule="monthly">' +
           '<div class="sched-card-name">1 Month Supply</div>' +
-          '<div class="sched-price-orig">$' + mPerMo + '</div>' +
-          '<div class="sched-price-disc">$' + Math.round(mPerMo * 0.5) + '</div>' +
+          '<div class="sched-price-orig">$' + schedMonthlyFull + '</div>' +
+          '<div class="sched-price-disc">$' + Math.round(schedMonthlyFull * 0.5) + '</div>' +
           '<div class="sched-detail">Billed monthly</div>' +
         '</div>' +
         '<div class="sched-card' + (selectedSchedule === 'quarterly' ? ' sched-card--active' : '') + '" data-schedule="quarterly">' +
           '<div class="sched-card-name">3 Month Supply</div>' +
-          '<div class="sched-price-orig">$' + qData.price + '</div>' +
-          '<div class="sched-price-disc">$' + Math.round(qData.price * 0.5) + '</div>' +
+          '<div class="sched-price-orig">$' + schedQuarterlyFull + '</div>' +
+          '<div class="sched-price-disc">$' + Math.round(schedQuarterlyFull * 0.5) + '</div>' +
           '<div class="sched-detail">Billed every 3 months</div>' +
         '</div>' +
       '</div>';
