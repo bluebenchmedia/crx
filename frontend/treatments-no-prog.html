@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Select your personalized HRT treatment — ClearedRx" />
+  <link rel="icon" href="images/clearedrx-icon.png" />
+  <title>Your Estrogen Treatment Plan — ClearedRx</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --forest:#2C3E2D;--rose:#C4826A;--rose-dk:#A86B55;--sage:#7A9E7E;--sage-lt:#B5CCBA;
+      --cream:#FAF7F2;--cream-dk:#F5F0E8;--taupe:#E0D8CF;--charcoal:#1A1A1A;
+      --mid:#3D3D3D;--light:#6B6B6B;--emerald:#059669;--emerald-lt:#10b981;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',system-ui,sans-serif;background:var(--cream);color:var(--charcoal);-webkit-font-smoothing:antialiased;}
+
+    /* NAV */
+    .site-nav{background:var(--cream);border-bottom:1px solid var(--taupe);padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10;}
+    .site-nav__logo{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.375rem;font-weight:500;letter-spacing:-.02em;color:var(--charcoal);text-decoration:none;}
+    .site-nav__logo span{color:var(--rose);}
+    .site-nav__trust{font-size:.75rem;color:var(--light);display:flex;align-items:center;gap:.375rem;}
+    .site-nav__trust svg{color:var(--emerald);}
+
+    /* APPROVAL BAR */
+    .approval-bar{background:rgba(16,185,129,.12);border-bottom:1px solid rgba(16,185,129,.25);text-align:center;padding:.5rem 1rem;font-size:.8125rem;font-weight:600;color:#065f46;}
+
+    /* TREATMENT SELECTOR */
+    .treatment-selector-section{background:var(--cream-dk);padding:1.25rem 1rem 1rem;border-bottom:1px solid var(--taupe);}
+    .back-link{display:inline-flex;align-items:center;gap:.3rem;font-size:.8125rem;color:var(--light);text-decoration:none;margin-bottom:.75rem;transition:color .15s;}
+    .back-link:hover{color:var(--forest);}
+    .selector-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.25rem;font-weight:600;color:var(--forest);text-align:center;margin-bottom:.875rem;}
+    .treatment-options{display:grid;grid-template-columns:1fr;gap:.625rem;max-width:1000px;margin:0 auto;}
+    @media(min-width:480px){.treatment-options{grid-template-columns:repeat(2,1fr);}}
+    @media(min-width:768px){.treatment-options{grid-template-columns:repeat(3,1fr);}}
+    @media(min-width:1024px){.treatment-options{grid-template-columns:repeat(5,1fr);}}
+
+    .treatment-opt{position:relative;display:flex;cursor:pointer;border-radius:.75rem;overflow:hidden;border:2px solid var(--taupe);background:white;transition:border-color .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;}
+    .treatment-opt:hover{border-color:var(--sage);box-shadow:0 2px 8px rgba(44,62,45,.1);}
+    .treatment-opt.selected{border-color:var(--forest);box-shadow:0 2px 12px rgba(44,62,45,.15);}
+    .treatment-opt input[type="radio"]{position:absolute;opacity:0;width:0;height:0;}
+    .treatment-opt__badge{position:absolute;top:0;right:0;background:var(--forest);color:white;font-size:.625rem;font-weight:600;padding:.2rem .5rem;border-bottom-left-radius:.375rem;z-index:2;}
+    .treatment-opt__img{flex-shrink:0;width:28%;min-width:68px;max-width:90px;background:var(--cream-dk);display:flex;align-items:center;justify-content:center;padding:.5rem;aspect-ratio:1;}
+    .treatment-opt__img img{width:100%;height:100%;object-fit:contain;}
+    .treatment-opt__body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:.625rem .75rem;min-width:0;}
+    .treatment-opt__name{font-weight:700;font-size:.875rem;color:var(--forest);line-height:1.3;}
+    .treatment-opt__tag{display:inline-flex;align-items:center;gap:.3rem;margin-top:.35rem;font-size:.6875rem;color:var(--sage);font-weight:500;}
+    .treatment-opt__check{flex-shrink:0;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--taupe);color:white;display:flex;align-items:center;justify-content:center;margin:auto .5rem auto 0;opacity:0;transition:opacity .2s,background .2s;}
+    .treatment-opt.selected .treatment-opt__check{opacity:1;background:var(--forest);}
+
+    /* PRODUCT PANELS */
+    .product-section{background:white;padding:1.5rem 1rem 2rem;}
+    .product-panel{display:none;}
+    .product-panel.active{display:block;}
+    .product-panel__inner{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem;}
+    @media(min-width:1024px){.product-panel__inner{flex-direction:row;align-items:flex-start;gap:2.5rem;}}
+    .product-panel__img-col{flex-shrink:0;width:100%;}
+    @media(min-width:1024px){.product-panel__img-col{width:38%;max-width:340px;}}
+    .product-panel__img{width:100%;border-radius:1rem;object-fit:cover;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+    .product-panel__detail{flex:1;min-width:0;}
+    .product-panel__title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.75rem;font-weight:600;color:var(--forest);margin-bottom:.75rem;line-height:1.2;}
+    @media(min-width:640px){.product-panel__title{font-size:2rem;}}
+
+    /* Callout chips */
+    .callout-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;}
+    .callout-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .7rem;border-radius:9999px;background:#E8F4F8;border:1px solid #8FBDC9;color:var(--forest);font-size:.6875rem;font-weight:500;}
+    .callout-chip img{width:12px;height:12px;object-fit:contain;}
+
+    .product-panel__desc{font-size:.9375rem;line-height:1.65;color:var(--mid);margin-bottom:1.25rem;}
+    .picker-label{font-size:.9375rem;font-weight:700;color:var(--forest);margin-bottom:.5rem;}
+
+    /* Dosage options */
+    .dosage-opts{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.25rem;}
+    .dosage-opt{display:flex;align-items:center;cursor:pointer;border-radius:.625rem;border:2px solid var(--taupe);background:var(--cream);padding:.625rem .875rem;font-size:.875rem;color:var(--mid);transition:border-color .15s,background .15s;}
+    .dosage-opt:hover{border-color:var(--sage-lt);}
+    .dosage-opt.selected{border-color:var(--emerald-lt);background:rgba(16,185,129,.06);}
+    .dosage-opt input{display:none;}
+
+    /* Refill options */
+    .refill-opts{display:grid;grid-template-columns:1fr 1fr;gap:.625rem;margin-bottom:1.25rem;}
+    .refill-opt{position:relative;display:flex;cursor:pointer;border-radius:.75rem;border:2px solid var(--taupe);background:var(--cream);padding:.75rem;overflow:hidden;transition:border-color .15s,background .15s;}
+    .refill-opt:hover{border-color:var(--sage-lt);}
+    .refill-opt.selected{border-color:var(--emerald-lt);background:rgba(16,185,129,.06);}
+    .refill-opt input{display:none;}
+    .refill-opt__badge{position:absolute;top:0;right:0;background:#ef4444;color:white;font-size:.625rem;font-weight:700;padding:.2rem .5rem;border-bottom-left-radius:.375rem;}
+    .refill-opt__img{flex-shrink:0;width:3rem;height:3rem;border-radius:.5rem;overflow:hidden;background:var(--cream-dk);display:flex;align-items:center;justify-content:center;margin-right:.625rem;}
+    .refill-opt__img img{width:100%;height:100%;object-fit:contain;}
+    .refill-opt__body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;}
+    .refill-opt__period{font-size:.8125rem;font-weight:700;color:var(--forest);}
+    .refill-opt__price{font-size:1.0625rem;font-weight:800;color:var(--emerald);line-height:1.2;}
+    .refill-opt__supply{font-size:.6875rem;color:var(--light);}
+    .refill-opt__save{font-size:.6875rem;color:var(--emerald);font-weight:600;}
+    .refill-opt__after{font-size:.6875rem;color:var(--light);}
+
+    /* Add-on row */
+    .addon-row{display:flex;flex-wrap:wrap;align-items:flex-start;gap:.5rem .75rem;padding:.625rem .75rem;margin-bottom:.75rem;background:var(--cream);border:1px solid var(--taupe);border-radius:.5rem;}
+    .addon-row__img{flex-shrink:0;width:44px;height:44px;border-radius:.375rem;object-fit:cover;background:var(--taupe);}
+    .addon-row label{display:flex;flex-wrap:wrap;align-items:flex-start;gap:.25rem .5rem;cursor:pointer;flex:1;min-width:0;}
+    .addon-row input[type="checkbox"]{margin-top:.2rem;flex-shrink:0;accent-color:var(--forest);}
+    .addon-row__text{font-size:.875rem;color:var(--mid);line-height:1.4;width:100%;}
+    .addon-row__text strong{color:var(--forest);}
+    .addon-row__price{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .5rem;font-size:.875rem;margin-top:.125rem;}
+    .addon-row__price-first{font-weight:700;color:var(--emerald);}
+    .addon-row__price-after{font-size:.75rem;color:var(--light);}
+    .addon-dosage{display:none;margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--taupe);width:100%;}
+    .addon-dosage.visible{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;}
+    .addon-dosage__label{font-size:.8125rem;font-weight:600;color:var(--forest);width:100%;}
+    .addon-dosage__opts{display:flex;flex-wrap:wrap;gap:.375rem;}
+    .addon-dosage-btn{padding:.3rem .6rem;font-size:.75rem;font-weight:500;color:var(--mid);background:white;border:1px solid var(--taupe);border-radius:.375rem;cursor:pointer;transition:border-color .15s,background .15s,color .15s;}
+    .addon-dosage-btn:hover{border-color:var(--forest);color:var(--forest);}
+    .addon-dosage-btn.selected{border-color:var(--emerald-lt);background:rgba(16,185,129,.1);color:var(--emerald);}
+
+    /* Price summary */
+    .price-summary{margin-bottom:1rem;}
+    .price-summary__label{font-size:.875rem;font-weight:700;color:var(--forest);margin-bottom:.25rem;}
+    .price-summary__row{display:flex;flex-wrap:wrap;align-items:baseline;gap:.5rem .75rem;}
+    .price-summary__main{font-size:1.875rem;font-weight:800;color:var(--emerald);}
+    .price-summary__supply{font-size:.875rem;color:var(--light);}
+    .price-summary__save{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:.375rem;background:var(--emerald-lt);color:white;font-size:.75rem;font-weight:700;}
+    .price-summary__after{font-size:.875rem;color:var(--light);width:100%;}
+
+    /* Benefit chips */
+    .benefit-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem;}
+    .benefit-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .625rem;border-radius:9999px;background:#f3f4f6;border:1px solid #e5e7eb;color:var(--mid);font-size:.75rem;}
+    .benefit-chip svg{flex-shrink:0;}
+
+    /* Add to Cart button */
+    .btn-add-cart{font-family:'DM Sans',sans-serif;font-weight:700;font-size:1.125rem;letter-spacing:.02em;border-radius:.75rem;border:2px solid rgba(255,255,255,.5);background:linear-gradient(180deg,#34d399 0%,#10b981 50%,#059669 100%);color:white;text-shadow:0 1px 2px rgba(0,0,0,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.3);padding:.875rem 2rem;width:100%;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;-webkit-tap-highlight-color:transparent;}
+    .btn-add-cart:hover{background:linear-gradient(180deg,#10b981 0%,#059669 50%,#047857 100%);transform:translateY(-2px);}
+    .btn-add-cart:active{transform:translateY(0);}
+    .btn-add-cart:disabled{background:#d1d5db;border-color:#9ca3af;color:#6b7280;cursor:not-allowed;transform:none;}
+    @media(min-width:640px){.btn-add-cart{width:auto;min-width:260px;}}
+    @media(min-width:1024px){.btn-add-cart{font-size:1.25rem;padding:1rem 3rem;}}
+    .guarantee-note{display:flex;align-items:center;gap:.4rem;justify-content:center;font-size:.75rem;color:var(--light);margin-top:.625rem;}
+    .guarantee-note svg{color:var(--emerald);flex-shrink:0;}
+
+    /* DISCOVER SECTION */
+    .discover-section{background:var(--cream-dk);padding:2rem 1rem;}
+    .discover-section__inner{max-width:960px;margin:0 auto;}
+    .section-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.5rem;font-weight:600;color:var(--forest);margin-bottom:1.25rem;text-align:center;}
+    .discover-layout{display:flex;flex-direction:column;border-radius:.75rem;overflow:hidden;border:1px solid var(--taupe);}
+    @media(min-width:1024px){.discover-layout{flex-direction:row;}}
+    .discover-sidebar{background:#E8F4F8;border-bottom:1px solid #c5dce4;padding:1.25rem 1rem;}
+    @media(min-width:1024px){.discover-sidebar{width:35%;min-width:210px;border-bottom:none;border-right:1px solid #c5dce4;padding:1.5rem 1.25rem;}}
+    .discover-sidebar h3{font-size:1rem;font-weight:700;color:var(--forest);margin-bottom:.875rem;}
+    .discover-nav{display:flex;flex-direction:column;gap:0;}
+    .discover-nav-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:.7rem .875rem;font-size:.9375rem;font-weight:500;color:var(--forest);background:transparent;border:none;border-bottom:1px solid rgba(44,62,45,.1);cursor:pointer;text-align:left;transition:background .15s;-webkit-tap-highlight-color:transparent;}
+    .discover-nav-btn:last-child{border-bottom:none;}
+    .discover-nav-btn:hover{background:rgba(44,62,45,.06);}
+    .discover-nav-btn.active{background:var(--forest);color:white;border-radius:.5rem;}
+    .discover-nav-btn svg{flex-shrink:0;width:1rem;height:1rem;transition:transform .2s;}
+    .discover-nav-btn.active svg{transform:rotate(180deg);}
+    @media(min-width:1024px){.discover-nav-btn{border-radius:.5rem;border-bottom:none;margin-bottom:.2rem;}}
+    .discover-content{flex:1;background:white;padding:1.5rem 1.25rem;}
+    @media(min-width:1024px){.discover-content{padding:2rem 2.5rem;}}
+    .discover-panel{display:none;}
+    .discover-panel.active{display:block;}
+    .discover-panel h3{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.375rem;font-weight:600;color:var(--forest);margin-bottom:.875rem;}
+    .discover-panel p{font-size:.9375rem;line-height:1.65;color:var(--mid);margin-bottom:.875rem;}
+
+    /* Stage badges */
+    .stage-badges{display:flex;flex-wrap:wrap;gap:.75rem 1rem;margin-bottom:1.5rem;}
+    .stage-badge{display:flex;flex-direction:column;align-items:center;gap:.4rem;font-size:.8125rem;color:var(--mid);font-weight:500;}
+    .stage-badge__circle{width:3rem;height:3rem;border-radius:50%;background:var(--taupe);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .stage-badge__circle img{width:100%;height:100%;object-fit:contain;}
+
+    /* Benefits table */
+    .benefits-table{width:100%;border-collapse:collapse;font-size:.875rem;border:1px solid var(--taupe);border-radius:.5rem;overflow:hidden;background:white;margin-bottom:1.25rem;}
+    .benefits-table th,.benefits-table td{padding:.6rem .75rem;text-align:left;border-bottom:1px solid var(--taupe);}
+    .benefits-table th{background:var(--cream-dk);font-weight:600;color:var(--forest);}
+    .benefits-table tr:last-child td{border-bottom:none;}
+    .benefits-table .cost{text-align:right;font-weight:600;white-space:nowrap;}
+    .benefits-table .total td{background:var(--cream);font-weight:700;color:var(--forest);}
+    .benefits-vs{padding:1.25rem;background:linear-gradient(135deg,#E8F4F8,#f0f9ff);border:1px solid #8FBDC9;border-radius:.75rem;}
+    .benefits-vs__title{font-size:1.125rem;font-weight:700;color:var(--forest);margin-bottom:.375rem;}
+    .benefits-vs__price{font-size:1.25rem;font-weight:800;color:var(--emerald);margin-bottom:.625rem;}
+    .benefits-vs__list{font-size:.875rem;color:var(--mid);line-height:1.5;padding-left:1.25rem;}
+    .benefits-vs__list li{margin-bottom:.25rem;}
+    .benefits-vs__note{font-size:.75rem;color:var(--light);margin-top:.875rem;font-style:italic;}
+
+    /* Formula blocks */
+    .formula-block{background:var(--cream);padding:1rem 1rem 1rem 1.25rem;margin-bottom:.625rem;border-radius:0 .5rem .5rem 0;border-left:3px solid var(--forest);}
+    .formula-block h4{font-size:.9375rem;font-weight:700;color:var(--forest);margin-bottom:.375rem;}
+    .formula-block p{font-size:.875rem;color:var(--mid);line-height:1.55;margin-bottom:0;}
+
+    /* How it works */
+    .how-block{margin-bottom:1rem;}
+    .how-block h4{font-size:.9375rem;font-weight:700;color:var(--forest);margin-bottom:.25rem;}
+    .how-block p{font-size:.875rem;color:var(--mid);line-height:1.55;margin-bottom:0;}
+
+    /* Guarantee */
+    .guarantee-promise{background:var(--cream-dk);border:1px solid var(--taupe);border-radius:.75rem;padding:1.25rem;margin-bottom:1rem;}
+    .guarantee-promise__title{font-size:1.0625rem;font-weight:700;color:var(--forest);margin-bottom:.375rem;}
+    .guarantee-promise__text{font-size:.875rem;color:var(--mid);line-height:1.55;margin-bottom:0;}
+    .guarantee-risk{font-size:.875rem;color:var(--light);font-style:italic;line-height:1.5;}
+
+    /* SOCIAL TESTIMONIALS */
+    .social-section{background:var(--cream);padding:2rem 1rem;}
+    .social-section__inner{max-width:960px;margin:0 auto;}
+    .social-grid{display:grid;grid-template-columns:1fr;gap:.875rem;}
+    @media(min-width:640px){.social-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(min-width:1024px){.social-grid{grid-template-columns:repeat(4,1fr);}}
+    .social-card{background:white;border:1px solid var(--taupe);border-radius:.875rem;padding:1rem;display:flex;flex-direction:column;gap:.625rem;}
+    .social-card__header{display:flex;align-items:center;gap:.625rem;}
+    .social-card__avatar{width:2.5rem;height:2.5rem;border-radius:50%;object-fit:cover;background:var(--taupe);flex-shrink:0;}
+    .social-card__name{font-size:.875rem;font-weight:700;color:var(--charcoal);}
+    .social-card__handle{font-size:.75rem;color:var(--light);}
+    .social-card__stars{display:flex;gap:.15rem;}
+    .social-card__stars svg{width:.875rem;height:.875rem;fill:#f59e0b;}
+    .social-card__text{font-size:.875rem;color:var(--mid);line-height:1.55;}
+    .social-card__treatment{font-size:.75rem;color:var(--sage);font-weight:600;}
+
+    /* FAQ */
+    .faq-section{background:var(--cream-dk);padding:2rem 1rem;}
+    .faq-section__inner{max-width:760px;margin:0 auto;}
+    .faq-item{border-bottom:1px solid var(--taupe);}
+    .faq-item:last-child{border-bottom:none;}
+    .faq-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:1rem 0;background:none;border:none;cursor:pointer;text-align:left;gap:.75rem;-webkit-tap-highlight-color:transparent;}
+    .faq-btn__q{display:flex;align-items:center;gap:.625rem;}
+    .faq-btn__icon{flex-shrink:0;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--forest);color:white;display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;}
+    .faq-btn__text{font-size:.9375rem;font-weight:600;color:var(--charcoal);}
+    .faq-btn__toggle{flex-shrink:0;font-size:1.25rem;color:var(--forest);font-weight:300;transition:transform .2s;}
+    .faq-btn.open .faq-btn__toggle{transform:rotate(45deg);}
+    .faq-body{display:none;padding-bottom:1rem;font-size:.9rem;color:var(--mid);line-height:1.65;}
+    .faq-body.open{display:block;}
+
+    /* FOOTER */
+    .site-footer{background:var(--forest);color:white;padding:2.5rem 1.25rem;}
+    .site-footer__inner{max-width:960px;margin:0 auto;}
+    .site-footer__logo{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.375rem;font-weight:500;letter-spacing:-.02em;color:white;margin-bottom:1.25rem;display:block;}
+    .site-footer__logo span{color:var(--rose);}
+    .site-footer__grid{display:grid;grid-template-columns:1fr;gap:1.5rem;margin-bottom:1.5rem;}
+    @media(min-width:640px){.site-footer__grid{grid-template-columns:repeat(3,1fr);}}
+    .site-footer__col h4{font-size:.875rem;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:.625rem;text-transform:uppercase;letter-spacing:.05em;}
+    .site-footer__col p,.site-footer__col a{font-size:.875rem;color:rgba(255,255,255,.65);line-height:1.6;text-decoration:none;display:block;}
+    .site-footer__col a:hover{color:white;}
+    .site-footer__legal{font-size:.75rem;color:rgba(255,255,255,.45);line-height:1.6;border-top:1px solid rgba(255,255,255,.1);padding-top:1.25rem;}
+
+    /* Mobile input zoom fix */
+    input[type="text"],input[type="email"],input[type="tel"],input[type="number"],select,textarea{font-size:16px!important;}
+
+    /* Treatment selector cards */
+    .tx-card{display:flex;align-items:center;gap:.75rem;padding:.75rem;border:2px solid var(--taupe);border-radius:.75rem;background:white;cursor:pointer;transition:border-color .2s,box-shadow .2s;position:relative;-webkit-tap-highlight-color:transparent;}
+    .tx-card:hover{border-color:var(--sage);box-shadow:0 2px 8px rgba(44,62,45,.1);}
+    .tx-card--active{border-color:var(--forest);box-shadow:0 2px 12px rgba(44,62,45,.18);}
+    .tx-card-img-wrap{flex-shrink:0;width:56px;height:56px;border-radius:.5rem;overflow:hidden;background:var(--cream-dk);}
+    .tx-card-img{width:100%;height:100%;object-fit:cover;}
+    .tx-card-body{flex:1;min-width:0;}
+    .tx-card-name{font-size:.875rem;font-weight:700;color:var(--forest);line-height:1.3;}
+    .tx-card-sub{font-size:.75rem;color:var(--light);margin-top:.15rem;}
+    .tx-badge{display:inline-block;font-size:.625rem;font-weight:700;padding:.15rem .45rem;border-radius:.25rem;margin-bottom:.25rem;text-transform:uppercase;letter-spacing:.04em;}
+    .tx-badge--green{background:var(--forest);color:white;}
+    .tx-badge--sage{background:var(--sage);color:white;}
+    .tx-badge--rose{background:var(--rose);color:white;}
+    .tx-check{flex-shrink:0;}
+    .tx-check--empty{width:18px;height:18px;border-radius:50%;border:2px solid var(--taupe);}
+
+    /* Product panel */
+    .panel-top{display:flex;flex-direction:column;gap:1.25rem;margin-bottom:1.5rem;}
+    @media(min-width:768px){.panel-top{flex-direction:row;align-items:flex-start;gap:2rem;}}
+    .panel-img-wrap{flex-shrink:0;width:100%;max-width:320px;border-radius:1rem;overflow:hidden;background:var(--cream-dk);}
+    @media(min-width:768px){.panel-img-wrap{width:38%;}}
+    .panel-img{width:100%;height:auto;object-fit:cover;display:block;}
+    .panel-info{flex:1;}
+    .panel-name{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.625rem;font-weight:600;color:var(--forest);margin-bottom:.375rem;line-height:1.2;}
+    .panel-sub{font-size:.9375rem;color:var(--light);margin-bottom:1rem;}
+    .benefit-row{display:flex;align-items:flex-start;gap:.5rem;font-size:.9rem;color:var(--mid);margin-bottom:.4rem;}
+    .benefit-icon{color:var(--sage);font-weight:700;flex-shrink:0;margin-top:.05rem;}
+
+    /* Schedule section */
+    .schedule-section{margin-bottom:1.25rem;}
+    .schedule-label{font-size:.9375rem;font-weight:700;color:var(--forest);margin-bottom:.625rem;}
+    .schedule-cards{display:grid;grid-template-columns:1fr 1fr;gap:.625rem;}
+    .sched-card{position:relative;padding:.875rem;border:2px solid var(--taupe);border-radius:.75rem;background:var(--cream);cursor:pointer;transition:border-color .15s,background .15s;overflow:hidden;-webkit-tap-highlight-color:transparent;}
+    .sched-card:hover{border-color:var(--sage-lt);}
+    .sched-card--active{border-color:var(--forest);background:rgba(44,62,45,.04);}
+    .sched-card-name{font-size:.875rem;font-weight:700;color:var(--forest);margin-bottom:.25rem;}
+    .sched-price-orig{display:block;font-size:.875rem;color:var(--light);text-decoration:line-through;}
+    .sched-price-disc{display:block;font-size:1.125rem;font-weight:800;color:var(--emerald);}
+    .sched-detail{font-size:.75rem;color:var(--light);margin-top:.25rem;}
+    .sched-save-badge{position:absolute;top:0;right:0;background:#ef4444;color:white;font-size:.625rem;font-weight:700;padding:.2rem .5rem;border-bottom-left-radius:.375rem;}
+
+    /* Add-on rows */
+    .addons-wrap{margin-bottom:1.25rem;}
+    .addon-row{display:flex;align-items:flex-start;flex-wrap:wrap;gap:.5rem .75rem;padding:.75rem;border:1px solid var(--taupe);border-radius:.625rem;background:var(--cream);margin-bottom:.625rem;justify-content:space-between;}
+    .addon-row--required{background:rgba(16,185,129,.05);border-color:rgba(16,185,129,.3);}
+    .addon-row--included{background:rgba(122,158,126,.08);border-color:rgba(122,158,126,.3);}
+    .addon-row-left{display:flex;align-items:flex-start;gap:.625rem;flex:1;min-width:0;}
+    .addon-row-icon{flex-shrink:0;width:2rem;height:2rem;border-radius:.375rem;background:var(--forest);color:white;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;}
+    .addon-row-icon--check{background:var(--sage);font-size:1rem;}
+    .addon-row-icon--plus{background:var(--rose);font-size:1.125rem;}
+    .addon-row-info{flex:1;min-width:0;}
+    .addon-row-name{font-size:.875rem;font-weight:700;color:var(--forest);}
+    .addon-row-desc{font-size:.8125rem;color:var(--light);margin-top:.1rem;}
+    .addon-badge-required{display:inline-block;background:var(--forest);color:white;font-size:.6rem;font-weight:700;padding:.1rem .4rem;border-radius:.25rem;vertical-align:middle;margin-left:.25rem;letter-spacing:.04em;text-transform:uppercase;}
+    .addon-row-price{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;}
+    .addon-row-price--free{color:var(--sage);font-weight:700;font-size:.875rem;align-self:center;}
+    .addon-price-orig{font-size:.8125rem;color:var(--light);text-decoration:line-through;}
+    .addon-price-disc{font-size:.875rem;font-weight:700;color:var(--emerald);}
+    .addon-row-right{display:flex;align-items:center;gap:.625rem;flex-shrink:0;}
+    .toggle-wrap{position:relative;display:inline-block;width:2.5rem;height:1.375rem;}
+    .toggle-wrap input{opacity:0;width:0;height:0;position:absolute;}
+    .toggle-slider{position:absolute;inset:0;background:var(--taupe);border-radius:9999px;cursor:pointer;transition:background .2s;}
+    .toggle-slider::before{content:'';position:absolute;width:1rem;height:1rem;left:.2rem;top:.2rem;background:white;border-radius:50%;transition:transform .2s;}
+    .toggle-wrap input:checked+.toggle-slider{background:var(--forest);}
+    .toggle-wrap input:checked+.toggle-slider::before{transform:translateX(1.125rem);}
+
+    /* Total section */
+    .total-wrap{margin-bottom:1.25rem;padding:1rem;background:var(--cream-dk);border-radius:.75rem;border:1px solid var(--taupe);}
+    .total-label{font-size:.875rem;font-weight:700;color:var(--forest);margin-bottom:.375rem;}
+    .total-prices{display:flex;align-items:baseline;gap:.75rem;margin-bottom:.25rem;}
+    .total-orig{font-size:1.125rem;color:var(--light);text-decoration:line-through;}
+    .total-disc{font-size:2rem;font-weight:800;color:var(--emerald);}
+    .total-then{font-size:.8125rem;color:var(--light);}
+
+    /* Checkout button */
+    .checkout-btn{width:100%;padding:.9375rem 2rem;background:linear-gradient(180deg,#34d399 0%,#059669 100%);color:white;font-family:'DM Sans',sans-serif;font-size:1.125rem;font-weight:700;border:none;border-radius:.75rem;cursor:pointer;transition:transform .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent;}
+    .checkout-btn:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(5,150,105,.3);}
+    .checkout-btn:disabled{background:#d1d5db;cursor:not-allowed;transform:none;}
+    .checkout-note{text-align:center;font-size:.75rem;color:var(--light);margin-top:.5rem;}
+
+    /* Required addon row */
+    .addon-row--required{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.3);}
+    .addon-required-badge{display:inline-block;background:var(--forest);color:white;font-size:.6rem;font-weight:700;padding:.1rem .4rem;border-radius:.25rem;vertical-align:middle;margin-left:.25rem;letter-spacing:.04em;text-transform:uppercase;}
+
+    /* ── Panel benefits (used by renderPanel) ── */
+    .panel-benefits{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem;}
+    .panel-benefit{display:flex;align-items:flex-start;gap:.5rem;font-size:.9rem;color:var(--mid);line-height:1.45;}
+    .benefit-check{color:var(--sage);font-weight:700;flex-shrink:0;margin-top:.05rem;}
+
+    /* ── Schedule wrap ── */
+    .sched-wrap{display:grid;grid-template-columns:1fr 1fr;gap:.625rem;margin-bottom:1.25rem;}
+
+    /* ── Addon info/name/sub/price (used by renderPanel) ── */
+    .addon-info{flex:1;min-width:0;}
+    .addon-name{font-size:.875rem;font-weight:700;color:var(--forest);}
+    .addon-sub{font-size:.8125rem;color:var(--light);margin-top:.1rem;}
+    .addon-price{font-size:.875rem;font-weight:700;color:var(--mid);flex-shrink:0;white-space:nowrap;}
+    .addon-price--included{color:var(--sage);}
+
+    /* Included progesterone row */
+    .addon-row--included{background:rgba(122,158,126,.08);border-color:rgba(122,158,126,.3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+
+    /* Vaginal add-on toggle row */
+    .addon-row--toggle{display:flex;flex-direction:column;gap:.375rem;}
+    .addon-row--recommended{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.04);}
+    .addon-recommended{font-size:.75rem;color:var(--sage);font-weight:600;}
+    .addon-toggle-label{display:flex;align-items:center;gap:.75rem;cursor:pointer;width:100%;}
+    .addon-toggle-label input[type="checkbox"]{width:1.125rem;height:1.125rem;accent-color:var(--forest);flex-shrink:0;cursor:pointer;}
+
+    /* Discount banner */
+    .discount-banner{background:var(--forest);color:white;text-align:center;padding:.375rem 1rem;font-size:.8125rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+
+    /* CHECKOUT OVERLAY */
+    #checkout-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(250,247,242,.92);backdrop-filter:blur(4px);flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
+    #checkout-overlay.visible{display:flex;}
+    .checkout-spinner{width:2.5rem;height:2.5rem;border:3px solid var(--taupe);border-top-color:var(--forest);border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    #checkout-overlay p{font-size:1rem;font-weight:600;color:var(--forest);}
+  </style>
+</head>
+<body>
+
+<div class="discount-banner">50% off applied</div>
+
+<nav class="site-nav">
+  <a href="index.html" class="site-nav__logo">Cleared<span>Rx</span></a>
+  <a href="tel:+12029519915" style="text-decoration:none;display:flex;flex-direction:column;align-items:flex-end;gap:.1rem;">
+    <span style="font-size:.8125rem;font-weight:600;color:var(--forest);display:flex;align-items:center;gap:.3rem;"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>(202) 951-9915</span>
+    <span style="font-size:.6875rem;color:var(--light);font-weight:400;">Mon&ndash;Fri 9am&ndash;5pm ET</span>
+  </a>
+</nav>
+
+<div class="approval-bar" id="patient-greeting">Your prescription is pre-approved.</div>
+
+<section class="treatment-selector-section">
+  <div style="max-width:900px;margin:0 auto;">
+    <a href="index.html" class="back-link" onclick="history.back();return false;">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Back to change answers
+    </a>
+    <h2 class="selector-title">Select Your Treatment</h2>
+    <div id="treatment-selector" class="treatment-options" role="radiogroup"></div>
+  </div>
+</section>
+
+<section class="product-section"><div id="product-panel" style="max-width:960px;margin:0 auto;padding:1.5rem 1rem 2rem;"></div></section>
+
+<section class="discover-section">
+  <div class="discover-section__inner">
+    <h2 class="section-title">Discover ClearedRx</h2>
+    <div class="discover-layout">
+      <div class="discover-sidebar">
+        <h3>Learn More</h3>
+        <nav class="discover-nav">
+          <button class="discover-nav-btn active" data-panel="overview">Overview <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+          <button class="discover-nav-btn" data-panel="benefits">Benefits <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+          <button class="discover-nav-btn" data-panel="formula">Our Formula <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+          <button class="discover-nav-btn" data-panel="how-it-works">How It Works <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+          <button class="discover-nav-btn" data-panel="guarantee">Our Guarantee <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+          <button class="discover-nav-btn" data-panel="about">About ClearedRx <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        </nav>
+      </div>
+      <div class="discover-content">
+        <div class="discover-panel active" id="panel-overview">
+          <h3>Who ClearedRx Is For</h3>
+          <p>ClearedRx is for women experiencing perimenopause, menopause, or post-menopause symptoms who want real, physician-prescribed hormone therapy without the runaround of in-person appointments.</p>
+          <div class="stage-badges">
+            <div class="stage-badge"><div class="stage-badge__circle"><img src="images/peri.png" alt="" /></div>Perimenopause</div>
+            <div class="stage-badge"><div class="stage-badge__circle"><img src="images/early.png" alt="" /></div>Early Menopause</div>
+            <div class="stage-badge"><div class="stage-badge__circle"><img src="images/meno.png" alt="" /></div>Menopause</div>
+            <div class="stage-badge"><div class="stage-badge__circle"><img src="images/post.png" alt="" /></div>Post-Menopause</div>
+            <div class="stage-badge"><div class="stage-badge__circle"><img src="images/surg.png" alt="" /></div>Surgical Menopause</div>
+          </div>
+          <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--taupe);display:flex;align-items:flex-start;gap:1rem;">
+            <img src="images/crx-medteam.png" alt="ClearedRx Medical Team" style="width:4.5rem;height:4.5rem;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--taupe);" />
+            <div>
+              <p style="font-size:1.0625rem;font-weight:600;color:var(--charcoal);font-style:italic;">"Every Woman Deserves To Feel Like Herself Again"</p>
+              <p>Leading menopause doctors say hormone replacement therapy is the best treatment for menopause symptoms. When done right with real doctors watching over you, it can give you your life back.</p>
+              <p style="font-size:.875rem;font-weight:700;color:var(--forest);margin-bottom:.125rem;">ClearedRx Medical Team</p>
+              <p style="font-size:.8125rem;color:var(--light);margin-bottom:0;">Board-Certified Doctors Licensed in All 50 States</p>
+            </div>
+          </div>
+        </div>
+        <div class="discover-panel" id="panel-benefits">
+          <h3>Benefits</h3>
+          <p>Hormone replacement therapy doesn't just ease hot flashes — it can improve sleep, mood, brain fog, weight, skin, libido, and more. Below is an estimated monthly cost to address each problem separately vs. one ClearedRx treatment.</p>
+          <table class="benefits-table">
+            <thead><tr><th>Symptom or concern</th><th class="cost">Typical cost/mo</th></tr></thead>
+            <tbody>
+              <tr><td>Hot flashes &amp; night sweats</td><td class="cost">~$45</td></tr>
+              <tr><td>Insomnia &amp; poor sleep</td><td class="cost">~$40</td></tr>
+              <tr><td>Mood swings, anxiety &amp; low mood</td><td class="cost">~$90</td></tr>
+              <tr><td>Brain fog &amp; memory</td><td class="cost">~$35</td></tr>
+              <tr><td>Low libido &amp; sexual discomfort</td><td class="cost">~$50</td></tr>
+              <tr><td>Vaginal dryness</td><td class="cost">~$55</td></tr>
+              <tr><td>Weight gain (gym, diet program)</td><td class="cost">~$120</td></tr>
+              <tr><td>Wrinkles &amp; skin aging</td><td class="cost">~$85</td></tr>
+              <tr><td>Hair thinning</td><td class="cost">~$45</td></tr>
+              <tr><td>Fatigue &amp; low energy</td><td class="cost">~$30</td></tr>
+              <tr><td>Joint pain &amp; stiffness</td><td class="cost">~$40</td></tr>
+              <tr><td>Bone health supplements</td><td class="cost">~$25</td></tr>
+              <tr class="total"><td>Estimated total if addressed separately</td><td class="cost">~$660/mo</td></tr>
+            </tbody>
+          </table>
+          <div class="benefits-vs">
+            <p class="benefits-vs__title">One ClearedRx treatment</p>
+            <p class="benefits-vs__price">Under $200/mo</p>
+            <ul class="benefits-vs__list">
+              <li>Doctor-prescribed bioidentical hormones delivered to your door</li>
+              <li>Can help with hot flashes, sleep, mood, brain fog, weight, skin, libido, energy, and more</li>
+              <li>One treatment plan instead of a drawer full of separate products</li>
+            </ul>
+            <p class="benefits-vs__note">*Individual costs above are estimates. ClearedRx pricing depends on your chosen treatment and refill option.</p>
+          </div>
+        </div>
+        <div class="discover-panel" id="panel-formula">
+          <h3>Our Treatment Formula</h3>
+          <p>ClearedRx treatments are prescription hormone therapy. Your formula is tailored to you and made under strict pharmacy rules.</p>
+          <div class="formula-block"><h4>What's in the formula</h4><p>Your treatment contains <strong>estradiol</strong>, a bioidentical estrogen that replaces what your body stopped producing after surgery. Because you've had a hysterectomy, you don't need progesterone &mdash; estrogen alone is your complete treatment.</p></div>
+          <div class="formula-block"><h4>Made in a US compounding pharmacy</h4><p>Every order is prepared in a licensed US compounding pharmacy. Your medication is compounded fresh for your order — not bottled months ago and left on a shelf.</p></div>
+          <div class="formula-block"><h4>Quality and feel</h4><p>Our creams are <strong>non-comedogenic</strong> (won't clog pores), <strong>lightweight</strong>, and <strong>non-greasy</strong> for easy daily use. Everything is medical grade and meant for prescription use.</p></div>
+        </div>
+        <div class="discover-panel" id="panel-how-it-works">
+          <h3>How It Works</h3>
+     <p>After a hysterectomy, your body no longer produces estrogen. Estrogen-only HRT replaces it &mdash; relieving hot flashes, night sweats, mood changes, and other symptoms. It's an ongoing treatment you use consistently to keep hormone levels stable.</p>
+          <div class="how-block"><h4>Estrogen gel</h4><p>Apply a small amount to your upper arm or shoulder once daily. It dries in under a minute with no residue. Your physician will prescribe your exact dose.</p></div>
+          <div class="how-block"><h4>Estrogen patch</h4><p>Apply to clean, dry skin on your lower abdomen, buttock, or upper thigh. Change twice a week. Water-resistant and designed to stay in place through daily life.</p></div>
+          <div class="how-block"><h4>Estrogen pill</h4><p>Take one small pill once daily as prescribed. A familiar, simple routine that fits into your existing schedule.</p></div>        </div>
+        <div class="discover-panel" id="panel-guarantee">
+          <h3>Our Guarantee</h3>
+          <p>We want you to try treatment with zero worry. If it's not for you, you're covered.</p>
+          <div class="guarantee-promise">
+            <p class="guarantee-promise__title">30-day money-back guarantee. No questions asked.</p>
+            <p class="guarantee-promise__text">If you're not satisfied within the first 30 days of your first order, we'll give you a full refund. No forms to fight, no hassle.</p>
+          </div>
+          <p class="guarantee-risk">"The bigger risk is missing out on relief while symptoms keep affecting your days." &mdash; Dr. Jenkins, Board-Certified Menopause Specialist</p>
+        </div>
+        <div class="discover-panel" id="panel-about">
+          <h3>About ClearedRx</h3>
+          <p>We started ClearedRx because menopause care shouldn't be confusing, expensive, or something you face alone.</p>
+          <div class="formula-block"><h4>Why we're here</h4><p>Menopause can turn your life upside down. Our mission: get you doctor-prescribed hormone therapy that actually works, delivered to your door, at a price that makes sense.</p></div>
+          <div class="formula-block"><h4>How we do it</h4><p>You answer a short online questionnaire. A board-certified physician reviews your information and, if it's right for you, writes your prescription. Your treatment ships from a licensed US pharmacy.</p></div>
+          <div class="formula-block"><h4>You're in good hands</h4><p>Our medical team is licensed across all 50 states. We use FDA-approved, bioidentical hormones and partner with a US compounding pharmacy you can trust.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="social-section">
+  <div class="social-section__inner">
+    <h2 class="section-title">What Women Are Saying</h2>
+    <div class="social-grid">
+      <div class="social-card">
+        <div class="social-card__header">
+          <img src="images/r1.jpg" alt="Sandra K." class="social-card__avatar" />
+          <div><div class="social-card__name">Sandra K.</div><div class="social-card__handle">@sandrak &middot; 52</div></div>
+        </div>
+        <div class="social-card__stars"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+        <p class="social-card__text">"I had a hysterectomy at 44 and the hot flashes hit hard. The estrogen gel changed everything — I sleep through the night and feel like myself again."</p>
+        <p class="social-card__treatment">Estrogen Gel</p>
+      </div>
+      <div class="social-card">
+        <div class="social-card__header">
+          <img src="images/r2.jpg" alt="Michelle T." class="social-card__avatar" />
+          <div><div class="social-card__name">Michelle T.</div><div class="social-card__handle">@michellet &middot; 48</div></div>
+        </div>
+        <div class="social-card__stars"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+        <p class="social-card__text">"After my surgery I felt like I aged 10 years overnight. The estrogen patches are so easy — I change them twice a week and I'm back to feeling like myself."</p>
+        <p class="social-card__treatment">Estrogen Patch</p>
+      </div>
+      <div class="social-card">
+        <div class="social-card__header">
+          <img src="images/r3.jpg" alt="Diane W." class="social-card__avatar" />
+          <div><div class="social-card__name">Diane W.</div><div class="social-card__handle">@dianew &middot; 55</div></div>
+        </div>
+        <div class="social-card__stars"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+        <p class="social-card__text">"Post-hysterectomy menopause was brutal. The estrogen gel plus the vaginal tablets — I can't believe how much better I feel. The dryness is completely gone."</p>
+        <p class="social-card__treatment">Estrogen Gel + Vaginal Tablets</p>
+      </div>
+      <div class="social-card">
+        <div class="social-card__header">
+          <img src="images/r4.jpg" alt="Carla M." class="social-card__avatar" />
+          <div><div class="social-card__name">Carla M.</div><div class="social-card__handle">@carlam &middot; 51</div></div>
+        </div>
+        <div class="social-card__stars"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+        <p class="social-card__text">"I was nervous about HRT after my hysterectomy but my doctor said estrogen-only is safe for me. One pill a day and the brain fog, hot flashes, all of it — gone."</p>
+        <p class="social-card__treatment">Estrogen Pills</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq-section">
+  <div class="faq-section__inner">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div id="faq-list"></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <span class="site-footer__logo">Cleared<span>Rx</span></span>
+    <div class="site-footer__grid">
+      <div class="site-footer__col"><h4>Support</h4><a href="mailto:support@clearedrx.com">support@clearedrx.com</a><a href="tel:+18005550100">1-800-555-0100</a><p>Mon&ndash;Fri 9am&ndash;6pm ET</p></div>
+      <div class="site-footer__col"><h4>Company</h4><a href="#">About Us</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+      <div class="site-footer__col"><h4>Medical</h4><p>Physician network: Beluga Health</p><p>Licensed in all 50 states</p><p>US compounding pharmacy</p></div>
+    </div>
+    <p class="site-footer__legal">ClearedRx is not a pharmacy. Prescriptions are issued by licensed physicians and filled by a licensed US compounding pharmacy. This website is for informational purposes only and does not constitute medical advice. Results may vary. &copy; 2025 ClearedRx. All rights reserved.</p>
+  </div>
+</footer>
+
+<div id="checkout-overlay">
+  <div class="checkout-spinner"></div>
+  <p>Preparing your checkout&hellip;</p>
+</div>
+
+<script src="js/treatments-no-prog.js"></script>
+</body>
+</html>

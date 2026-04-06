@@ -725,7 +725,7 @@
     // Build clinical flags from answers
     var flags = buildClinicalFlags();
 
-    // Store flags in sessionStorage for treatments.html
+    // Store flags in sessionStorage for treatments page
     sessionStorage.setItem('crx_flags', JSON.stringify(flags));
     sessionStorage.setItem('crx_answers', JSON.stringify(answers));
 
@@ -743,7 +743,9 @@
     .then(function(data) {
       if (data.ok) {
         sessionStorage.setItem('crx_complete', JSON.stringify(data));
-        window.location.href = 'treatments.html';
+        // Route hysterectomy patients (no progesterone needed) to dedicated page
+        var treatmentPage = flags.needsProgesterone ? 'treatments.html' : 'treatments-no-prog.html';
+        window.location.href = treatmentPage;
       } else {
         if (loadingContent) loadingContent.innerHTML = '<p style="color:var(--rose)">Something went wrong. Please try again.</p>';
       }
