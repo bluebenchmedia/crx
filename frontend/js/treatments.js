@@ -524,7 +524,7 @@
           : '<div class="total-then">Then $' + totalFull + '/mo after</div>') +
       '</div>' +
       '<button class="checkout-btn" id="checkout-btn">Get My Treatment &rarr;</button>' +
-      '<p class="checkout-note">&#128274; Secure checkout &bull; Physician-reviewed &bull; Cancel anytime</p>';
+      '<p class="checkout-note">Secure checkout &bull; Physician-reviewed &bull; Cancel anytime</p>';
 
     // Bind schedule card clicks
     panel.querySelectorAll('.sched-card').forEach(function(card) {
