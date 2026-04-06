@@ -51,9 +51,9 @@
         'Compounded fresh by a licensed US pharmacy to your exact prescribed dose'
       ],
       monthly:      { cpid: 119, price: 189 },
-      quarterly:    { cpid: 157, price: 469 },
+      quarterly:    { cpid: 157, price: 567 },
       monthlyLow:   { cpid: 117, price: 189 },
-      quarterlyLow: { cpid: 155, price: 469 },
+      quarterlyLow: { cpid: 155, price: 567 },
       isCompoundedEP:  true,
       isVaginalFocused: true,
       requiresNoAdhesiveAllergy: false,
@@ -73,9 +73,9 @@
         'Compounded fresh by a licensed US pharmacy specifically for your prescription'
       ],
       monthly:      { cpid: 41,  price: 189 },
-      quarterly:    { cpid: 151, price: 469 },
+      quarterly:    { cpid: 151, price: 567 },
       monthlyLow:   { cpid: 39,  price: 189 },
-      quarterlyLow: { cpid: 149, price: 469 },
+      quarterlyLow: { cpid: 149, price: 567 },
       isCompoundedEP:  true,
       isVaginalFocused: false,
       requiresNoAdhesiveAllergy: false,
@@ -94,10 +94,10 @@
         'No adhesive and nothing to swallow &mdash; an ideal option if you have sensitive skin or prefer not to take pills',
         'Easy for your physician to adjust your dose over time as your body responds to treatment'
       ],
-      monthly:      { cpid: 15,  price: 151 },
-      quarterly:    { cpid: 125, price: 379 },
-      monthlyLow:   { cpid: 13,  price: 151 },
-      quarterlyLow: { cpid: 123, price: 379 },
+      monthly:      { cpid: 15,  price: 149 },
+      quarterly:    { cpid: 125, price: 447 },
+      monthlyLow:   { cpid: 13,  price: 149 },
+      quarterlyLow: { cpid: 123, price: 447 },
       isCompoundedEP:  false,
       isVaginalFocused: false,
       requiresNoAdhesiveAllergy: false,
@@ -115,10 +115,10 @@
         'No daily routine to remember &mdash; apply it and forget about it until your next change day',
         'Water-resistant and designed to stay in place through showers, exercise, and daily life'
       ],
-      monthly:      { cpid: 21,  price: 151 },
-      quarterly:    { cpid: 131, price: 379 },
-      monthlyLow:   { cpid: 19,  price: 151 },
-      quarterlyLow: { cpid: 129, price: 379 },
+      monthly:      { cpid: 21,  price: 139 },
+      quarterly:    { cpid: 131, price: 417 },
+      monthlyLow:   { cpid: 19,  price: 139 },
+      quarterlyLow: { cpid: 129, price: 417 },
       isCompoundedEP:  false,
       isVaginalFocused: false,
       requiresNoAdhesiveAllergy: true,   // HARD DISQUALIFIER — never overridden
@@ -137,10 +137,10 @@
         'Estradiol is absorbed through your digestive system and metabolized by the liver, delivering effective systemic hormone support',
         'Your physician may prescribe a separate progesterone pill to take at bedtime for complete uterine protection'
       ],
-      monthly:      { cpid: 27,  price: 151 },
-      quarterly:    { cpid: 137, price: 379 },
-      monthlyLow:   { cpid: 25,  price: 151 },
-      quarterlyLow: { cpid: 135, price: 379 },
+      monthly:      { cpid: 27,  price: 99 },
+      quarterly:    { cpid: 137, price: 297 },
+      monthlyLow:   { cpid: 25,  price: 99 },
+      quarterlyLow: { cpid: 135, price: 297 },
       isCompoundedEP:  false,
       isVaginalFocused: false,
       requiresNoAdhesiveAllergy: false,
@@ -164,8 +164,8 @@
    * Pre-checked if vaginalSymptoms=true; unchecked but available otherwise.
    * ─────────────────────────────────────────────────────────────────────── */
   var VAGINAL_ADDON = {
-    monthly:   { cpid: 31,  price: 49  },
-    quarterly: { cpid: 141, price: 129 },
+    monthly:   { cpid: 31,  price: 99  },
+    quarterly: { cpid: 141, price: 297 },
   };
 
   /* ── State ───────────────────────────────────────────────────────────────── */
@@ -419,7 +419,7 @@
           '<div class="sched-detail">Billed monthly</div>' +
         '</div>' +
         '<div class="sched-card' + (selectedSchedule === 'quarterly' ? ' sched-card--active' : '') + '" data-schedule="quarterly">' +
-          (qSave > 0 ? '<div class="sched-save-badge">Save $' + qSave + '/mo</div>' : '') +
+
           '<div class="sched-card-name">3-Month Supply</div>' +
           '<div class="sched-price-orig">$' + qPerMo + '/mo</div>' +
           '<div class="sched-price-disc">$' + Math.round(qPerMo * 0.5) + '/mo</div>' +
