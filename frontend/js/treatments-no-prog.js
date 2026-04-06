@@ -88,7 +88,7 @@
       subtitle: 'Applied once daily to your arm or shoulder',
       badge: null,
       badgeColor: null,
-      image: 'images/estradiol-gel.jpg',
+      image: 'images/estradiol-gel-solo.jpg',
       benefits: [
         'A clear, fast-absorbing gel applied once daily to your upper arm or shoulder &mdash; dries in under a minute with no residue',
         'Delivers estradiol (the primary estrogen your body loses during menopause) through the skin for steady, consistent hormone levels',
