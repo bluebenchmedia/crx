@@ -377,16 +377,15 @@
     var scheduleHtml =
       '<div class="sched-wrap">' +
         '<div class="sched-card' + (selectedSchedule === 'monthly' ? ' sched-card--active' : '') + '" data-schedule="monthly">' +
-          '<div class="sched-card-name">Monthly Supply</div>' +
-          '<div class="sched-price-orig">$' + mPerMo + '/mo</div>' +
-          '<div class="sched-price-disc">$' + Math.round(mPerMo * 0.5) + '/mo</div>' +
+          '<div class="sched-card-name">1 Month Supply</div>' +
+          '<div class="sched-price-orig">$' + mPerMo + '</div>' +
+          '<div class="sched-price-disc">$' + Math.round(mPerMo * 0.5) + '</div>' +
           '<div class="sched-detail">Billed monthly</div>' +
         '</div>' +
         '<div class="sched-card' + (selectedSchedule === 'quarterly' ? ' sched-card--active' : '') + '" data-schedule="quarterly">' +
-
-          '<div class="sched-card-name">3-Month Supply</div>' +
-          '<div class="sched-price-orig">$' + qPerMo + '/mo</div>' +
-          '<div class="sched-price-disc">$' + Math.round(qPerMo * 0.5) + '/mo</div>' +
+          '<div class="sched-card-name">3 Month Supply</div>' +
+          '<div class="sched-price-orig">$' + qData.price + '</div>' +
+          '<div class="sched-price-disc">$' + Math.round(qData.price * 0.5) + '</div>' +
           '<div class="sched-detail">Billed every 3 months</div>' +
         '</div>' +
       '</div>';

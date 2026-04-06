@@ -48,7 +48,8 @@
         'Delivers estrogen and progesterone directly where vaginal tissue needs it most, relieving dryness, irritation, and painful intercourse at the source',
         'Also provides full systemic hormone support for hot flashes, mood, sleep, and bone health',
         'Applied vaginally once daily using a pre-measured applicator &mdash; no pills, patches, or guesswork',
-        'Compounded fresh by a licensed US pharmacy to your exact prescribed dose'
+        'Compounded fresh by a licensed US pharmacy to your exact prescribed dose',
+        'Progesterone is medically essential for anyone with a uterus &mdash; it protects the uterine lining and also improves sleep quality, reduces anxiety, and supports mood stability'
       ],
       monthly:      { cpid: 119, price: 189 },
       quarterly:    { cpid: 157, price: 567 },
@@ -70,7 +71,8 @@
         'Combines estrogen and progesterone in a single daily application &mdash; no separate progesterone pill needed',
         'Applied to clean, dry skin once daily using a medical-grade TopiClick&trade; dispenser that delivers your exact 1g dose every time',
         'Absorbs quickly, non-greasy, and non-comedogenic &mdash; designed for comfortable everyday use',
-        'Compounded fresh by a licensed US pharmacy specifically for your prescription'
+        'Compounded fresh by a licensed US pharmacy specifically for your prescription',
+        'Progesterone is medically essential for anyone with a uterus &mdash; it protects the uterine lining and also improves sleep quality, reduces anxiety, and supports mood stability'
       ],
       monthly:      { cpid: 41,  price: 189 },
       quarterly:    { cpid: 151, price: 567 },
@@ -92,7 +94,8 @@
         'A clear, fast-absorbing gel applied once daily to your upper arm or shoulder &mdash; dries in under a minute with no residue',
         'Delivers estradiol (the primary estrogen your body loses during menopause) through the skin for steady, consistent hormone levels',
         'No adhesive and nothing to swallow &mdash; an ideal option if you have sensitive skin or prefer not to take pills',
-        'Easy for your physician to adjust your dose over time as your body responds to treatment'
+        'Easy for your physician to adjust your dose over time as your body responds to treatment',
+        'Paired with a daily progesterone pill &mdash; medically essential for uterine protection and also shown to improve sleep, reduce anxiety, and support mood'
       ],
       monthly:      { cpid: 15,  price: 149 },
       quarterly:    { cpid: 125, price: 447 },
@@ -113,7 +116,8 @@
         'A small, discreet patch worn on your lower abdomen, buttock, or upper thigh &mdash; changed just twice a week',
         'Delivers a steady, consistent stream of estradiol 24/7 so your hormone levels stay balanced between applications',
         'No daily routine to remember &mdash; apply it and forget about it until your next change day',
-        'Water-resistant and designed to stay in place through showers, exercise, and daily life'
+        'Water-resistant and designed to stay in place through showers, exercise, and daily life',
+        'Paired with a daily progesterone pill &mdash; medically essential for uterine protection and also shown to improve sleep, reduce anxiety, and support mood'
       ],
       monthly:      { cpid: 21,  price: 139 },
       quarterly:    { cpid: 131, price: 417 },
@@ -135,7 +139,7 @@
         'One small pill taken once daily &mdash; the simplest possible HRT routine with nothing to apply, stick on, or measure',
         'A familiar format that fits seamlessly into your existing routine, just like any other daily vitamin or medication',
         'Estradiol is absorbed through your digestive system and metabolized by the liver, delivering effective systemic hormone support',
-        'Your physician may prescribe a separate progesterone pill to take at bedtime for complete uterine protection'
+        'Your treatment includes a progesterone pill taken at bedtime &mdash; medically essential for uterine protection and also shown to improve sleep, reduce anxiety, and support mood'
       ],
       monthly:      { cpid: 27,  price: 99 },
       quarterly:    { cpid: 137, price: 297 },
@@ -363,15 +367,6 @@
           '</div>' +
           '<div class="addon-price">+$' + progData.price + '/mo</div>' +
         '</div>';
-    } else if (p.isCompoundedEP && flags.needsProgesterone) {
-      progHtml =
-        '<div class="addon-row addon-row--included">' +
-          '<div class="addon-info">' +
-            '<div class="addon-name">&#10003; Progesterone Included</div>' +
-            '<div class="addon-sub">Compounded together — no separate pill needed</div>' +
-          '</div>' +
-          '<div class="addon-price addon-price--included">Included</div>' +
-        '</div>';
     }
 
     // ── Vaginal add-on row HTML ───────────────────────────────────────────
@@ -413,16 +408,15 @@
     var scheduleHtml =
       '<div class="sched-wrap">' +
         '<div class="sched-card' + (selectedSchedule === 'monthly' ? ' sched-card--active' : '') + '" data-schedule="monthly">' +
-          '<div class="sched-card-name">Monthly Supply</div>' +
-          '<div class="sched-price-orig">$' + mPerMo + '/mo</div>' +
-          '<div class="sched-price-disc">$' + Math.round(mPerMo * 0.5) + '/mo</div>' +
+          '<div class="sched-card-name">1 Month Supply</div>' +
+          '<div class="sched-price-orig">$' + mPerMo + '</div>' +
+          '<div class="sched-price-disc">$' + Math.round(mPerMo * 0.5) + '</div>' +
           '<div class="sched-detail">Billed monthly</div>' +
         '</div>' +
         '<div class="sched-card' + (selectedSchedule === 'quarterly' ? ' sched-card--active' : '') + '" data-schedule="quarterly">' +
-
-          '<div class="sched-card-name">3-Month Supply</div>' +
-          '<div class="sched-price-orig">$' + qPerMo + '/mo</div>' +
-          '<div class="sched-price-disc">$' + Math.round(qPerMo * 0.5) + '/mo</div>' +
+          '<div class="sched-card-name">3 Month Supply</div>' +
+          '<div class="sched-price-orig">$' + qData.price + '</div>' +
+          '<div class="sched-price-disc">$' + Math.round(qData.price * 0.5) + '</div>' +
           '<div class="sched-detail">Billed every 3 months</div>' +
         '</div>' +
       '</div>';
