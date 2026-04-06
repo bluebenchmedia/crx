@@ -109,7 +109,7 @@
       name: 'Estrogen Patch',
       subtitle: 'Worn on skin, changed twice a week',
       badge: null,
-      image: 'images/estradiol-patch.jpg',
+      image: 'images/estradiol-patch-solo.jpg',
       benefits: [
         'A small, discreet patch worn on your lower abdomen, buttock, or upper thigh &mdash; changed just twice a week',
         'Delivers a steady, consistent stream of estradiol 24/7 so your hormone levels stay balanced between applications',
@@ -131,7 +131,7 @@
       subtitle: 'One small pill taken once daily',
       badge: null,
       badgeColor: null,
-      image: 'images/estradiol-pill.jpg',
+      image: 'images/estradiol-pill-solo.jpg',
       benefits: [
         'One small pill taken once daily &mdash; the simplest possible HRT routine with nothing to apply, stick on, or measure',
         'A familiar format that fits seamlessly into your existing routine, just like any other daily vitamin or medication',
