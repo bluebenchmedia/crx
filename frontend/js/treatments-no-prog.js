@@ -221,7 +221,92 @@
     buildSelector();
     renderPanel();
     bindBack();
+    initDiscoverAccordion();
+    initFaq();
   });
+
+  /* ── Discover accordion (sidebar nav tabs) ────────────────────────────────── */
+  function initDiscoverAccordion() {
+    var navBtns = document.querySelectorAll('.discover-nav-btn');
+    var panels  = document.querySelectorAll('.discover-panel');
+    navBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var target = btn.getAttribute('data-panel');
+        navBtns.forEach(function(b) { b.classList.remove('active'); });
+        panels.forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        var targetPanel = document.getElementById('panel-' + target);
+        if (targetPanel) targetPanel.classList.add('active');
+      });
+    });
+  }
+
+  /* ── FAQ accordion ─────────────────────────────────────────────────────────── */
+  var FAQ_ITEMS = [
+    {
+      q: 'Is hormone replacement therapy safe?',
+      a: 'For most healthy women under 60 or within 10 years of menopause, the benefits of HRT outweigh the risks. Modern bioidentical hormones are well-studied and considered safe when prescribed by a licensed physician who reviews your full health history. Your ClearedRx physician will evaluate your individual situation before prescribing.'
+    },
+    {
+      q: 'How long until I feel results?',
+      a: 'Many women notice improvements in sleep and hot flashes within 2–4 weeks. Full benefits — including mood, energy, and libido — typically develop over 2–3 months as hormone levels stabilize. Your physician may adjust your dose over time to optimize your results.'
+    },
+    {
+      q: 'Do I need to see a doctor in person?',
+      a: 'No. ClearedRx is a fully online telehealth service. You complete a detailed health questionnaire, and a board-certified physician reviews your information and writes your prescription if appropriate. Everything is handled remotely — no office visit required.'
+    },
+    {
+      q: 'How is my prescription filled?',
+      a: 'Your prescription is sent to a licensed US compounding pharmacy. Your treatment is prepared fresh for your specific prescription and shipped directly to your door in discreet packaging. Most orders arrive within 5–7 business days of physician approval.'
+    },
+    {
+      q: 'Can I cancel or change my treatment?',
+      a: 'Yes. You can cancel, pause, or request a treatment change at any time by contacting our support team. There are no long-term commitments. If you’re not satisfied within the first 30 days of your first order, we offer a full money-back guarantee.'
+    },
+    {
+      q: 'What if I have side effects?',
+      a: 'Mild side effects such as breast tenderness or spotting can occur during the first few weeks as your body adjusts. These usually resolve on their own. If you experience persistent or concerning symptoms, contact our support team and a physician will review your case and adjust your prescription if needed.'
+    },
+    {
+      q: 'Is this covered by insurance?',
+      a: 'ClearedRx treatments are not currently billed through insurance. However, many patients find our pricing comparable to or lower than their insurance copays for traditional HRT, especially with our 50% first-month discount and quarterly supply savings.'
+    },
+    {
+      q: 'Do I need progesterone after a hysterectomy?',
+      a: 'No. If you have had a hysterectomy (removal of the uterus), you do not have a uterine lining to protect, so progesterone is not medically necessary. Estrogen-only therapy is the standard of care for women who have had a hysterectomy, and it is safe and effective for managing menopause symptoms.'
+    },
+  ];
+
+  function initFaq() {
+    var list = document.getElementById('faq-list');
+    if (!list) return;
+    list.innerHTML = FAQ_ITEMS.map(function(item, i) {
+      return '<div class="faq-item">' +
+        '<button class="faq-btn" data-faq="' + i + '">' +
+          '<div class="faq-btn__q">' +
+            '<span class="faq-btn__icon">' + (i + 1) + '</span>' +
+            '<span class="faq-btn__text">' + item.q + '</span>' +
+          '</div>' +
+          '<span class="faq-btn__toggle">+</span>' +
+        '</button>' +
+        '<div class="faq-body" id="faq-body-' + i + '">' + item.a + '</div>' +
+      '</div>';
+    }).join('');
+
+    list.querySelectorAll('.faq-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx  = btn.getAttribute('data-faq');
+        var body = document.getElementById('faq-body-' + idx);
+        var open = body.classList.contains('open');
+        list.querySelectorAll('.faq-body').forEach(function(b) { b.classList.remove('open'); });
+        list.querySelectorAll('.faq-btn').forEach(function(b) { b.classList.remove('open'); });
+        if (!open) {
+          body.classList.add('open');
+          btn.classList.add('open');
+        }
+      });
+    });
+  }
 
   /* ── Get eligible products (respects hard disqualifiers) ─────────────────── */
   function getEligibleProducts() {
@@ -354,7 +439,7 @@
             '<div class="addon-name">+ Estrogen Vaginal Tablets</div>' +
             '<div class="addon-sub">Add-on for vaginal dryness &amp; comfort</div>' +
             '</div>' +
-            '<div class="addon-price">+$' + vagAddonData.price + '/mo</div>' +
+            '<div class="addon-price">+$' + vagAddonData.price + (selectedSchedule === 'quarterly' ? '' : '/mo') + '</div>' +
           '</label>' +
         '</div>';
     }

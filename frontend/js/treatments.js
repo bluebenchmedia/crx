@@ -49,7 +49,7 @@
         'Also provides full systemic hormone support for hot flashes, mood, sleep, and bone health',
         'Applied vaginally once daily using a pre-measured applicator &mdash; no pills, patches, or guesswork',
         'Compounded fresh by a licensed US pharmacy to your exact prescribed dose',
-        'Progesterone is medically essential for anyone with a uterus &mdash; it protects the uterine lining and also improves sleep quality, reduces anxiety, and supports mood stability'
+        'Progesterone included &mdash; protects the uterine lining and supports better sleep and mood'
       ],
       monthly:      { cpid: 119, price: 189 },
       quarterly:    { cpid: 157, price: 567 },
@@ -72,7 +72,7 @@
         'Applied to clean, dry skin once daily using a medical-grade TopiClick&trade; dispenser that delivers your exact 1g dose every time',
         'Absorbs quickly, non-greasy, and non-comedogenic &mdash; designed for comfortable everyday use',
         'Compounded fresh by a licensed US pharmacy specifically for your prescription',
-        'Progesterone is medically essential for anyone with a uterus &mdash; it protects the uterine lining and also improves sleep quality, reduces anxiety, and supports mood stability'
+        'Progesterone included &mdash; protects the uterine lining and supports better sleep and mood'
       ],
       monthly:      { cpid: 41,  price: 189 },
       quarterly:    { cpid: 151, price: 567 },
@@ -95,7 +95,7 @@
         'Delivers estradiol (the primary estrogen your body loses during menopause) through the skin for steady, consistent hormone levels',
         'No adhesive and nothing to swallow &mdash; an ideal option if you have sensitive skin or prefer not to take pills',
         'Easy for your physician to adjust your dose over time as your body responds to treatment',
-        'Paired with a daily progesterone pill &mdash; medically essential for uterine protection and also shown to improve sleep, reduce anxiety, and support mood'
+        'Comes with a daily progesterone pill &mdash; protects the uterine lining and supports better sleep and mood'
       ],
       monthly:      { cpid: 15,  price: 149 },
       quarterly:    { cpid: 125, price: 447 },
@@ -117,7 +117,7 @@
         'Delivers a steady, consistent stream of estradiol 24/7 so your hormone levels stay balanced between applications',
         'No daily routine to remember &mdash; apply it and forget about it until your next change day',
         'Water-resistant and designed to stay in place through showers, exercise, and daily life',
-        'Paired with a daily progesterone pill &mdash; medically essential for uterine protection and also shown to improve sleep, reduce anxiety, and support mood'
+        'Comes with a daily progesterone pill &mdash; protects the uterine lining and supports better sleep and mood'
       ],
       monthly:      { cpid: 21,  price: 139 },
       quarterly:    { cpid: 131, price: 417 },
@@ -139,7 +139,7 @@
         'One small pill taken once daily &mdash; the simplest possible HRT routine with nothing to apply, stick on, or measure',
         'A familiar format that fits seamlessly into your existing routine, just like any other daily vitamin or medication',
         'Estradiol is absorbed through your digestive system and metabolized by the liver, delivering effective systemic hormone support',
-        'Your treatment includes a progesterone pill taken at bedtime &mdash; medically essential for uterine protection and also shown to improve sleep, reduce anxiety, and support mood'
+        'Comes with a progesterone pill taken at bedtime &mdash; protects the uterine lining and supports better sleep and mood'
       ],
       monthly:      { cpid: 27,  price: 99 },
       quarterly:    { cpid: 137, price: 297 },
@@ -230,7 +230,94 @@
     buildSelector();
     renderPanel();
     bindBack();
+    initDiscoverAccordion();
+    initFaq();
   });
+
+  /* ── Discover accordion (sidebar nav tabs) ────────────────────────────────── */
+  function initDiscoverAccordion() {
+    var navBtns = document.querySelectorAll('.discover-nav-btn');
+    var panels  = document.querySelectorAll('.discover-panel');
+    navBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var target = btn.getAttribute('data-panel');
+        navBtns.forEach(function(b) { b.classList.remove('active'); });
+        panels.forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        var targetPanel = document.getElementById('panel-' + target);
+        if (targetPanel) targetPanel.classList.add('active');
+      });
+    });
+  }
+
+  /* ── FAQ accordion ─────────────────────────────────────────────────────────── */
+  var FAQ_ITEMS = [
+    {
+      q: 'Is hormone replacement therapy safe?',
+      a: 'For most healthy women under 60 or within 10 years of menopause, the benefits of HRT outweigh the risks. Modern bioidentical hormones are well-studied and considered safe when prescribed by a licensed physician who reviews your full health history. Your ClearedRx physician will evaluate your individual situation before prescribing.'
+    },
+    {
+      q: 'How long until I feel results?',
+      a: 'Many women notice improvements in sleep and hot flashes within 2–4 weeks. Full benefits — including mood, energy, and libido — typically develop over 2–3 months as hormone levels stabilize. Your physician may adjust your dose over time to optimize your results.'
+    },
+    {
+      q: 'Do I need to see a doctor in person?',
+      a: 'No. ClearedRx is a fully online telehealth service. You complete a detailed health questionnaire, and a board-certified physician reviews your information and writes your prescription if appropriate. Everything is handled remotely — no office visit required.'
+    },
+    {
+      q: 'How is my prescription filled?',
+      a: 'Your prescription is sent to a licensed US compounding pharmacy. Your treatment is prepared fresh for your specific prescription and shipped directly to your door in discreet packaging. Most orders arrive within 5–7 business days of physician approval.'
+    },
+    {
+      q: 'Can I cancel or change my treatment?',
+      a: 'Yes. You can cancel, pause, or request a treatment change at any time by contacting our support team. There are no long-term commitments. If you’re not satisfied within the first 30 days of your first order, we offer a full money-back guarantee.'
+    },
+    {
+      q: 'What if I have side effects?',
+      a: 'Mild side effects such as breast tenderness, bloating, or spotting can occur during the first few weeks as your body adjusts. These usually resolve on their own. If you experience persistent or concerning symptoms, contact our support team and a physician will review your case and adjust your prescription if needed.'
+    },
+    {
+      q: 'Is this covered by insurance?',
+      a: 'ClearedRx treatments are not currently billed through insurance. However, many patients find our pricing comparable to or lower than their insurance copays for traditional HRT, especially with our 50% first-month discount and quarterly supply savings.'
+    },
+    {
+      q: 'What is bioidentical hormone therapy?',
+      a: 'Bioidentical hormones are chemically identical to the hormones your body naturally produces. They are derived from plant sources and compounded to match your body’s own estrogen and progesterone. Many women prefer bioidentical HRT because it closely mimics natural hormone activity.'
+    },
+  ];
+
+  function initFaq() {
+    var list = document.getElementById('faq-list');
+    if (!list) return;
+    list.innerHTML = FAQ_ITEMS.map(function(item, i) {
+      return '<div class="faq-item">' +
+        '<button class="faq-btn" data-faq="' + i + '">' +
+          '<div class="faq-btn__q">' +
+            '<span class="faq-btn__icon">' + (i + 1) + '</span>' +
+            '<span class="faq-btn__text">' + item.q + '</span>' +
+          '</div>' +
+          '<span class="faq-btn__toggle">+</span>' +
+        '</button>' +
+        '<div class="faq-body" id="faq-body-' + i + '">' + item.a + '</div>' +
+      '</div>';
+    }).join('');
+
+    list.querySelectorAll('.faq-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var idx  = btn.getAttribute('data-faq');
+        var body = document.getElementById('faq-body-' + idx);
+        var open = body.classList.contains('open');
+        // Close all
+        list.querySelectorAll('.faq-body').forEach(function(b) { b.classList.remove('open'); });
+        list.querySelectorAll('.faq-btn').forEach(function(b) { b.classList.remove('open'); });
+        // Toggle clicked
+        if (!open) {
+          body.classList.add('open');
+          btn.classList.add('open');
+        }
+      });
+    });
+  }
 
   /* ── Get eligible products (respects hard disqualifiers) ─────────────────── */
   function getEligibleProducts() {
@@ -355,21 +442,11 @@
       return '<div class="panel-benefit"><span class="benefit-check">&#10003;</span>' + b + '</div>';
     }).join('');
 
-    // ── Progesterone row HTML ─────────────────────────────────────────────
+    // ── Progesterone row removed ────────────────────────────────────────────────
+    // Progesterone pill row removed per design decision — included in product description
     var progHtml = '';
-    if (progData) {
-      var progLabel = flags.progIntolerance ? 'Progesterone 200mg Pills' : 'Progesterone 100mg Pills';
-      progHtml =
-        '<div class="addon-row">' +
-          '<div class="addon-info">' +
-            '<div class="addon-name">+ ' + progLabel + '</div>' +
-            '<div class="addon-sub">Required for uterine protection</div>' +
-          '</div>' +
-          '<div class="addon-price">+$' + progData.price + '/mo</div>' +
-        '</div>';
-    }
 
-    // ── Vaginal add-on row HTML ───────────────────────────────────────────
+    // ── Vaginal add-on row HTML ───────────────────────────────────────────────
     // Always shown (except for vcream). Pre-checked if vaginalSymptoms=true.
     var vagHtml = '';
     if (showVagAddon && vagAddonData) {
@@ -385,7 +462,7 @@
             '<div class="addon-name">+ Estrogen Vaginal Tablets</div>' +
             '<div class="addon-sub">Add-on for vaginal dryness &amp; comfort</div>' +
             '</div>' +
-            '<div class="addon-price">+$' + vagAddonData.price + '/mo</div>' +
+            '<div class="addon-price">+$' + vagAddonData.price + (selectedSchedule === 'quarterly' ? '' : '/mo') + '</div>' +
           '</label>' +
         '</div>';
     }
