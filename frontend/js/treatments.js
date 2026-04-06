@@ -40,7 +40,7 @@
     {
       id: 'vcream',
       name: 'Estrogen + Progesterone Vaginal Cream',
-      subtitle: 'Targeted vaginal relief + full systemic HRT',
+      subtitle: 'Complete symptom relief, applied once daily',
       badge: 'Most Popular',
       badgeColor: 'rose',
       image: 'images/vaginal-cream.jpg',
@@ -84,7 +84,7 @@
     {
       id: 'gel',
       name: 'Estrogen Gel',
-      subtitle: 'Applied to arm or shoulder once daily',
+      subtitle: 'Gel applied to arm or shoulder, plus a daily progesterone pill',
       badge: null,
       badgeColor: null,
       image: 'images/estradiol-gel.jpg',
@@ -127,7 +127,7 @@
     {
       id: 'pill',
       name: 'Estrogen Pills',
-      subtitle: 'One pill, taken once daily',
+      subtitle: 'Two small pills taken once daily',
       badge: null,
       badgeColor: null,
       image: 'images/estradiol-pill.jpg',
@@ -387,8 +387,8 @@
           '<label class="addon-toggle-label">' +
             '<input type="checkbox" id="vag-toggle"' + (vaginalChecked ? ' checked' : '') + '>' +
             '<div class="addon-info">' +
-              '<div class="addon-name">+ Vaginal Estrogen Cream</div>' +
-              '<div class="addon-sub">Add-on for vaginal dryness &amp; comfort</div>' +
+            '<div class="addon-name">+ Estrogen Vaginal Tablets</div>' +
+            '<div class="addon-sub">Add-on for vaginal dryness &amp; comfort</div>' +
             '</div>' +
             '<div class="addon-price">+$' + vagAddonData.price + '/mo</div>' +
           '</label>' +
@@ -415,15 +415,15 @@
         '<div class="sched-card' + (selectedSchedule === 'monthly' ? ' sched-card--active' : '') + '" data-schedule="monthly">' +
           '<div class="sched-card-name">Monthly Supply</div>' +
           '<div class="sched-price-orig">$' + mPerMo + '/mo</div>' +
-          '<div class="sched-price-disc">$' + Math.round(mPerMo * 0.5) + ' first month</div>' +
+          '<div class="sched-price-disc">$' + Math.round(mPerMo * 0.5) + '/mo</div>' +
           '<div class="sched-detail">Billed monthly</div>' +
         '</div>' +
         '<div class="sched-card' + (selectedSchedule === 'quarterly' ? ' sched-card--active' : '') + '" data-schedule="quarterly">' +
           (qSave > 0 ? '<div class="sched-save-badge">Save $' + qSave + '/mo</div>' : '') +
           '<div class="sched-card-name">3-Month Supply</div>' +
           '<div class="sched-price-orig">$' + qPerMo + '/mo</div>' +
-          '<div class="sched-price-disc">$' + Math.round(qPerMo * 0.5) + ' first month equiv.</div>' +
-          '<div class="sched-detail">$' + qData.price + ' billed every 3 months</div>' +
+          '<div class="sched-price-disc">$' + Math.round(qPerMo * 0.5) + '/mo</div>' +
+          '<div class="sched-detail">Billed every 3 months</div>' +
         '</div>' +
       '</div>';
 
@@ -443,12 +443,14 @@
       scheduleHtml +
       '<div class="addons-wrap">' + progHtml + vagHtml + '</div>' +
       '<div class="total-wrap">' +
-        '<div class="total-label">Total for your first month:</div>' +
+        '<div class="total-label">Total:</div>' +
         '<div class="total-prices">' +
           '<span class="total-orig">$' + totalFull + '</span>' +
           '<span class="total-disc" id="total-disc">$' + totalDisc + '</span>' +
         '</div>' +
-        '<div class="total-then">Then $' + totalFull + '/mo from month 2 onwards</div>' +
+        (selectedSchedule === 'quarterly'
+          ? '<div class="total-then">Then $' + totalFull + ' every 3 months after</div>'
+          : '<div class="total-then">Then $' + totalFull + '/mo after</div>') +
       '</div>' +
       '<button class="checkout-btn" id="checkout-btn">Get My Treatment &rarr;</button>' +
       '<p class="checkout-note">&#128274; Secure checkout &bull; Physician-reviewed &bull; Cancel anytime</p>';
