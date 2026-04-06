@@ -663,8 +663,10 @@
   /* ── Timeline animation (step 8) ────────────────────────────────────────── */
   function animateTimeline() {
     var items = document.querySelectorAll('#step-8 .timeline-item');
+    // Reset first so re-visiting the step re-animates
+    items.forEach(function(item) { item.classList.remove('animate'); });
     items.forEach(function(item, i) {
-      setTimeout(function() { item.classList.add('visible'); }, i * 400);
+      setTimeout(function() { item.classList.add('animate'); }, i * 400);
     });
   }
 
