@@ -828,7 +828,7 @@ app.post('/api/complete', async (req, res) => {
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v14-products-override' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v15-cid-tracking' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable
