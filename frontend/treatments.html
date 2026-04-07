@@ -362,6 +362,43 @@
     @keyframes spin{to{transform:rotate(360deg);}}
     #checkout-overlay p{font-size:1rem;font-weight:600;color:var(--forest);}
   </style>
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '3455971567888613');
+  // Dynamically inject cc_custom_cid from sessionStorage as the event ID
+  var _crxCid = sessionStorage.getItem('crx_cc_custom_cid') || '';
+  fbq('trackCustom', 'step1', {}, {eventID: _crxCid});
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=3455971567888613&ev=step1&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16906106213"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-16906106213');
+  </script>
+  <!-- Event snippet for HRTSignUpWeb conversion page -->
+  <script>
+    gtag('event', 'conversion', {
+      'send_to': 'AW-16906106213/_KYlCJ3AzZccEOXquv0-',
+      'value': 0,
+      'currency': 'USD'
+    });
+  </script>
 </head>
 <body>
 
