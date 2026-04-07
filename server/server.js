@@ -16,7 +16,7 @@
      respected here — we NEVER route a user to a product they
      themselves indicated they cannot use.
 
-   DOSABLE Q-ID REFERENCE (staging, tenant 32):
+   DOSABLE Q-ID REFERENCE (production, tenant 32):
    Q3200 textarea  Medical conditions (free text)
    Q3201 textarea  Medications (free text)
    Q3202 textarea  Allergies (free text)
@@ -92,10 +92,10 @@ app.use(cors({
 app.use(express.json());
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-const DOSABLE_BASE  = process.env.DOSABLE_BASE_URL  || 'https://staging.intake.dosable.com';
+const DOSABLE_BASE  = process.env.DOSABLE_BASE_URL  || 'https://intake.dosable.com';
 const TENANT_ID     = parseInt(process.env.DOSABLE_TENANT_ID || '32', 10);
-const API_KEY       = process.env.DOSABLE_API_KEY   || '';
-const CHECKOUT_BASE = process.env.CHECKOUT_BASE_URL || 'https://staging-buy-hrt.clearedrx.com/checkout';
+const API_KEY       = process.env.DOSABLE_API_KEY   || '169ded5e60f27843c1e110b34e6791ec3f0e8c9d619bb5cbffbfa1712ec03488';
+const CHECKOUT_BASE = process.env.CHECKOUT_BASE_URL || 'https://buy-hrt.clearedrx.com/checkout';
 const FRONTEND_DIR  = path.join(__dirname, '..', 'frontend');
 
 if (!API_KEY) console.warn('WARNING: DOSABLE_API_KEY not set');
