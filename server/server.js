@@ -528,107 +528,24 @@ async function dosable(method, urlPath, data) {
 
 // ─── Helper: Append checkout params ──────────────────────────────────────────
 // Takes the raw checkout URL from Dosable and appends ONLY:
-//   cc_custom_cid={click_id}   — passed through from the original quiz URL
 //   coupon=50                  — always applied (50% first-month discount)
-// ─── PRODUCTS CATALOG ────────────────────────────────────────────────────────
-// Mirrors treatments.js PRODUCTS array — used to build correct products= param
-const PRODUCT_CPIDS = {
-  vcream: { monthly: 163, quarterly: 199, monthlyLow: 161, quarterlyLow: 197 },
-  cream:  { monthly: 73,  quarterly: 193, monthlyLow: 71,  quarterlyLow: 191 },
-  gel:    { monthly: 47,  quarterly: 169, monthlyLow: 45,  quarterlyLow: 167 },
-  patch:  { monthly: 53,  quarterly: 175, monthlyLow: 51,  quarterlyLow: 173 },
-  pill:   { monthly: 59,  quarterly: 181, monthlyLow: 57,  quarterlyLow: 179 },
-};
-const PROG_ADDON_CPIDS = {
-  monthly:      67,
-  quarterly:    187,
-  monthlyAlt:   69,   // 200mg for progesterone intolerance
-  quarterlyAlt: 189,
-};
-const VAGINAL_ADDON_CPIDS = {
-  monthly:   65,
-  quarterly: 185,
-};
-
-// Build the products= string based on user's selection
-function buildProductsParam(selectedProductId, selectedSchedule, flags, vaginalAddon) {
-  const pid   = selectedProductId || 'vcream';
-  const sched = selectedSchedule  || 'monthly';
-  const catalog = PRODUCT_CPIDS[pid];
-  if (!catalog) return null;  // unknown product — let Dosable decide
-
-  const cpids = [];
-
-  // Main product CPID
-  const mainCpid = catalog[sched] || catalog.monthly;
-  cpids.push(mainCpid + ':1');
-
-  // Progesterone add-on (only for gel/patch/pill — vcream/cream are compounded E+P)
-  const isCompoundedEP = (pid === 'vcream' || pid === 'cream');
-  if (!isCompoundedEP && flags && flags.needsProgesterone) {
-    const progIntolerance = flags.progIntolerance || false;
-    let progCpid;
-    if (sched === 'quarterly') {
-      progCpid = progIntolerance ? PROG_ADDON_CPIDS.quarterlyAlt : PROG_ADDON_CPIDS.quarterly;
-    } else {
-      progCpid = progIntolerance ? PROG_ADDON_CPIDS.monthlyAlt : PROG_ADDON_CPIDS.monthly;
-    }
-    cpids.push(progCpid + ':1');
-  }
-
-  // Vaginal add-on (only if checked and not vcream)
-  if (vaginalAddon && pid !== 'vcream') {
-    const vagCpid = sched === 'quarterly' ? VAGINAL_ADDON_CPIDS.quarterly : VAGINAL_ADDON_CPIDS.monthly;
-    cpids.push(vagCpid + ':1');
-  }
-
-  return cpids.join(';');
-}
-
-// Replace the products= param in a URL, or append if not present
-function overrideProductsParam(url, productsStr) {
-  if (!url || !productsStr) return url;
+//   cc_custom_cid={click_id}   — passed through from the original quiz URL
+//
+// NEVER modify the products= parameter — Dosable's routing engine sets it.
+// NEVER construct a checkout URL manually.
+function appendCheckoutParams(url, clickId) {
+  if (!url) return url;
   try {
     const u = new URL(url);
-    u.searchParams.set('products', productsStr);
-    return u.toString();
-  } catch(e) {
-    // Fallback: string replace
-    if (url.includes('products=')) {
-      return url.replace(/products=[^&]*/, 'products=' + encodeURIComponent(productsStr));
-    }
-    return url + (url.includes('?') ? '&' : '?') + 'products=' + encodeURIComponent(productsStr);
-  }
-}
-
-function appendCheckoutParams(url, clickId, productsStr, contactInfo) {
-  if (!url) return url;
-  // Override products= with our computed value
-  let result = productsStr ? overrideProductsParam(url, productsStr) : url;
-  // Append contact info params for pre-filling checkout form
-  if (contactInfo) {
-    try {
-      const u = new URL(result);
-      if (contactInfo.firstName) u.searchParams.set('firstName', contactInfo.firstName);
-      if (contactInfo.lastName)  u.searchParams.set('lastName',  contactInfo.lastName);
-      if (contactInfo.email)     u.searchParams.set('emailAddress', contactInfo.email);
-      if (contactInfo.state)     u.searchParams.set('shipState', contactInfo.state);
-      if (contactInfo.phone)     u.searchParams.set('phoneNumber', contactInfo.phone.replace(/\D/g, ''));
-      result = u.toString();
-    } catch(e) {}
-  }
-  // Always append coupon=50 (50% first-month discount)
-  try {
-    const u = new URL(result);
     u.searchParams.set('coupon', '50');
     if (clickId) u.searchParams.set('cc_custom_cid', clickId);
-    result = u.toString();
+    return u.toString();
   } catch(e) {
-    const sep = result.includes('?') ? '&' : '?';
-    result += sep + 'coupon=50';
+    const sep = url.includes('?') ? '&' : '?';
+    let result = url + sep + 'coupon=50';
     if (clickId) result += '&cc_custom_cid=' + encodeURIComponent(clickId);
+    return result;
   }
-  return result;
 }
 
 // ─── ROUTE: POST /api/lead ────────────────────────────────────────────────────
@@ -812,23 +729,17 @@ app.post('/api/complete', async (req, res) => {
     console.error('Session complete failed:', JSON.stringify(completeRes.data).slice(0, 500));
     return res.status(502).json({ error: 'Session completion failed', detail: completeRes.data });
   }
-  // Build the correct products= string based on user's selection
-  const productsStr = buildProductsParam(
-    productSelection.type,
-    productSelection.schedule,
-    flags,
-    productSelection.vaginalAddon
-  );
-  console.log('Products param:', productsStr, '| selectedProductId:', productSelection.type, '| schedule:', productSelection.schedule);
-  // Override products= in the Dosable checkout URL and append coupon/clickId
+  // Use Dosable's checkout URL exactly as returned — do NOT modify products=
+  // Only append coupon=50 and cc_custom_cid for discount and attribution tracking
   const rawCheckoutUrl = completeRes.data.checkout_url || CHECKOUT_BASE;
-  const finalCheckoutUrl = appendCheckoutParams(rawCheckoutUrl, clickId, productsStr, contactInfo);
+  const finalCheckoutUrl = appendCheckoutParams(rawCheckoutUrl, clickId);
+  console.log('Dosable checkout URL:', rawCheckoutUrl);
   console.log('Final checkout URL:', finalCheckoutUrl);
   return res.json({ ok: true, checkoutUrl: finalCheckoutUrl, flags, sessionId: resolvedSessionId });
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v16-prod-cpids' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v17-dosable-url-passthrough' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable
