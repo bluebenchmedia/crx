@@ -51,10 +51,10 @@
         'Applied vaginally once daily using a pre-measured applicator &mdash; no pills, patches, or guesswork',
         'Compounded fresh by a licensed US pharmacy to your exact prescribed dose'
       ],
-      monthly:      { cpid: 119, price: 189 },
-      quarterly:    { cpid: 157, price: 469 },
-      monthlyLow:   { cpid: 117, price: 189 },
-      quarterlyLow: { cpid: 155, price: 469 },
+      monthly:      { cpid: 163, price: 189 },
+      quarterly:    { cpid: 199, price: 469 },
+      monthlyLow:   { cpid: 161, price: 189 },
+      quarterlyLow: { cpid: 197, price: 469 },
       isCompoundedEP:  true,
       isVaginalFocused: true,
       requiresNoAdhesiveAllergy: false,
@@ -73,10 +73,10 @@
         'Absorbs quickly, non-greasy, and non-comedogenic &mdash; designed for comfortable everyday use',
         'Compounded fresh by a licensed US pharmacy specifically for your prescription'
       ],
-      monthly:      { cpid: 41,  price: 189 },
-      quarterly:    { cpid: 151, price: 469 },
-      monthlyLow:   { cpid: 39,  price: 189 },
-      quarterlyLow: { cpid: 149, price: 469 },
+      monthly:      { cpid: 73,  price: 189 },
+      quarterly:    { cpid: 193, price: 469 },
+      monthlyLow:   { cpid: 71,  price: 189 },
+      quarterlyLow: { cpid: 191, price: 469 },
       isCompoundedEP:  true,
       isVaginalFocused: false,
       requiresNoAdhesiveAllergy: false,
@@ -95,10 +95,10 @@
         'No adhesive and nothing to swallow &mdash; an ideal option if you have sensitive skin or prefer not to take pills',
         'Easy for your physician to adjust your dose over time as your body responds to treatment'
       ],
-      monthly:      { cpid: 15,  price: 149 },
-      quarterly:    { cpid: 125, price: 447 },
-      monthlyLow:   { cpid: 13,  price: 149 },
-      quarterlyLow: { cpid: 123, price: 447 },
+      monthly:      { cpid: 47,  price: 151 },
+      quarterly:    { cpid: 169, price: 379 },
+      monthlyLow:   { cpid: 45,  price: 151 },
+      quarterlyLow: { cpid: 167, price: 379 },
       isCompoundedEP:  false,
       isVaginalFocused: false,
       requiresNoAdhesiveAllergy: false,
@@ -116,10 +116,10 @@
         'No daily routine to remember &mdash; apply it and forget about it until your next change day',
         'Water-resistant and designed to stay in place through showers, exercise, and daily life'
       ],
-      monthly:      { cpid: 21,  price: 139 },
-      quarterly:    { cpid: 131, price: 417 },
-      monthlyLow:   { cpid: 19,  price: 139 },
-      quarterlyLow: { cpid: 129, price: 417 },
+      monthly:      { cpid: 53,  price: 139 },
+      quarterly:    { cpid: 175, price: 379 },
+      monthlyLow:   { cpid: 51,  price: 139 },
+      quarterlyLow: { cpid: 173, price: 379 },
       isCompoundedEP:  false,
       isVaginalFocused: false,
       requiresNoAdhesiveAllergy: true,   // HARD DISQUALIFIER — never overridden
@@ -138,10 +138,10 @@
         'Estradiol is absorbed through your digestive system and metabolized by the liver, delivering effective systemic hormone support',
         'Easy for your physician to adjust your dose over time as your body responds to treatment'
       ],
-      monthly:      { cpid: 27,  price: 99 },
-      quarterly:    { cpid: 137, price: 297 },
-      monthlyLow:   { cpid: 25,  price: 99 },
-      quarterlyLow: { cpid: 135, price: 297 },
+      monthly:      { cpid: 59,  price: 99 },
+      quarterly:    { cpid: 181, price: 269 },
+      monthlyLow:   { cpid: 57,  price: 99 },
+      quarterlyLow: { cpid: 179, price: 269 },
       isCompoundedEP:  false,
       isVaginalFocused: false,
       requiresNoAdhesiveAllergy: false,
@@ -154,10 +154,10 @@
    * vcream and cream are compounded E+P — no separate add-on needed.
    * ─────────────────────────────────────────────────────────────────────── */
   var PROG_ADDON = {
-    monthly:      { cpid: 35,  price: 39  },
-    quarterly:    { cpid: 145, price: 99  },
-    monthlyAlt:   { cpid: 37,  price: 49  },   // 200mg for progesterone intolerance
-    quarterlyAlt: { cpid: 147, price: 129 },
+    monthly:      { cpid: 67,  price: 39  },
+    quarterly:    { cpid: 187, price: 99  },
+    monthlyAlt:   { cpid: 69,  price: 39  },   // 200mg for progesterone intolerance
+    quarterlyAlt: { cpid: 189, price: 99  },
   };
 
   /* ── Vaginal add-on ──────────────────────────────────────────────────────
@@ -165,8 +165,8 @@
    * Pre-checked if vaginalSymptoms=true; unchecked but available otherwise.
    * ─────────────────────────────────────────────────────────────────────── */
   var VAGINAL_ADDON = {
-    monthly:   { cpid: 31,  price: 99  },
-    quarterly: { cpid: 141, price: 297 },
+    monthly:   { cpid: 65,  price: 99  },
+    quarterly: { cpid: 185, price: 269 },
   };
 
   /* ── State ───────────────────────────────────────────────────────────────── */

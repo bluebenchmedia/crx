@@ -533,21 +533,21 @@ async function dosable(method, urlPath, data) {
 // ─── PRODUCTS CATALOG ────────────────────────────────────────────────────────
 // Mirrors treatments.js PRODUCTS array — used to build correct products= param
 const PRODUCT_CPIDS = {
-  vcream: { monthly: 119, quarterly: 157, monthlyLow: 117, quarterlyLow: 155 },
-  cream:  { monthly: 41,  quarterly: 151, monthlyLow: 39,  quarterlyLow: 149 },
-  gel:    { monthly: 15,  quarterly: 125, monthlyLow: 13,  quarterlyLow: 123 },
-  patch:  { monthly: 21,  quarterly: 131, monthlyLow: 19,  quarterlyLow: 129 },
-  pill:   { monthly: 27,  quarterly: 137, monthlyLow: 25,  quarterlyLow: 135 },
+  vcream: { monthly: 163, quarterly: 199, monthlyLow: 161, quarterlyLow: 197 },
+  cream:  { monthly: 73,  quarterly: 193, monthlyLow: 71,  quarterlyLow: 191 },
+  gel:    { monthly: 47,  quarterly: 169, monthlyLow: 45,  quarterlyLow: 167 },
+  patch:  { monthly: 53,  quarterly: 175, monthlyLow: 51,  quarterlyLow: 173 },
+  pill:   { monthly: 59,  quarterly: 181, monthlyLow: 57,  quarterlyLow: 179 },
 };
 const PROG_ADDON_CPIDS = {
-  monthly:      35,
-  quarterly:    145,
-  monthlyAlt:   37,   // 200mg for progesterone intolerance
-  quarterlyAlt: 147,
+  monthly:      67,
+  quarterly:    187,
+  monthlyAlt:   69,   // 200mg for progesterone intolerance
+  quarterlyAlt: 189,
 };
 const VAGINAL_ADDON_CPIDS = {
-  monthly:   31,
-  quarterly: 141,
+  monthly:   65,
+  quarterly: 185,
 };
 
 // Build the products= string based on user's selection
@@ -828,7 +828,7 @@ app.post('/api/complete', async (req, res) => {
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v15-cid-tracking' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v16-prod-cpids' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable
