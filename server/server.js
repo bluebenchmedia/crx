@@ -803,6 +803,10 @@ app.post('/api/complete', async (req, res) => {
       },
     },
   };
+
+  // Pass click ID to Dosable so it is stored in order startData (custom_attributes)
+  // and automatically appended to the checkout URL as cc_custom_cid=<value>
+  if (clickId) completePayload.cc_custom_cid = clickId;
   const completeRes = await dosable('post', `/sessions/${resolvedSessionId}/complete`, completePayload);
   if (!completeRes.ok) {
     console.error('Session complete failed:', JSON.stringify(completeRes.data).slice(0, 500));

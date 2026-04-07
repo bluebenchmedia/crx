@@ -571,13 +571,15 @@
     var btn = document.getElementById('checkout-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Preparing your checkout\u2026'; }
 
-    var sessionId = sessionStorage.getItem('crx_session_id') || '';
-    var firstName = sessionStorage.getItem('crx_first_name') || '';
-    var lastName  = sessionStorage.getItem('crx_last_name')  || '';
-    var email     = sessionStorage.getItem('crx_email')      || '';
-    var phone     = sessionStorage.getItem('crx_phone')      || '';
-    var state     = sessionStorage.getItem('crx_state')      || 'CA';
-    var dob       = sessionStorage.getItem('crx_dob')        || '';
+    var sessionId  = sessionStorage.getItem('crx_session_id')    || '';
+    var firstName  = sessionStorage.getItem('crx_first_name')    || '';
+    var lastName   = sessionStorage.getItem('crx_last_name')     || '';
+    var email      = sessionStorage.getItem('crx_email')         || '';
+    var phone      = sessionStorage.getItem('crx_phone')         || '';
+    var state      = sessionStorage.getItem('crx_state')         || 'CA';
+    var dob        = sessionStorage.getItem('crx_dob')           || '';
+    var coupon     = sessionStorage.getItem('crx_coupon')        || '50';
+    var customCid  = sessionStorage.getItem('crx_cc_custom_cid') || '';
 
     var quizAnswers = {};
     var flagsToSend = {};
@@ -601,6 +603,7 @@
         vaginalAddon:      vaginalChecked && !getProduct(selectedId).isVaginalFocused,
         quizAnswers:       quizAnswers,
         flags:             flagsToSend,
+        clickId:           customCid,
         contactInfo: {
           firstName: firstName,
           lastName:  lastName,
