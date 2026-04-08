@@ -270,20 +270,32 @@ function remapAnswers(a, productSelection) {
   }
 
   // ── Soft routing: Q3242 formulation preference ────────────────────────────
+  // vcream = vaginal compound cream (Q3242=compounded + Q3228 vaginal injection)
+  // cream  = body/topical compound cream (Q3242=compounded only)
+  // gel/patch/pill = FDA-approved (Q3242=FDA)
   const isCompounded    = (selectedType === 'vcream' || selectedType === 'cream');
   const formulationPref = isCompounded
     ? 'Compounded estrogen/progesterone cream (combined formulation)'
     : 'FDA-approved estrogen and progesterone products (standard of care)';
 
   // ── Vaginal symptoms ──────────────────────────────────────────────────────
-  // Pre-select if user reported them OR vaginalAddon chosen on treatment page
-  const hasVaginalSymptoms = vaginalSymptoms || vaginalAddon;
+  // SOFT ROUTING: vcream (vaginal compound cream) requires Q3228 vaginal injection
+  // to steer Dosable to return the vaginal compound cream CPID (163) instead of
+  // the body cream CPID (73). This is the key distinction between vcream and cream.
+  //
+  // Also inject if:
+  //   - User reported vaginal symptoms in quiz (vaginalSymptoms flag)
+  //   - User toggled vaginal add-on ON on treatment page (vaginalAddon flag)
+  //
+  // NEVER inject vaginal symptoms for body cream (cream) — that would wrongly
+  // route to vaginal compound cream instead of body cream.
+  const needsVaginalInjection = (selectedType === 'vcream') || vaginalSymptoms || vaginalAddon;
   let vaginalSymptomsAnswer;
-  if (hasVaginalSymptoms) {
+  if (needsVaginalInjection) {
     const vagList = [];
     if (symptoms.includes('vaginal-dryness')) vagList.push('Vaginal dryness');
     if (symptoms.includes('low-libido'))      vagList.push('Reduce libido');
-    if (vagList.length === 0)                 vagList.push('Vaginal dryness');
+    if (vagList.length === 0)                 vagList.push('Vaginal dryness'); // synthetic injection for vcream
     vaginalSymptomsAnswer = vagList; // array format required by Dosable API
   } else {
     vaginalSymptomsAnswer = ['I do not experience any of these']; // array format
@@ -431,7 +443,13 @@ function remapAnswers(a, productSelection) {
   apiAnswers[Q.other_symptoms]        = { value: 'None',              question: 'Tell us more about your other symptom(s)' };
   apiAnswers[Q.conditions_1]          = { value: conds1Answer,        question: 'Do you have any of the following? (cancer/stroke/CAD/gallbladder)' };
   apiAnswers[Q.conditions_2]          = { value: conds2Answer,        question: 'Do you have any of the following? (DVT/lupus)' };
-  apiAnswers[Q.adhesive_allergy]      = { value: adhesiveAllergy ? 'Yes' : 'No', question: 'Do you have an adhesive allergy?' };
+  // Q3215 — SOFT ROUTING for gel:
+  // If user selects gel but did NOT report adhesive allergy themselves,
+  // inject Q3215=Yes to steer Dosable toward gel. This is clinically harmless
+  // because we're not overriding a real condition the user reported.
+  // If user DID report adhesive allergy, pass it through as-is (never override).
+  const adhesiveAllergyValue = (adhesiveAllergy || selectedType === 'gel') ? 'Yes' : 'No';
+  apiAnswers[Q.adhesive_allergy]      = { value: adhesiveAllergyValue, question: 'Do you have an adhesive allergy?' };
   apiAnswers[Q.symptom_duration]      = { value: symptomDurationLong ? 'Greater than 5 years' : 'Less than 5 years', question: 'How long have you experienced symptoms of menopause?' };
   apiAnswers[Q.hrt_history]           = { value: hrtHistory,          question: 'Are you currently or have you ever been on hormone replacement therapy (HRT)?' };
 
@@ -472,10 +490,9 @@ function remapAnswers(a, productSelection) {
   apiAnswers[Q.other_info]            = { value: 'No additional information', question: 'What other information or questions do you have for the doctor?' };
   apiAnswers[Q.consent_hrt]           = { value: 'I have read the above information, I understand the risks, and I would like to proceed.', question: 'Consent (Hormone Replacement Therapy (HRT))' };
 
-  // Q3242 — SOFT ROUTING KEY: only sent when patient has a uterus
-  if (needsProgesterone) {
-    apiAnswers[Q.formulation_preference] = { value: formulationPref, question: 'Standard of care menopause treatment... which option would you prefer?' };
-  }
+  // Q3242 — SOFT ROUTING KEY: always sent regardless of hysterectomy status.
+  // Hysterectomy patients can still select compounded cream (estrogen-only compound).
+  apiAnswers[Q.formulation_preference] = { value: formulationPref, question: 'Standard of care menopause treatment... which option would you prefer?' };
 
   return { apiAnswers, flags };
 }
@@ -739,7 +756,7 @@ app.post('/api/complete', async (req, res) => {
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v17-dosable-url-passthrough' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v18-gel-injection-fix' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable

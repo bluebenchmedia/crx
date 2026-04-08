@@ -624,12 +624,12 @@ select.quiz-input:focus, select.quiz-select:focus {
   transform: translateX(-10px);
 }
 .timeline-item.animate {
-  animation: timelineIn 0.5s ease forwards;
+  animation: timelineIn 0.35s ease forwards;
 }
 .timeline-item.animate:nth-child(1) { animation-delay: 0s; }
-.timeline-item.animate:nth-child(2) { animation-delay: 0.35s; }
-.timeline-item.animate:nth-child(3) { animation-delay: 0.7s; }
-.timeline-item.animate:nth-child(4) { animation-delay: 1.05s; }
+.timeline-item.animate:nth-child(2) { animation-delay: 0.1s; }
+.timeline-item.animate:nth-child(3) { animation-delay: 0.2s; }
+.timeline-item.animate:nth-child(4) { animation-delay: 0.3s; }
 @keyframes timelineIn {
   from { opacity: 0; transform: translateX(-10px); }
   to   { opacity: 1; transform: translateX(0); }
