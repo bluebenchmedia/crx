@@ -6,12 +6,11 @@
    - Remaps user quiz answers to Dosable's exact Q-ID format
      SOFT ROUTING: manipulates ANSWERS to steer Dosable toward
      the product the user selected on the treatment page.
-     After /complete, we OVERRIDE the products= param in the checkout URL
-     with the exact CPIDs for the user's selected product + add-ons.
-     We also append:
+     After /complete, Dosable returns a checkout URL — we use it EXACTLY
+     as returned. We NEVER modify the products= parameter.
+     We ONLY append:
        cc_custom_cid={click_id from original URL}
        coupon=50
-       firstName, lastName, emailAddress, shipState, phoneNumber (pre-fill)
    - Hard disqualifiers are enforced by the quiz (frontend) and
      respected here — we NEVER route a user to a product they
      themselves indicated they cannot use.
@@ -730,6 +729,7 @@ app.post('/api/complete', async (req, res) => {
   // Complete session with final truthfulness consent + lead fields
   const completePayload = {
     ...completeLead,
+    schedule: productSelection.schedule || 'monthly',
     final_answers: {
       [Q.consent_truthfulness]: {
         value:    'I have read the above information and I do consent and wish to move forward',
@@ -756,7 +756,7 @@ app.post('/api/complete', async (req, res) => {
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v18-gel-injection-fix' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v19-schedule-fix' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable
