@@ -547,8 +547,51 @@ async function dosable(method, urlPath, data) {
 //   coupon=50                  — always applied (50% first-month discount)
 //   cc_custom_cid={click_id}   — passed through from the original quiz URL
 //
-// NEVER modify the products= parameter — Dosable's routing engine sets it.
-// NEVER construct a checkout URL manually.
+// QUARTERLY SUPPLY: Dosable's routing engine always returns monthly CPIDs.
+// When the user selects quarterly supply, we substitute monthly CPIDs with
+// their quarterly equivalents. This is the ONLY permitted products= modification.
+// The product type (treatment) is unchanged — only the supply quantity differs.
+//
+// Monthly → Quarterly CPID substitution map (verified against production catalog):
+const QUARTERLY_CPID_MAP = {
+  163: 199,   // Vaginal compound cream (monthly → 3-month)
+  73:  193,   // Body/topical compound cream (monthly → 3-month)
+  47:  169,   // Estrogen gel standard (monthly → 3-month)
+  45:  167,   // Estrogen gel low-dose (monthly → 3-month)
+  53:  175,   // Estrogen patch standard (monthly → 3-month)
+  51:  173,   // Estrogen patch low-dose (monthly → 3-month)
+  59:  181,   // Estrogen pills standard (monthly → 3-month)
+  57:  179,   // Estrogen pills low-dose (monthly → 3-month)
+  67:  187,   // Progesterone 100mg (monthly → 3-month)
+  69:  189,   // Progesterone 200mg alt (monthly → 3-month)
+  65:  185,   // Vaginal tablet add-on (monthly → 3-month)
+};
+
+function applyQuarterlySubstitution(url) {
+  if (!url) return url;
+  try {
+    const u = new URL(url);
+    const products = u.searchParams.get('products');
+    if (!products) return url;
+    // products format: "CPID:qty;CPID:qty" e.g. "163:1;67:1"
+    const substituted = products.split(';').map(item => {
+      const [cpid, qty] = item.split(':');
+      const monthlyCpid = parseInt(cpid, 10);
+      const quarterlyCpid = QUARTERLY_CPID_MAP[monthlyCpid];
+      if (quarterlyCpid) {
+        console.log(`Quarterly substitution: CPID ${monthlyCpid} → ${quarterlyCpid}`);
+        return `${quarterlyCpid}:${qty || 1}`;
+      }
+      return item; // No substitution for unknown CPIDs
+    }).join(';');
+    u.searchParams.set('products', substituted);
+    return u.toString();
+  } catch(e) {
+    console.warn('Quarterly substitution failed:', e.message);
+    return url;
+  }
+}
+
 function appendCheckoutParams(url, clickId) {
   if (!url) return url;
   try {
@@ -746,17 +789,22 @@ app.post('/api/complete', async (req, res) => {
     console.error('Session complete failed:', JSON.stringify(completeRes.data).slice(0, 500));
     return res.status(502).json({ error: 'Session completion failed', detail: completeRes.data });
   }
-  // Use Dosable's checkout URL exactly as returned — do NOT modify products=
-  // Only append coupon=50 and cc_custom_cid for discount and attribution tracking
+  // Use Dosable's checkout URL as returned.
+  // For quarterly supply: substitute monthly CPIDs with quarterly equivalents.
+  // Dosable's routing engine always returns monthly CPIDs regardless of schedule.
+  // ONLY append coupon=50 and cc_custom_cid after any CPID substitution.
   const rawCheckoutUrl = completeRes.data.checkout_url || CHECKOUT_BASE;
-  const finalCheckoutUrl = appendCheckoutParams(rawCheckoutUrl, clickId);
+  const isQuarterly = (productSelection.schedule === 'quarterly');
+  const scheduledUrl = isQuarterly ? applyQuarterlySubstitution(rawCheckoutUrl) : rawCheckoutUrl;
+  const finalCheckoutUrl = appendCheckoutParams(scheduledUrl, clickId);
   console.log('Dosable checkout URL:', rawCheckoutUrl);
+  console.log('Schedule:', productSelection.schedule, '| Quarterly substitution applied:', isQuarterly);
   console.log('Final checkout URL:', finalCheckoutUrl);
   return res.json({ ok: true, checkoutUrl: finalCheckoutUrl, flags, sessionId: resolvedSessionId });
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v19-schedule-fix' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v20-quarterly-cpid' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable
