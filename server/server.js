@@ -10,7 +10,7 @@
      as returned. We NEVER modify the products= parameter.
      We ONLY append:
        cc_custom_cid={click_id from original URL}
-       coupon=50
+       couponCode=50
    - Hard disqualifiers are enforced by the quiz (frontend) and
      respected here — we NEVER route a user to a product they
      themselves indicated they cannot use.
@@ -544,7 +544,7 @@ async function dosable(method, urlPath, data) {
 
 // ─── Helper: Append checkout params ──────────────────────────────────────────
 // Takes the raw checkout URL from Dosable and appends ONLY:
-//   coupon=50                  — always applied (50% first-month discount)
+//   couponCode=50              — always applied (50% first-month discount)
 //   cc_custom_cid={click_id}   — passed through from the original quiz URL
 //
 // QUARTERLY SUPPLY: Dosable's routing engine always returns monthly CPIDs.
@@ -596,12 +596,12 @@ function appendCheckoutParams(url, clickId) {
   if (!url) return url;
   try {
     const u = new URL(url);
-    u.searchParams.set('coupon', '50');
+    u.searchParams.set('couponCode', '50');
     if (clickId) u.searchParams.set('cc_custom_cid', clickId);
     return u.toString();
   } catch(e) {
     const sep = url.includes('?') ? '&' : '?';
-    let result = url + sep + 'coupon=50';
+    let result = url + sep + 'couponCode=50';
     if (clickId) result += '&cc_custom_cid=' + encodeURIComponent(clickId);
     return result;
   }
@@ -690,7 +690,7 @@ app.post('/api/lead', async (req, res) => {
 // 2. Bulk-saves all answers to the Dosable session
 // 3. Calls /sessions/{id}/complete
 // 4. Takes the checkout URL EXACTLY as Dosable returns it — never alters products=
-// 5. Appends cc_custom_cid + coupon=50
+// 5. Appends cc_custom_cid + couponCode=50
 // 6. Returns the final URL to the frontend for redirect
 app.post('/api/complete', async (req, res) => {
   const sessionId        = req.body.sessionId;
@@ -792,7 +792,7 @@ app.post('/api/complete', async (req, res) => {
   // Use Dosable's checkout URL as returned.
   // For quarterly supply: substitute monthly CPIDs with quarterly equivalents.
   // Dosable's routing engine always returns monthly CPIDs regardless of schedule.
-  // ONLY append coupon=50 and cc_custom_cid after any CPID substitution.
+  // ONLY append couponCode=50 and cc_custom_cid after any CPID substitution.
   const rawCheckoutUrl = completeRes.data.checkout_url || CHECKOUT_BASE;
   const isQuarterly = (productSelection.schedule === 'quarterly');
   const scheduledUrl = isQuarterly ? applyQuarterlySubstitution(rawCheckoutUrl) : rawCheckoutUrl;

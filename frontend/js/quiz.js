@@ -103,9 +103,9 @@
 
   /* ── Init ────────────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function() {
-    // Capture URL tracking parameters (coupon, cc_custom_cid) on first load
+    // Capture URL tracking parameters (couponCode, cc_custom_cid) on first load
     var urlParams = new URLSearchParams(window.location.search);
-    var urlCoupon = urlParams.get('coupon');
+    var urlCoupon = urlParams.get('couponCode');
     var urlCid    = urlParams.get('cc_custom_cid');
     if (urlCoupon) sessionStorage.setItem('crx_coupon',         urlCoupon);
     if (urlCid)    sessionStorage.setItem('crx_cc_custom_cid',  urlCid);
