@@ -103,12 +103,16 @@
 
   /* ── Init ────────────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function() {
-    // Capture URL tracking parameters (couponCode, cc_custom_cid) on first load
+    // Capture URL tracking parameters (couponCode, cc_custom_cid, affId, c1) on first load
     var urlParams = new URLSearchParams(window.location.search);
     var urlCoupon = urlParams.get('couponCode');
     var urlCid    = urlParams.get('cc_custom_cid');
+    var urlAffId  = urlParams.get('affId');
+    var urlC1     = urlParams.get('c1');
     if (urlCoupon) sessionStorage.setItem('crx_coupon',         urlCoupon);
     if (urlCid)    sessionStorage.setItem('crx_cc_custom_cid',  urlCid);
+    if (urlAffId)  sessionStorage.setItem('crx_aff_id',         urlAffId);
+    if (urlC1)     sessionStorage.setItem('crx_c1',             urlC1);
 
     var saved = sessionStorage.getItem('crx_session');
     if (saved) {

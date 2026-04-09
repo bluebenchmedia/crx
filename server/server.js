@@ -546,6 +546,8 @@ async function dosable(method, urlPath, data) {
 // Takes the raw checkout URL from Dosable and appends ONLY:
 //   couponCode=50              — always applied (50% first-month discount)
 //   cc_custom_cid={click_id}   — passed through from the original quiz URL
+//   affId={affId}              — affiliate ID (if present)
+//   c1={c1}                    — click ID / sub-ID (if present)
 //
 // QUARTERLY SUPPLY: Dosable's routing engine always returns monthly CPIDs.
 // When the user selects quarterly supply, we substitute monthly CPIDs with
@@ -592,17 +594,21 @@ function applyQuarterlySubstitution(url) {
   }
 }
 
-function appendCheckoutParams(url, clickId) {
+function appendCheckoutParams(url, clickId, affId, c1) {
   if (!url) return url;
   try {
     const u = new URL(url);
     u.searchParams.set('couponCode', '50');
     if (clickId) u.searchParams.set('cc_custom_cid', clickId);
+    if (affId)   u.searchParams.set('affId',         affId);
+    if (c1)      u.searchParams.set('c1',            c1);
     return u.toString();
   } catch(e) {
     const sep = url.includes('?') ? '&' : '?';
     let result = url + sep + 'couponCode=50';
     if (clickId) result += '&cc_custom_cid=' + encodeURIComponent(clickId);
+    if (affId)   result += '&affId='         + encodeURIComponent(affId);
+    if (c1)      result += '&c1='            + encodeURIComponent(c1);
     return result;
   }
 }
@@ -690,12 +696,14 @@ app.post('/api/lead', async (req, res) => {
 // 2. Bulk-saves all answers to the Dosable session
 // 3. Calls /sessions/{id}/complete
 // 4. Takes the checkout URL EXACTLY as Dosable returns it — never alters products=
-// 5. Appends cc_custom_cid + couponCode=50
+// 5. Appends couponCode=50, cc_custom_cid, affId, c1 to checkout URL
 // 6. Returns the final URL to the frontend for redirect
 app.post('/api/complete', async (req, res) => {
   const sessionId        = req.body.sessionId;
   const quizAnswers      = req.body.quizAnswers || req.body.answers || {};
   const clickId          = req.body.clickId || '';
+  const affId            = req.body.affId   || '';
+  const c1               = req.body.c1      || '';
 
   // Build productSelection from new treatment page payload fields
   const productSelection = req.body.productSelection || {
@@ -781,9 +789,10 @@ app.post('/api/complete', async (req, res) => {
     },
   };
 
-  // Pass click ID to Dosable so it is stored in order startData (custom_attributes)
-  // and automatically appended to the checkout URL as cc_custom_cid=<value>
+  // Pass click ID and affiliate tracking params to Dosable (stored in order custom_attributes)
   if (clickId) completePayload.cc_custom_cid = clickId;
+  if (affId)   completePayload.aff_id        = affId;
+  if (c1)      completePayload.c1            = c1;
   const completeRes = await dosable('post', `/sessions/${resolvedSessionId}/complete`, completePayload);
   if (!completeRes.ok) {
     console.error('Session complete failed:', JSON.stringify(completeRes.data).slice(0, 500));
@@ -796,7 +805,7 @@ app.post('/api/complete', async (req, res) => {
   const rawCheckoutUrl = completeRes.data.checkout_url || CHECKOUT_BASE;
   const isQuarterly = (productSelection.schedule === 'quarterly');
   const scheduledUrl = isQuarterly ? applyQuarterlySubstitution(rawCheckoutUrl) : rawCheckoutUrl;
-  const finalCheckoutUrl = appendCheckoutParams(scheduledUrl, clickId);
+  const finalCheckoutUrl = appendCheckoutParams(scheduledUrl, clickId, affId, c1);
   console.log('Dosable checkout URL:', rawCheckoutUrl);
   console.log('Schedule:', productSelection.schedule, '| Quarterly substitution applied:', isQuarterly);
   console.log('Final checkout URL:', finalCheckoutUrl);
@@ -804,7 +813,7 @@ app.post('/api/complete', async (req, res) => {
 });
 
 // ─── ROUTE: GET /api/health ───────────────────────────────────────────────────
-app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v21-couponcode' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now(), version: 'v22-affid-c1' }));
 
 // ─── ROUTE: POST /api/debug/remap ────────────────────────────────────────────
 // Debug endpoint: returns the remapped answers without calling Dosable

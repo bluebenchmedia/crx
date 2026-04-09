@@ -552,6 +552,8 @@
     var dob        = sessionStorage.getItem('crx_dob')           || '';
     var coupon     = sessionStorage.getItem('crx_coupon')        || '50';
     var customCid  = sessionStorage.getItem('crx_cc_custom_cid') || '';
+    var affId      = sessionStorage.getItem('crx_aff_id')        || '';
+    var c1         = sessionStorage.getItem('crx_c1')            || '';
 
     var quizAnswers = {};
     var flagsToSend = {};
@@ -576,6 +578,8 @@
         quizAnswers:       quizAnswers,
         flags:             flagsToSend,
         clickId:           customCid,
+        affId:             affId,
+        c1:                c1,
         contactInfo: {
           firstName: firstName,
           lastName:  lastName,
