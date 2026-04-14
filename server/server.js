@@ -397,7 +397,7 @@ function remapAnswers(a, productSelection) {
   const bpAnswer = bpMap[a['step-28']] || 'My blood pressure has always been normal';
 
   // ── Hysterectomy ──────────────────────────────────────────────────────────
-  const hystMap = { 'no': 'No', 'yes-uterus-removed': 'Yes', 'yes-full-removal': 'Yes' };
+  const hystMap = { 'no': 'No', 'yes': 'Yes', 'yes-uterus-removed': 'Yes', 'yes-full-removal': 'Yes' };
   const hystAnswer = hystMap[a['step-21']] || 'No';
 
   // ── Allergies (NEVER override) ────────────────────────────────────────────
@@ -558,6 +558,8 @@ async function dosable(method, urlPath, data) {
 const QUARTERLY_CPID_MAP = {
   163: 199,   // Vaginal compound cream (monthly → 3-month)
   73:  193,   // Body/topical compound cream (monthly → 3-month)
+  161: 197,   // Vaginal compound cream low-dose (monthly → 3-month)
+  71:  191,   // Body/topical compound cream low-dose (monthly → 3-month)
   47:  169,   // Estrogen gel standard (monthly → 3-month)
   45:  167,   // Estrogen gel low-dose (monthly → 3-month)
   53:  175,   // Estrogen patch standard (monthly → 3-month)
