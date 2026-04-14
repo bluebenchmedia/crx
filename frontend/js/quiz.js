@@ -781,7 +781,7 @@
       nicotineOrClot:    nicotineOrClot,
       transdermalSE:     transdermalSE,
       needsProgesterone: needsProgesterone,
-      hysterectomy:      \!hasUterus,
+      hysterectomy:      !hasUterus,
       vaginalSymptoms:   vaginalSymptoms,
       doseTier:          doseTier,
       hasUterus:         hasUterus,
