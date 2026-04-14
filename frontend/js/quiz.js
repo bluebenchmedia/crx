@@ -731,40 +731,23 @@
   });
 
   function startFinalSubmission() {
-    var loadingContent = document.getElementById('loading-content');
-
     // Build clinical flags from answers
     var flags = buildClinicalFlags();
 
-    // Store flags in sessionStorage for treatments page
+    // Store flags and answers in sessionStorage for treatments page.
+    // DO NOT call /api/complete here — the session must stay open so
+    // the treatments page can complete it with the correct product
+    // selection and soft-routing overrides.  Lead capture already
+    // fired at step 34 via /api/lead, so the contact info is safe
+    // in Dosable as a Partial.
     sessionStorage.setItem('crx_flags', JSON.stringify(flags));
     sessionStorage.setItem('crx_answers', JSON.stringify(answers));
 
-    fetch(PROXY_BASE + '/api/complete', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
-        sessionId: sessionId,
-        userId:    userId,
-        answers:   answers,
-        flags:     flags,
-      }),
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.ok) {
-        sessionStorage.setItem('crx_complete', JSON.stringify(data));
-        // Route hysterectomy patients (no progesterone needed) to dedicated page
-        var treatmentPage = flags.needsProgesterone ? 'treatments.html' : 'treatments-no-prog.html';
-        window.location.href = treatmentPage;
-      } else {
-        if (loadingContent) loadingContent.innerHTML = '<p style="color:var(--rose)">Something went wrong. Please try again.</p>';
-      }
-    })
-    .catch(function(err) {
-      console.error('Final submission failed:', err);
-      if (loadingContent) loadingContent.innerHTML = '<p style="color:var(--rose)">Connection error. Please check your internet and try again.</p>';
-    });
+    // Brief loading animation, then redirect to treatment selection
+    setTimeout(function() {
+      var treatmentPage = flags.needsProgesterone ? 'treatments.html' : 'treatments-no-prog.html';
+      window.location.href = treatmentPage;
+    }, 1500);
   }
 
   /* ── Build clinical flags ────────────────────────────────────────────────── */
@@ -785,7 +768,7 @@
     var transdermalSE     = everUsedHRT && (a['transdermal-se'] === 'yes');
 
     var symptomDuration   = a['step-3'] || '';
-    var doseTier          = (symptomDuration === 'more-than-3-years') ? 'low' : 'normal';
+    var doseTier          = (symptomDuration === '3-plus-years') ? 'low' : 'normal';
 
     var vaginalSymptoms   = false;
     var step6 = a['step-6'] || '';
@@ -798,6 +781,7 @@
       nicotineOrClot:    nicotineOrClot,
       transdermalSE:     transdermalSE,
       needsProgesterone: needsProgesterone,
+      hysterectomy:      \!hasUterus,
       vaginalSymptoms:   vaginalSymptoms,
       doseTier:          doseTier,
       hasUterus:         hasUterus,

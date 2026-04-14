@@ -394,7 +394,7 @@ function remapAnswers(a, productSelection) {
     'low-under-90':        '<90/50',
     'dont-know':           "I don't know my blood pressure",
   };
-  const bpAnswer = bpMap[a['step-27']] || 'My blood pressure has always been normal';
+  const bpAnswer = bpMap[a['step-28']] || 'My blood pressure has always been normal';
 
   // ── Hysterectomy ──────────────────────────────────────────────────────────
   const hystMap = { 'no': 'No', 'yes-uterus-removed': 'Yes', 'yes-full-removal': 'Yes' };
