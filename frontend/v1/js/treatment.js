@@ -561,7 +561,7 @@
   /* ── S9: Price-Anchoring Benefits Breakdown ─────────────── */
   function renderBenefitsBreakdown() {
     var el = document.getElementById('benefits-breakdown');
-    if (\!el) return;
+    if (!el) return;
     var totalFull = getTotalPrice();
     var totalDisc = Math.round(totalFull * 0.5);
 
