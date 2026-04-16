@@ -8,7 +8,7 @@
 
   // Read result from sessionStorage
   var raw = sessionStorage.getItem('crx_v1_result');
-  if (\!raw) {
+  if (!raw) {
     // No result — redirect back to quiz
     window.location.href = 'index.html';
     return;
@@ -61,7 +61,7 @@
     var whyText = '<strong>Why this treatment?</strong> ';
     var flags = result.flags || {};
 
-    if (product.name && product.name.indexOf('Compound') \!== -1) {
+    if (product.name && product.name.indexOf('Compound') !== -1) {
       // Compound cream
       whyText += 'Based on your preference for our compound cream, ';
       if (flags.vaginalSymptoms) {
@@ -69,11 +69,11 @@
       } else {
         whyText += 'this all-in-one formula combines estrogen and progesterone so there\u2019s nothing extra to take. Applied once daily for complete hormone support.';
       }
-    } else if (product.name && product.name.indexOf('Gel') \!== -1) {
+    } else if (product.name && product.name.indexOf('Gel') !== -1) {
       whyText += 'Based on your health profile, a transdermal gel is your best match \u2014 it absorbs quickly, has no adhesive, and delivers steady hormone levels through the skin.';
-    } else if (product.name && product.name.indexOf('Patch') \!== -1) {
+    } else if (product.name && product.name.indexOf('Patch') !== -1) {
       whyText += 'Based on your profile, patches are your ideal match \u2014 applied twice weekly for consistent 24/7 hormone delivery with minimal daily effort.';
-    } else if (product.name && product.name.indexOf('Pill') \!== -1) {
+    } else if (product.name && product.name.indexOf('Pill') !== -1) {
       whyText += 'Based on your health history, an oral tablet is your best-matched option \u2014 the simplest daily routine with proven results.';
     } else {
       whyText += 'This treatment was selected by our system based on your symptoms, health history, and preferences to give you the best possible outcome.';
