@@ -406,7 +406,7 @@
       '</div>' +
       '<div class="match-card__score">' +
         '<div class="match-card__score-text">You have a <strong style="text-decoration:underline">very high chance</strong> of success with this treatment plan.</div>' +
-        '<div class="match-card__score-num"><div class="match-card__score-pct">94%</div><div class="match-card__score-label">MATCH</div></div>' +
+        '<div class="match-card__score-num"><div class="match-card__score-pct">94%</div><div class="match-card__score-label">SUCCESS RATE</div></div>' +
       '</div>';
   }
 
