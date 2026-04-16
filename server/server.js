@@ -1159,14 +1159,12 @@ app.post('/api/v1/complete', async (req, res) => {
 
   console.log('v1: Submitting answers for session', resolvedSessionId, '(no soft routing)');
 
-  // Bulk save answers to Dosable session
-  const bulkPayload = { answers: {} };
-  for (const [qId, ans] of Object.entries(apiAnswers)) {
-    if (parseInt(qId) === Q.consent_truthfulness) continue; // Q3241 only in /complete
-    bulkPayload.answers[qId] = ans;
-  }
+  // Bulk save answers to Dosable session (top-level question IDs, matching v0 format)
+  const bulkAnswersV1 = Object.fromEntries(
+    Object.entries(apiAnswers).filter(([k]) => parseInt(k) !== Q.consent_truthfulness)
+  );
 
-  const bulkRes = await dosable('put', `/sessions/${resolvedSessionId}`, bulkPayload);
+  const bulkRes = await dosable('put', `/sessions/${resolvedSessionId}`, bulkAnswersV1);
   if (!bulkRes.ok) {
     console.error('v1: Bulk save failed:', JSON.stringify(bulkRes.data).slice(0, 500));
     return res.status(502).json({ error: 'Answer submission failed', detail: bulkRes.data });
