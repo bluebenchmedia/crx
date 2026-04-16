@@ -167,6 +167,7 @@
   var selectedId = 'vcream';
   var quizAnswers = {};
   var checkoutBaseUrl = '';
+  var serverTotalPrice = 0;
   var checkoutBusy = false;
   var timerSeconds = 1200; // 20 minutes
   var timerInterval = null;
@@ -183,7 +184,14 @@
 
     var serverProduct = result.product || {};
     var imgKey = serverProduct.img || '';
-    selectedId = IMG_TO_ID[imgKey] || 'vcream';
+    selectedId = IMG_TO_ID[imgKey] || null;
+    if (\!selectedId) {
+      console.warn('[CRX] IMG_TO_ID miss for "' + imgKey + '" — defaulting to vcream. Check CPID_PRODUCT_MAP img values on server.');
+      selectedId = 'vcream';
+    }
+
+    // Store server-provided total price as authoritative (Dosable decides pricing)
+    serverTotalPrice = (typeof serverProduct.totalPrice === 'number') ? serverProduct.totalPrice : 0;
 
     try {
       var rawFlags = sessionStorage.getItem('crx_flags');
@@ -198,6 +206,14 @@
       progIntolerance: false,
       vaginalSymptoms: false,
     }, flags);
+
+    // Override local flags with server product data (Dosable is authoritative)
+    if (typeof serverProduct.hasProgesterone === 'boolean') {
+      flags.needsProgesterone = serverProduct.hasProgesterone;
+    }
+    if (typeof serverProduct.hasVagAddon === 'boolean') {
+      flags.vaginalSymptoms = serverProduct.hasVagAddon;
+    }
 
     try {
       var rawAnswers = sessionStorage.getItem('crx_answers');
@@ -244,6 +260,9 @@
   }
 
   function getTotalPrice() {
+    // Use server-provided price (Dosable is authoritative)
+    if (serverTotalPrice > 0) return serverTotalPrice;
+    // Fallback: calculate locally
     var p = getProduct(selectedId);
     var mainPrice = getMonthlyPrice(p).price;
     var progPrice = (flags.needsProgesterone && !p.isCompoundedEP) ? getProgData().price : 0;
@@ -343,42 +362,42 @@
     // Multi-line chart showing 4 symptom improvement curves over 12 weeks
     // Font sizes optimized for mobile readability
     wrap.innerHTML =
-      '<svg viewBox="0 0 620 270" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">' +
+      '<svg viewBox="0 0 700 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">' +
         // Background grid
         '<defs>' +
           '<linearGradient id="bgFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7A9E7E" stop-opacity="0.06"/><stop offset="100%" stop-color="#7A9E7E" stop-opacity="0.01"/></linearGradient>' +
         '</defs>' +
-        '<rect x="60" y="20" width="530" height="180" fill="url(#bgFade)" rx="4"/>' +
+        '<rect x="70" y="20" width="570" height="200" fill="url(#bgFade)" rx="4"/>' +
         // Y-axis labels
-        '<text x="52" y="30" text-anchor="end" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">100%</text>' +
-        '<text x="52" y="75" text-anchor="end" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">75%</text>' +
-        '<text x="52" y="120" text-anchor="end" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">50%</text>' +
-        '<text x="52" y="165" text-anchor="end" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">25%</text>' +
-        '<text x="52" y="205" text-anchor="end" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">0%</text>' +
+        '<text x="62" y="30" text-anchor="end" font-size="22" fill="#6B6B6B" font-family="DM Sans,sans-serif">100%</text>' +
+        '<text x="62" y="75" text-anchor="end" font-size="22" fill="#6B6B6B" font-family="DM Sans,sans-serif">75%</text>' +
+        '<text x="62" y="120" text-anchor="end" font-size="22" fill="#6B6B6B" font-family="DM Sans,sans-serif">50%</text>' +
+        '<text x="62" y="165" text-anchor="end" font-size="22" fill="#6B6B6B" font-family="DM Sans,sans-serif">25%</text>' +
+        '<text x="62" y="205" text-anchor="end" font-size="22" fill="#6B6B6B" font-family="DM Sans,sans-serif">0%</text>' +
         // Y-axis title
-        '<text x="12" y="120" text-anchor="middle" font-size="15" fill="#6B6B6B" font-family="DM Sans,sans-serif" transform="rotate(-90 15 120)">Improvement</text>' +
+        '<text x="12" y="120" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif" transform="rotate(-90 15 120)">Improvement</text>' +
         // Grid lines
-        '<line x1="60" y1="65" x2="590" y2="65" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
-        '<line x1="60" y1="110" x2="590" y2="110" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
-        '<line x1="60" y1="155" x2="590" y2="155" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
+        '<line x1="70" y1="65" x2="640" y2="65" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
+        '<line x1="70" y1="110" x2="640" y2="110" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
+        '<line x1="70" y1="155" x2="640" y2="155" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
         // X-axis labels
-        '<text x="60" y="240" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">Start</text>' +
-        '<text x="192" y="240" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 2</text>' +
-        '<text x="325" y="240" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 4</text>' +
-        '<text x="458" y="240" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 8</text>' +
-        '<text x="590" y="240" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 12</text>' +
+        '<text x="70" y="260" text-anchor="middle" font-size="22" fill="#6B6B6B" font-family="DM Sans,sans-serif">Start</text>' +
+        '<text x="228" y="260" text-anchor="middle" font-size="22" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 2</text>' +
+        '<text x="370" y="260" text-anchor="middle" font-size="22" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 4</text>' +
+        '<text x="510" y="260" text-anchor="middle" font-size="22" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 8</text>' +
+        '<text x="640" y="260" text-anchor="middle" font-size="22" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 12</text>' +
         // Curve 1: Hot Flashes / Night Sweats (fastest response) — rose
-        '<path d="M60,200 C120,185 160,140 192,100 C230,60 280,42 325,35 C400,26 480,24 590,22" fill="none" stroke="#C4826A" stroke-width="2.5" stroke-linecap="round"/>' +
-        '<circle cx="590" cy="22" r="4" fill="#C4826A"/>' +
+        '<path d="M70,200 C130,185 175,140 228,100 C268,60 310,42 370,35 C440,26 530,24 640,22" fill="none" stroke="#C4826A" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<circle cx="640" cy="22" r="4" fill="#C4826A"/>' +
         // Curve 2: Sleep Quality — sage
-        '<path d="M60,200 C120,190 160,160 192,130 C230,95 280,65 325,48 C400,34 480,28 590,25" fill="none" stroke="#7A9E7E" stroke-width="2.5" stroke-linecap="round"/>' +
-        '<circle cx="590" cy="25" r="4" fill="#7A9E7E"/>' +
+        '<path d="M70,200 C130,190 175,160 228,130 C268,95 310,65 370,48 C440,34 530,28 640,25" fill="none" stroke="#7A9E7E" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<circle cx="640" cy="25" r="4" fill="#7A9E7E"/>' +
         // Curve 3: Mood & Anxiety — forest
-        '<path d="M60,200 C120,195 170,180 192,160 C230,125 280,85 325,62 C400,42 480,34 590,30" fill="none" stroke="#2C3E2D" stroke-width="2.5" stroke-linecap="round"/>' +
-        '<circle cx="590" cy="30" r="4" fill="#2C3E2D"/>' +
+        '<path d="M70,200 C130,195 180,180 228,160 C268,125 310,85 370,62 C440,42 530,34 640,30" fill="none" stroke="#2C3E2D" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<circle cx="640" cy="30" r="4" fill="#2C3E2D"/>' +
         // Curve 4: Libido / Skin / Energy (slowest) — emerald
-        '<path d="M60,200 C120,198 170,192 192,180 C230,155 290,115 325,88 C400,58 480,42 590,35" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round"/>' +
-        '<circle cx="590" cy="35" r="4" fill="#059669"/>' +
+        '<path d="M70,200 C130,198 180,192 228,180 C268,155 320,115 370,88 C440,58 530,42 640,35" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<circle cx="640" cy="35" r="4" fill="#059669"/>' +
       '</svg>' +
       // Legend
       '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 1.25rem;margin-top:.75rem;font-size:.75rem;font-weight:600">' +
@@ -670,26 +689,20 @@
     if (typeof fbq === 'function') fbq('track', 'InitiateCheckout');
     if (typeof gtag === 'function') gtag('event', 'begin_checkout');
 
-    var p = getProduct(selectedId);
-    var priceData = getMonthlyPrice(p);
-    var cpids = [priceData.cpid + ':1'];
-
-    if (flags.needsProgesterone && !p.isCompoundedEP) {
-      cpids.push(getProgData().cpid + ':1');
+    // Use the server-provided checkout URL directly.
+    // Dosable is the authoritative source for product routing and CPIDs.
+    // Do NOT reconstruct CPIDs locally — that risks divergence from Dosable.
+    if (\!checkoutBaseUrl) {
+      console.error('[CRX] No checkout URL available');
+      document.querySelectorAll('.cta-btn').forEach(function(btn) {
+        btn.disabled = false;
+        btn.textContent = 'START MY TREATMENT \u2014 50% OFF TODAY';
+      });
+      checkoutBusy = false;
+      return;
     }
-
-    if (flags.vaginalSymptoms && !p.isVaginalFocused) {
-      cpids.push(VAGINAL_ADDON.monthly.cpid + ':1');
-    }
-
-    try {
-      var url = new URL(checkoutBaseUrl);
-      url.searchParams.set('products', cpids.join(';'));
-      window.location.href = url.toString();
-    } catch(e) {
-      console.error('URL parse error, using original checkout URL:', e);
-      window.location.href = checkoutBaseUrl;
-    }
+    console.log('[CRX] Redirecting to Dosable checkout:', checkoutBaseUrl);
+    window.location.href = checkoutBaseUrl;
   }
 
 })();
