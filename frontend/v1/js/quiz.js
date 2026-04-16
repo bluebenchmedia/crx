@@ -23,11 +23,11 @@
    19  Adhesive allergy (single-select, auto-advance)
    20  Nicotine use (single-select, auto-advance)
    21  Hysterectomy (single-select, auto-advance)
-   22  Sleep / breast tenderness (shown only if no hysterectomy)
+   22  Sleep / breast tenderness (shown only if hysterectomy=YES)
    23  Progesterone intolerance (shown only if step-22 != neither)
    24  HRT history (single-select, auto-advance)
    25  Transdermal side effects (shown only if step-24 != 'never')
-   26  Delivery preference (single-select, auto-advance)
+   26  Treatment preference: compound vs standard (moved after BP, hidden for no-prog hysterectomy)
    27  Interstitial: Testimonial 2
    28  Blood pressure (single-select, disqualifying)
    29  What's held you back (single-select, auto-advance)
@@ -38,13 +38,14 @@
    34  Phone (text input + lead capture)
    35  Informed consent (3 consents)
    36  Interstitial: You're a great candidate
-   37  Loading screen → redirect to treatments.html
+   37  Loading screen → redirect to treatment.html
+   38  Vaginal symptoms (multi-select, inserted between 20→21)
 
    CLINICAL FLAGS (computed at end, stored in sessionStorage):
    - adhesiveAllergy    → blocks patch on treatment page
    - nicotineOrClot     → blocks oral pill on treatment page
    - transdermalSE      → blocks gel/patch on treatment page (from step 25)
-   - needsProgesterone  → true for ALL patients with a uterus (no hysterectomy)
+   - needsProgesterone  → true unless hysterectomy + no sleep/tenderness OR prog intolerance
    - vaginalSymptoms    → pre-selects vaginal add-on on treatment page
    - doseTier           → 'low' if >3yr duration, 'normal' otherwise
    ============================================================ */
@@ -52,7 +53,9 @@
 (function() {
   'use strict';
 
-  var TOTAL_STEPS   = 37;
+  var TOTAL_STEPS   = 38;
+  // Canonical step order for progress bar (step 38=vaginal symptoms between 20-21, step 26=compound moved after 28)
+  var STEP_ORDER = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,38,21,22,23,24,25,27,28,26,29,30,31,32,33,34,35,36,37];
   var currentStep   = 1;
   var answers       = {};
   var consentAgreed = 0;
@@ -157,7 +160,9 @@
   function updateProgress(step) {
     var fill = document.getElementById('progressFill');
     if (!fill) return;
-    var pct = Math.round(((step - 1) / (TOTAL_STEPS - 1)) * 100);
+    var stepIdx = STEP_ORDER.indexOf(step);
+    if (stepIdx === -1) stepIdx = step - 1; // fallback
+    var pct = Math.round((stepIdx / (STEP_ORDER.length - 1)) * 100);
     fill.style.width = Math.max(2, pct) + '%';
   }
 
@@ -193,23 +198,53 @@
 
   /* ── Compute next step (conditional skip logic) ──────────────────────────── */
   function getNextStep(from) {
+    // Step 20 (nicotine) → Step 38 (vaginal symptoms)
+    if (from === 20) return 38;
+
+    // Step 38 (vaginal symptoms) → Step 21 (hysterectomy)
+    if (from === 38) return 21;
+
     // Step 21 = hysterectomy
+    // YES hysterectomy → show steps 22-23 (determine progesterone need)
+    // NO hysterectomy  → skip to step 24 (always gets progesterone)
     if (from === 21) {
       var hyst = answers['step-21'] || '';
-      return (hyst !== 'no' && hyst !== '') ? 24 : 22;
+      return (hyst === 'no' || hyst === '') ? 24 : 22;
     }
 
-    // Step 22 = sleep/breast tenderness
+    // Step 22 = sleep/breast tenderness (hysterectomy patients only)
     if (from === 22) {
       var st = answers['step-22'] || '';
       return (st === 'neither') ? 24 : 23;
     }
 
+    // Step 23 (prog intolerance) → Step 24
+    if (from === 23) return 24;
+
     // Step 24 = HRT history
-    // If never tried HRT → skip step 25 (transdermal SE — not applicable)
+    // never → skip step 25 → go to step 27 (testimonial, skip old compound pos)
     if (from === 24) {
       var hrtHistory = answers['step-24'] || '';
-      return (hrtHistory === 'never') ? 26 : 25;
+      return (hrtHistory === 'never') ? 27 : 25;
+    }
+
+    // Step 25 (transdermal SE) → Step 27 (skip old step-26 position)
+    if (from === 25) return 27;
+
+    // Step 26 (compound, now shown after BP) → Step 29
+    if (from === 26) return 29;
+
+    // Step 28 (blood pressure) → conditionally show compound (step 26) or skip to 29
+    if (from === 28) {
+      var hystForCompound = answers['step-21'] || '';
+      var isHyst = (hystForCompound \!== 'no' && hystForCompound \!== '');
+      if (isHyst) {
+        var sleepAns = answers['step-22'] || '';
+        var hasSleep = (sleepAns === 'sleep-issues' || sleepAns === 'breast-tenderness' || sleepAns === 'both');
+        if (\!hasSleep) return 29;
+        if (answers['step-23'] === 'yes') return 29;
+      }
+      return 26;
     }
 
     return from + 1;
@@ -245,10 +280,16 @@
       if (currentStep <= 1) return;
       var prev = currentStep - 1;
 
-      // If we're on step 24 and hysterectomy was yes, skip back over 22+23
+      // Step 38 (vaginal symptoms) -> back to step 20
+      if (currentStep === 38) prev = 20;
+
+      // Step 21 (hysterectomy) -> back to step 38 (vaginal symptoms)
+      if (currentStep === 21) prev = 38;
+
+      // Step 24: back depends on hysterectomy path
       if (currentStep === 24) {
         var hyst = answers['step-21'] || '';
-        if (hyst !== 'no' && hyst !== '') {
+        if (hyst === 'no' || hyst === '') {
           prev = 21;
         } else {
           var st = answers['step-22'] || '';
@@ -256,10 +297,27 @@
         }
       }
 
-      // If we're on step 26 (delivery pref) and HRT history was 'never', go back to 24
-      if (currentStep === 26) {
-        var hrtHistory = answers['step-24'] || '';
-        prev = (hrtHistory === 'never') ? 24 : 25;
+      // Step 27 (testimonial) -> back to 25 or 24 (skip old compound position)
+      if (currentStep === 27) {
+        var hrtHist = answers['step-24'] || '';
+        prev = (hrtHist === 'never') ? 24 : 25;
+      }
+
+      // Step 26 (compound, now after BP) -> back to step 28
+      if (currentStep === 26) prev = 28;
+
+      // Step 29 -> back to 26 (compound) or 28 (if compound was skipped)
+      if (currentStep === 29) {
+        var hystB = answers['step-21'] || '';
+        var isHystB = (hystB \!== 'no' && hystB \!== '');
+        var skipComp = false;
+        if (isHystB) {
+          var sleepB = answers['step-22'] || '';
+          var hasSleepB = (sleepB === 'sleep-issues' || sleepB === 'breast-tenderness' || sleepB === 'both');
+          if (\!hasSleepB) skipComp = true;
+          else if (answers['step-23'] === 'yes') skipComp = true;
+        }
+        prev = skipComp ? 28 : 26;
       }
 
       var cur = document.getElementById('step-' + currentStep);
@@ -824,23 +882,45 @@
 
     var adhesiveAllergy   = (a['adhesive-allergy'] === 'yes');
     var nicotineUse       = (a['nicotine-use'] === 'yes' || a['nicotine-use'] === 'recently-quit');
-    var bloodClotHistory  = (a['step-13'] && a['step-13'].indexOf('blood-clots') !== -1);
+    var bloodClotHistory  = (a['step-13'] && a['step-13'].indexOf('blood-clots') \!== -1);
     var nicotineOrClot    = nicotineUse || bloodClotHistory;
 
     var hystAnswer        = a['step-21'] || 'no';
     var hasUterus         = (hystAnswer === 'no');
-    var needsProgesterone = hasUterus;
+    var hysterectomy      = \!hasUterus;
+
+    // Progesterone logic per beluga doc:
+    // Non-hysterectomy -> always gets progesterone
+    // Hysterectomy + sleep/tenderness=Yes + prog intolerance=No -> gets progesterone
+    // Hysterectomy + sleep/tenderness=No -> NO progesterone
+    // Hysterectomy + prog intolerance=Yes -> NO micronized (alternative unavailable)
+    var needsProgesterone = true;
+    if (hysterectomy) {
+      var sleepAns = a['step-22'] || '';
+      var hasSleepTenderness = (sleepAns === 'sleep-issues' || sleepAns === 'breast-tenderness' || sleepAns === 'both');
+      if (\!hasSleepTenderness) {
+        needsProgesterone = false;
+      } else if (a['step-23'] === 'yes') {
+        needsProgesterone = false;
+      }
+    }
 
     var hrtHistory        = a['step-24'] || 'never';
-    var everUsedHRT       = (hrtHistory !== 'never');
+    var everUsedHRT       = (hrtHistory \!== 'never');
     var transdermalSE     = everUsedHRT && (a['transdermal-se'] === 'yes');
 
     var symptomDuration   = a['step-3'] || '';
     var doseTier          = (symptomDuration === '3-plus-years') ? 'low' : 'normal';
 
+    // Vaginal symptoms from dedicated step 38 (Q3228 triggers)
     var vaginalSymptoms   = false;
+    var step38 = a['step-38'] || '';
+    if (step38 && step38 \!== 'none') {
+      vaginalSymptoms = true;
+    }
+    // Also check step 6 for backward compat
     var step6 = a['step-6'] || '';
-    if (step6.indexOf('vaginal') !== -1 || step6.indexOf('dryness') !== -1 || step6.indexOf('painful-sex') !== -1) {
+    if (step6.indexOf('vaginal-dryness') \!== -1) {
       vaginalSymptoms = true;
     }
 
@@ -849,7 +929,7 @@
       nicotineOrClot:    nicotineOrClot,
       transdermalSE:     transdermalSE,
       needsProgesterone: needsProgesterone,
-      hysterectomy:      !hasUterus,
+      hysterectomy:      hysterectomy,
       vaginalSymptoms:   vaginalSymptoms,
       doseTier:          doseTier,
       hasUterus:         hasUterus,

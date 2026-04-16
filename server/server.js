@@ -249,12 +249,13 @@ function remapAnswers(a, productSelection) {
   const transdermalSideEffects = (a['step-25'] === 'yes');
   const symptomDurationLong    = (a['step-3'] === '3-plus-years');
   const hysterectomy           = !!(a['step-21'] && a['step-21'] !== 'no');
-  const sleepTenderness        = !hysterectomy && !!(a['step-22'] && a['step-22'] !== 'neither');
+  const sleepTenderness        = hysterectomy && \!\!(a['step-22'] && a['step-22'] \!== 'neither');
   const progIntolerance        = sleepTenderness && (a['step-23'] === 'yes');
-  const vaginalSymptoms        = symptoms.includes('vaginal-dryness') || symptoms.includes('low-libido');
+  const step38raw = a['step-38'] || '';
+  const vaginalSymptoms        = (step38raw && step38raw \!== 'none') || symptoms.includes('vaginal-dryness');
   const osteoporosis           = conditions.includes('osteoporosis');
-  // needsProgesterone: everyone with a uterus gets progesterone, full stop
-  const needsProgesterone      = !hysterectomy;
+  // Per beluga doc: non-hysterectomy always gets prog; hysterectomy depends on sleep+tenderness
+  const needsProgesterone      = hysterectomy ? (sleepTenderness && \!progIntolerance) : true;
 
   const flags = {
     adhesiveAllergy, nicotineUse, nicotineOrClot, transdermalSideEffects,
@@ -1113,24 +1114,45 @@ function remapAnswersV1(a) {
     apiAnswers[Q.hysterectomy_reason] = { value: a['step-21-reason'] || 'Medical necessity', question: 'Please provide further information about why you have had a hysterectomy' };
   }
 
-  if (!hysterectomy) {
+  let needsProgesterone;
+  if (hysterectomy) {
+    // Hysterectomy: check sleep/tenderness to determine progesterone need
     const sleepTenderness = (a['step-22'] === 'sleep-issues' || a['step-22'] === 'breast-tenderness' || a['step-22'] === 'both');
     apiAnswers[Q.sleep_tenderness] = { value: sleepTenderness ? 'Yes' : 'No', question: 'Do you experience difficulty with your sleep or breast tenderness?' };
+
+    if (sleepTenderness) {
+      const progIntolerance = (a['step-23'] === 'yes');
+      apiAnswers[Q.prog_intolerance] = { value: progIntolerance ? 'Yes' : 'No', question: 'Have you had intolerance to micronized progesterone in the past?' };
+      needsProgesterone = \!progIntolerance;
+    } else {
+      needsProgesterone = false;
+    }
+  } else {
+    // Non-hysterectomy: always gets micronized progesterone
+    needsProgesterone = true;
   }
 
-  const needsProgesterone = !hysterectomy;
-  if (needsProgesterone) {
-    const progIntolerance = (a['step-23'] === 'yes');
-    apiAnswers[Q.prog_intolerance] = { value: progIntolerance ? 'Yes' : 'No', question: 'Have you had intolerance to micronized progesterone in the past?' };
-  }
-
-  // ── Vaginal symptoms (HONEST — from actual quiz answers) ──────────────────
+  // ── Vaginal symptoms (HONEST — from step-38 dedicated vaginal symptoms question) ──
   // Q3228 valid options: Painful intercourse, Vaginal dryness, Vaginal irritation,
   // Urinary urgency, Recurrent UTIs, I do not experience any of these.
-  // NOTE: "Reduce libido" is NOT a valid Q3228 option (only valid for Q3211 symptom_checklist).
-  const hasVaginalDryness = symptoms.some(s => s.trim() === 'vaginal-dryness');
-  if (hasVaginalDryness) {
-    apiAnswers[Q.vaginal_symptoms] = { value: ['Vaginal dryness'], question: 'Do you experience any of the following? (vaginal symptoms)' };
+  const vaginalSymptomMap = {
+    'painful-intercourse': 'Painful intercourse',
+    'vaginal-dryness':     'Vaginal dryness',
+    'vaginal-irritation':  'Vaginal irritation',
+    'urinary-urgency':     'Urinary urgency',
+    'recurrent-utis':      'Recurrent UTIs',
+  };
+  const step38 = a['step-38'] || '';
+  const vagRaw = (typeof step38 === 'string') ? step38.split(',') : (Array.isArray(step38) ? step38 : []);
+  const vagList = vagRaw.map(s => vaginalSymptomMap[s.trim()]).filter(Boolean);
+
+  // Also check step-6 for vaginal-dryness as backward compat / extra signal
+  if (vagList.length === 0 && symptoms.some(s => s.trim() === 'vaginal-dryness')) {
+    vagList.push('Vaginal dryness');
+  }
+
+  if (vagList.length > 0) {
+    apiAnswers[Q.vaginal_symptoms] = { value: vagList, question: 'Do you experience any of the following? (vaginal symptoms)' };
   } else {
     apiAnswers[Q.vaginal_symptoms] = { value: ['I do not experience any of these'], question: 'Do you experience any of the following? (vaginal symptoms)' };
   }

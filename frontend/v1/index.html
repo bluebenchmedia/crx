@@ -466,24 +466,32 @@
     <!-- STEP 22: Sleep & breast tenderness (shown only if hysterectomy=no) -->
     <div class="quiz-step" id="step-22">
       <span class="step-eyebrow">Your symptoms</span>
-      <h2 class="step-question">Do you experience any of the following?</h2>
-      <p class="step-sub">Select all that apply &mdash; this helps us determine if progesterone should be part of your plan.</p>
+      <h2 class="step-question">Do you experience difficulty with your sleep or breast tenderness?</h2>
+      <p class="step-sub">Since you've had a hysterectomy, this helps us determine whether progesterone should still be part of your treatment.</p>
       <div class="options-list">
-        <button class="option-btn" data-value="sleep-issues">&#128564; Trouble sleeping or waking up at night</button>
-        <button class="option-btn" data-value="breast-tenderness">Breast tenderness or sensitivity</button>
+        <button class="option-btn" data-value="sleep-issues">&#128564; Yes &mdash; trouble sleeping or waking up at night</button>
+        <button class="option-btn" data-value="breast-tenderness">Yes &mdash; breast tenderness or sensitivity</button>
         <button class="option-btn" data-value="both">Both of the above</button>
         <button class="option-btn" data-value="neither">Neither &mdash; I don't have these symptoms</button>
+      </div>
+      <div class="info-widget" style="margin-top:16px;padding:14px 16px;background:var(--cream,#faf8f5);border-radius:8px;border-left:3px solid var(--sage,#7c9a82);">
+        <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:var(--charcoal,#3a3632);">&#128161; Why are we asking this?</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.55;color:var(--charcoal-60,#3a363299);">Progesterone isn&rsquo;t always needed after a hysterectomy. However, if you experience sleep difficulties or breast tenderness, adding progesterone can help relieve those symptoms. Your answer helps us personalize your treatment.</p>
       </div>
     </div>
 
     <!-- STEP 23: Progesterone intolerance (shown only if step-22 != neither) -->
     <div class="quiz-step" id="step-23">
       <span class="step-eyebrow">Treatment history</span>
-      <h2 class="step-question">Have you ever had a reaction or side effects from progesterone?</h2>
-      <p class="step-sub">This helps us choose the right progesterone formulation for you.</p>
+      <h2 class="step-question">Have you had intolerance to micronized progesterone in the past?</h2>
+      <p class="step-sub">This is important for determining the safest treatment plan for you.</p>
       <div class="options-list">
         <button class="option-btn" data-value="no">No &mdash; I've tolerated it fine (or never tried it)</button>
-        <button class="option-btn" data-value="yes">Yes &mdash; I've had side effects from progesterone before</button>
+        <button class="option-btn" data-value="yes">Yes &mdash; I've had side effects or intolerance to progesterone</button>
+      </div>
+      <div class="info-widget" style="margin-top:16px;padding:14px 16px;background:var(--cream,#faf8f5);border-radius:8px;border-left:3px solid var(--sage,#7c9a82);">
+        <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:var(--charcoal,#3a3632);">&#128161; What does this mean?</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.55;color:var(--charcoal-60,#3a363299);">If you&rsquo;ve had issues with progesterone in the past, your physician will take this into account when creating your treatment plan. Since you&rsquo;ve had a hysterectomy, estrogen-only therapy may be the best option for you.</p>
       </div>
     </div>
 
@@ -772,6 +780,25 @@
           <p class="loading-sub">Taking you to your personalized treatment&hellip;</p>
         </div>
       </div>
+    </div>
+
+
+    <\!-- STEP 38: Vaginal / urinary symptoms (multi-select, between steps 20-21)
+         Maps to Dosable Q3228. Triggers vaginal estrogen add-on.
+    ============================================================ -->
+    <div class="quiz-step" id="step-38">
+      <span class="step-eyebrow">Vaginal &amp; urinary health</span>
+      <h2 class="step-question">Do you experience any of the following?</h2>
+      <p class="step-sub">Check all that apply &mdash; this helps us determine if localized vaginal estrogen should be part of your plan.</p>
+      <div class="options-list multi">
+        <button class="option-btn" data-value="painful-intercourse">Painful intercourse</button>
+        <button class="option-btn" data-value="vaginal-dryness">Vaginal dryness</button>
+        <button class="option-btn" data-value="vaginal-irritation">Vaginal irritation</button>
+        <button class="option-btn" data-value="urinary-urgency">Urinary urgency</button>
+        <button class="option-btn" data-value="recurrent-utis">Recurrent UTIs</button>
+        <button class="option-btn" data-value="none">I do not experience any of these</button>
+      </div>
+      <button class="quiz-next-btn">Continue &rarr;</button>
     </div>
 
   </div><!-- /quiz-container -->
