@@ -423,12 +423,13 @@
       goals = DEFAULT_GOALS;
     }
 
-    // Pad to 6 if fewer
-    while (goals.length < 6 && goals.length < DEFAULT_GOALS.length) {
-      var next = DEFAULT_GOALS[goals.length];
-      var alreadyHas = goals.some(function(g) { return g.title === next.title; });
-      if (!alreadyHas) goals.push(next);
-      else break;
+    // Pad to 6 from defaults if fewer
+    if (goals.length < 6) {
+      for (var di = 0; di < DEFAULT_GOALS.length && goals.length < 6; di++) {
+        var next = DEFAULT_GOALS[di];
+        var alreadyHas = goals.some(function(g) { return g.title === next.title; });
+        if (!alreadyHas) goals.push(next);
+      }
     }
 
     el.innerHTML = goals.map(function(g) {
