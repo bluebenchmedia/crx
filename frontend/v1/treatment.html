@@ -144,17 +144,19 @@
     .testi-card__treatment{font-size:.75rem;color:var(--sage);font-weight:600}
     .testi-card__badge{font-size:.6875rem;color:var(--light);font-style:italic}
 
-    /* ── S9: Comparison Table ─────────────── */
-    .compare-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -1.25rem;padding:0 1.25rem}
-    .compare-table{width:100%;min-width:520px;border-collapse:collapse;font-size:.8125rem;background:white;border:1px solid var(--taupe);border-radius:.75rem;overflow:hidden}
-    .compare-table th,.compare-table td{padding:.625rem .75rem;text-align:center;border-bottom:1px solid var(--taupe)}
-    .compare-table th{font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}
-    .compare-table th:first-child,.compare-table td:first-child{text-align:left;font-weight:600;color:var(--charcoal)}
-    .compare-table tr:last-child td{border-bottom:none}
-    .compare-table .col-crx{background:rgba(122,158,126,.06)}
-    .compare-table .col-crx-head{background:var(--forest);color:white;font-weight:700}
-    .check-yes{color:var(--sage);font-weight:700}
-    .check-no{color:#ccc}
+    /* ── S9: Benefits Breakdown ──────────────── */
+    .benefits-intro{font-size:.9375rem;color:var(--mid);line-height:1.6;margin-bottom:1.5rem;max-width:640px;margin-left:auto;margin-right:auto}
+    .benefits-table{background:white;border:1px solid var(--taupe);border-radius:.875rem;overflow:hidden;max-width:640px;margin:0 auto 1rem}
+    .benefits-row{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;border-bottom:1px solid var(--taupe);font-size:.875rem;color:var(--charcoal)}
+    .benefits-row:last-child{border-bottom:none}
+    .benefits-row span:last-child{font-weight:600;white-space:nowrap;text-align:right;min-width:5rem}
+    .benefits-header{background:var(--cream-dk);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--light);padding:.625rem 1rem}
+    .benefits-total{background:var(--cream-dk);font-weight:700;color:var(--charcoal);border-top:2px solid var(--taupe)}
+    .benefits-total span:last-child{font-size:1rem;color:var(--charcoal)}
+    .benefits-crx{background:rgba(122,158,126,.1);border-top:2px solid var(--sage)}
+    .benefits-crx span:first-child{font-weight:700;color:var(--forest)}
+    .benefits-crx-price{font-size:1.25rem\!important;font-weight:800\!important;color:var(--emerald)\!important}
+    .benefits-note{font-size:.75rem;color:var(--light);font-style:italic;text-align:center;margin-top:.75rem;max-width:640px;margin-left:auto;margin-right:auto}
 
     /* ── S10: Medical Team ────────────────── */
     .docs-row{display:flex;flex-wrap:wrap;justify-content:center;gap:1.5rem;margin-bottom:1.5rem}
@@ -318,7 +320,7 @@
 
 <section class="section">
   <div class="wrap">
-    <h2 class="section-title">Select Your <em>Plan</em></h2>
+    <h2 class="section-title">Your Personalized <em>Plan</em></h2>
     <div class="pricing" id="pricing-section"></div>
   </div>
 </section>
@@ -331,32 +333,11 @@
   </div>
 </section>
 
-<!-- S9: COMPARISON TABLE -->
+<!-- S9: PRICE-ANCHORING BENEFITS BREAKDOWN -->
 <section class="section section--alt">
   <div class="wrap">
-    <h2 class="section-title">How ClearedRx <em>compares:</em></h2>
-    <div class="compare-wrap">
-      <table class="compare-table">
-        <thead>
-          <tr>
-            <th></th>
-            <th class="col-crx-head">ClearedRx</th>
-            <th>Brand-Name HRT</th>
-            <th>Traditional Doctor</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Starting Price</td><td class="col-crx"><strong>From $49/mo</strong></td><td>$250&ndash;500/mo</td><td>$300+ visit + Rx</td></tr>
-          <tr><td>No Insurance Required</td><td class="col-crx check-yes">&#10003;</td><td class="check-no">&#10007;</td><td class="check-no">&#10007;</td></tr>
-          <tr><td>100% Online</td><td class="col-crx check-yes">&#10003;</td><td class="check-no">&#10007;</td><td class="check-no">&#10007;</td></tr>
-          <tr><td>Free Shipping</td><td class="col-crx check-yes">&#10003;</td><td>Varies</td><td class="check-no">&#10007;</td></tr>
-          <tr><td>Board-Certified Physicians</td><td class="col-crx check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td class="check-yes">&#10003;</td></tr>
-          <tr><td>30-Day Money-Back Guarantee</td><td class="col-crx check-yes">&#10003;</td><td class="check-no">&#10007;</td><td class="check-no">&#10007;</td></tr>
-          <tr><td>Same Active Ingredients</td><td class="col-crx check-yes">&#10003;</td><td class="check-yes">&#10003;</td><td>Varies</td></tr>
-          <tr><td>Cancel Anytime</td><td class="col-crx check-yes">&#10003;</td><td class="check-no">&#10007;</td><td>N/A</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <h2 class="section-title">Why HRT is <em>worth it:</em></h2>
+    <div id="benefits-breakdown"></div>
   </div>
 </section>
 

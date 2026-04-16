@@ -217,6 +217,7 @@
     renderGoalsGrid();
     renderIncluded();
     renderPricing();
+    renderBenefitsBreakdown();
     renderTestimonials();
     renderFaq();
     renderFinalCta(firstName);
@@ -404,7 +405,7 @@
         '</div>' +
       '</div>' +
       '<div class="match-card__score">' +
-        '<div class="match-card__score-text">Based on your symptoms and health profile, you are a <strong>strong candidate</strong> for this treatment plan.</div>' +
+        '<div class="match-card__score-text">You have a <strong style="text-decoration:underline">very high chance</strong> of success with this treatment plan.</div>' +
         '<div class="match-card__score-num"><div class="match-card__score-pct">94%</div><div class="match-card__score-label">MATCH</div></div>' +
       '</div>';
   }
@@ -544,7 +545,7 @@
           '<span class="pricing__orig">$' + totalFull + '</span>' +
           '<span class="pricing__disc">$' + totalDisc + '</span>' +
         '</div>' +
-        '<div class="pricing__period">per month \u2022 first month only</div>' +
+        '<div class="pricing__period">one month supply</div>' +
         '<div class="pricing__savings">You save $' + savings + ' today</div>' +
         '<ul class="pricing__includes">' +
           includesList.map(function(item) {
@@ -555,6 +556,43 @@
         '<p class="cta-note">No commitment \u2022 Cancel anytime \u2022 30-day guarantee</p>' +
       '</div>' +
       '<p style="font-size:.8125rem;color:var(--light);margin-top:1rem">Then $' + totalFull + '/mo. Doctor review included. Cancel anytime.</p>';
+  }
+
+  /* ── S9: Price-Anchoring Benefits Breakdown ─────────────── */
+  function renderBenefitsBreakdown() {
+    var el = document.getElementById('benefits-breakdown');
+    if (\!el) return;
+    var totalFull = getTotalPrice();
+    var totalDisc = Math.round(totalFull * 0.5);
+
+    var items = [
+      { concern: 'Hot flashes & night sweats', cost: 45 },
+      { concern: 'Insomnia & poor sleep', cost: 40 },
+      { concern: 'Mood swings, anxiety & low mood', cost: 90 },
+      { concern: 'Brain fog & memory', cost: 35 },
+      { concern: 'Low libido & sexual discomfort', cost: 50 },
+      { concern: 'Vaginal dryness', cost: 55 },
+      { concern: 'Weight gain (gym, diet program)', cost: 120 },
+      { concern: 'Wrinkles & skin aging', cost: 85 },
+      { concern: 'Hair thinning', cost: 45 },
+      { concern: 'Fatigue & low energy', cost: 30 },
+      { concern: 'Joint pain & stiffness', cost: 40 },
+      { concern: 'Bone health supplements', cost: 25 },
+    ];
+    var separateTotal = 0;
+    items.forEach(function(i) { separateTotal += i.cost; });
+
+    el.innerHTML =
+      '<p class="benefits-intro">Hormone replacement therapy doesn\u2019t just ease hot flashes \u2014 it can improve sleep, mood, brain fog, weight, skin, libido, and more. Here\u2019s what it typically costs to address each problem separately.</p>' +
+      '<div class="benefits-table">' +
+        '<div class="benefits-row benefits-header"><span>Symptom or concern</span><span>Typical cost/mo</span></div>' +
+        items.map(function(i) {
+          return '<div class="benefits-row"><span>' + i.concern + '</span><span>~$' + i.cost + '</span></div>';
+        }).join('') +
+        '<div class="benefits-row benefits-total"><span>Estimated total if addressed separately</span><span>~$' + separateTotal + '/mo</span></div>' +
+        '<div class="benefits-row benefits-crx"><span>Your personalized ClearedRx treatment</span><span class="benefits-crx-price">$' + totalDisc + '/mo</span></div>' +
+      '</div>' +
+      '<p class="benefits-note">*Individual costs above are estimates. ClearedRx pricing depends on your chosen treatment and refill option.</p>';
   }
 
   /* ── S8: Testimonials ────────────────────────────────────────── */
