@@ -294,8 +294,11 @@ function remapAnswers(a, productSelection) {
   let vaginalSymptomsAnswer;
   if (needsVaginalInjection) {
     const vagList = [];
+    // Q3228 valid options: Painful intercourse, Vaginal dryness, Vaginal irritation,
+    // Urinary urgency, Recurrent UTIs, I do not experience any of these.
+    // NOTE: "Reduce libido" is NOT a valid Q3228 option (only valid for Q3211).
     if (symptoms.includes('vaginal-dryness')) vagList.push('Vaginal dryness');
-    if (symptoms.includes('low-libido'))      vagList.push('Reduce libido');
+    // low-libido intentionally excluded from Q3228 — not a valid option
     if (vagList.length === 0)                 vagList.push('Vaginal dryness'); // synthetic injection for vcream
     vaginalSymptomsAnswer = vagList; // array format required by Dosable API
   } else {
@@ -1060,12 +1063,12 @@ function remapAnswersV1(a) {
   }
 
   // ── Vaginal symptoms (HONEST — from actual quiz answers) ──────────────────
-  const vaginalSymptoms = symptoms.some(s => s.trim() === 'vaginal-dryness' || s.trim() === 'low-libido');
-  if (vaginalSymptoms) {
-    const vagList = [];
-    if (symptoms.some(s => s.trim() === 'vaginal-dryness')) vagList.push('Vaginal dryness');
-    if (symptoms.some(s => s.trim() === 'low-libido'))      vagList.push('Reduce libido');
-    apiAnswers[Q.vaginal_symptoms] = { value: vagList, question: 'Do you experience any of the following? (vaginal symptoms)' };
+  // Q3228 valid options: Painful intercourse, Vaginal dryness, Vaginal irritation,
+  // Urinary urgency, Recurrent UTIs, I do not experience any of these.
+  // NOTE: "Reduce libido" is NOT a valid Q3228 option (only valid for Q3211 symptom_checklist).
+  const hasVaginalDryness = symptoms.some(s => s.trim() === 'vaginal-dryness');
+  if (hasVaginalDryness) {
+    apiAnswers[Q.vaginal_symptoms] = { value: ['Vaginal dryness'], question: 'Do you experience any of the following? (vaginal symptoms)' };
   } else {
     apiAnswers[Q.vaginal_symptoms] = { value: ['I do not experience any of these'], question: 'Do you experience any of the following? (vaginal symptoms)' };
   }
@@ -1167,7 +1170,12 @@ app.post('/api/v1/complete', async (req, res) => {
 
   const bulkRes = await dosable('put', `/sessions/${resolvedSessionId}`, bulkAnswersV1);
   if (!bulkRes.ok) {
-    console.error('v1: Bulk save failed:', JSON.stringify(bulkRes.data).slice(0, 500));
+    const bulkErrDetail = bulkRes.data?.detail || bulkRes.data || {};
+    const bulkFieldErrors = bulkErrDetail.field_errors || [];
+    console.error('v1: Bulk save failed:', JSON.stringify(bulkRes.data).slice(0, 800));
+    if (bulkFieldErrors.length > 0) {
+      console.error('v1: Field errors:', bulkFieldErrors.map(f => f.field + ': ' + f.message).join('; '));
+    }
     return res.status(502).json({ error: 'Answer submission failed', detail: bulkRes.data });
   }
 
@@ -1198,7 +1206,12 @@ app.post('/api/v1/complete', async (req, res) => {
 
   const completeRes = await dosable('post', `/sessions/${resolvedSessionId}/complete`, completePayload);
   if (!completeRes.ok) {
-    console.error('v1: Session complete failed:', JSON.stringify(completeRes.data).slice(0, 500));
+    const completeErrDetail = completeRes.data?.detail || completeRes.data || {};
+    const completeFieldErrors = completeErrDetail.field_errors || [];
+    console.error('v1: Session complete failed:', JSON.stringify(completeRes.data).slice(0, 800));
+    if (completeFieldErrors.length > 0) {
+      console.error('v1: Complete field errors:', completeFieldErrors.map(f => f.field + ': ' + f.message).join('; '));
+    }
     return res.status(502).json({ error: 'Session completion failed', detail: completeRes.data });
   }
 
