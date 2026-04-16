@@ -992,14 +992,15 @@ function remapAnswersV1(a) {
 
   // ── Conditions groups ─────────────────────────────────────────────────────
   const conds1Parts = [];
-  if (step13.indexOf('active-breast-cancer') !== -1 || step13.indexOf('family-cancer') !== -1) conds1Parts.push('History of breast or reproductive cancer');
-  if (step13.indexOf('stroke-tia') !== -1)           conds1Parts.push('History of stroke');
-  if (step13.indexOf('heart-disease') !== -1)        conds1Parts.push('Coronary artery disease');
-  if (step13.indexOf('gallbladder') !== -1)          conds1Parts.push('Gallbladder disease');
+  if (step13.indexOf('active-breast-cancer') !== -1) conds1Parts.push('I have been diagnosed with breast cancer, uterine cancer, or ovarian cancer?');
+  if (step13.indexOf('family-cancer') !== -1)        conds1Parts.push('I have a strong FAMILY History of breast cancer, uterine cancer, or ovarian cancer?');
+  if (step13.indexOf('stroke-tia') !== -1)           conds1Parts.push('I have a known history of stroke, or "mini stroke" known as a transient ischemic attack (TIA)?');
+  if (step13.indexOf('heart-disease') !== -1)        conds1Parts.push('I have known coronary artery disease (CAD), congestive heart failure, or uncontrolled hypertension');
+  if (step13.indexOf('gallbladder') !== -1)          conds1Parts.push('I have a had current or recent gallbladder issues');
   apiAnswers[Q.conditions_1] = { value: conds1Parts.length > 0 ? conds1Parts : ['I do NOT have any of these'], question: 'Do you have any of the following? (cancer/stroke/CAD/gallbladder)' };
 
   const conds2Parts = [];
-  if (step13.indexOf('blood-clots') !== -1) conds2Parts.push('Deep vein thrombosis (DVT) or pulmonary embolism (PE)');
+  if (step13.indexOf('blood-clots') !== -1) conds2Parts.push('I have a known history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?');
   apiAnswers[Q.conditions_2] = { value: conds2Parts.length > 0 ? conds2Parts : ['I do NOT have any of these'], question: 'Do you have any of the following? (DVT/lupus)' };
 
   // ── Adhesive allergy (HONEST — no injection) ──────────────────────────────
@@ -1016,7 +1017,7 @@ function remapAnswersV1(a) {
   const everUsedHRT = (hrtHistory !== 'never');
   const hrtHistoryValue = everUsedHRT
     ? 'Yes, I have taken HRT in the past'
-    : 'No, I have never tried hormone replacement';
+    : 'No, I have never taken HRT';
   apiAnswers[Q.hrt_history] = { value: hrtHistoryValue, question: 'Are you currently or have you ever been on hormone replacement therapy (HRT)?' };
 
   if (everUsedHRT) {
@@ -1075,11 +1076,11 @@ function remapAnswersV1(a) {
 
   // Enzyme-inducing meds
   const enzymeMeds = [];
-  if (step14.indexOf('carbamazepine') !== -1) enzymeMeds.push('Carbamazepine (Tegretol)');
-  if (step14.indexOf('phenytoin') !== -1)     enzymeMeds.push('Phenytoin (Dilantin)');
-  if (step14.indexOf('rifampin') !== -1)      enzymeMeds.push('Rifampin or Rifabutin');
+  if (step14.indexOf('carbamazepine') !== -1) enzymeMeds.push('Carbamazepine');
+  if (step14.indexOf('phenytoin') !== -1)     enzymeMeds.push('Phenytoin');
+  if (step14.indexOf('rifampin') !== -1)      enzymeMeds.push('Rifampin');
   if (step14.indexOf('st-johns-wort') !== -1) enzymeMeds.push("St. John's Wort");
-  if (step14.indexOf('topiramate') !== -1)    enzymeMeds.push('Topiramate');
+  if (step14.indexOf('topiramate') !== -1)    enzymeMeds.push('Topiramate (> 200mg/day)');
   if (step14.indexOf('lamotrigine') !== -1)   enzymeMeds.push('Lamotrigine');
   if (step14.indexOf('barbiturates') !== -1)  enzymeMeds.push('Barbiturates');
   apiAnswers[Q.enzyme_meds] = { value: enzymeMeds.length > 0 ? enzymeMeds : ['None apply'], question: 'Are you currently taking any of the following medications?' };
@@ -1087,10 +1088,10 @@ function remapAnswersV1(a) {
   // Blood pressure
   const bpMap = {
     'normal-always':      'My blood pressure has always been normal',
-    'normal-90-139':      'My blood pressure has always been normal',
-    'elevated-controlled':'My blood pressure has been slightly elevated from time to time (140-159/90-99), but it is well controlled',
-    'low-under-90':       'My blood pressure tends to run low under 90/50',
-    'dont-know':          'My blood pressure has always been normal',
+    'normal-90-139':      '90-139/50-89',
+    'elevated-controlled':'140-159/90-99',
+    'low-under-90':       '<90/50',
+    'dont-know':          "I don't know my blood pressure",
   };
   apiAnswers[Q.blood_pressure] = { value: bpMap[a['step-28']] || 'My blood pressure has always been normal', question: 'What has your blood pressure been over the last six months?' };
 
