@@ -958,7 +958,7 @@ function remapAnswersV1(a) {
   apiAnswers[Q.sex] = { value: 'Female', question: 'Sex assigned at birth' };
 
   // ── Pregnancy consents and checks ─────────────────────────────────────────
-  apiAnswers[Q.consent_pregnancy] = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (Pregnancy)' };
+  apiAnswers[Q.consent_pregnancy] = { value: 'I have read and understand the above information. I understand the risks and wish to proceed', question: 'Consent (Pregnancy)' };
   apiAnswers[Q.pregnant]          = { value: 'No', question: 'Are you currently pregnant or planning to become pregnant?' };
   apiAnswers[Q.possibility_pregnant] = { value: 'No', question: 'Is there a possibility that you may be pregnant?' };
   apiAnswers[Q.breastfeeding]     = { value: 'No', question: 'Are you currently breastfeeding?' };
