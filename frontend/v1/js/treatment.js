@@ -343,30 +343,30 @@
     // Multi-line chart showing 4 symptom improvement curves over 12 weeks
     // Font sizes optimized for mobile readability
     wrap.innerHTML =
-      '<svg viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">' +
+      '<svg viewBox="0 0 620 270" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">' +
         // Background grid
         '<defs>' +
           '<linearGradient id="bgFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7A9E7E" stop-opacity="0.06"/><stop offset="100%" stop-color="#7A9E7E" stop-opacity="0.01"/></linearGradient>' +
         '</defs>' +
         '<rect x="60" y="20" width="530" height="180" fill="url(#bgFade)" rx="4"/>' +
         // Y-axis labels
-        '<text x="52" y="30" text-anchor="end" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">100%</text>' +
-        '<text x="52" y="75" text-anchor="end" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">75%</text>' +
-        '<text x="52" y="120" text-anchor="end" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">50%</text>' +
-        '<text x="52" y="165" text-anchor="end" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">25%</text>' +
-        '<text x="52" y="205" text-anchor="end" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">0%</text>' +
+        '<text x="52" y="30" text-anchor="end" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">100%</text>' +
+        '<text x="52" y="75" text-anchor="end" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">75%</text>' +
+        '<text x="52" y="120" text-anchor="end" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">50%</text>' +
+        '<text x="52" y="165" text-anchor="end" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">25%</text>' +
+        '<text x="52" y="205" text-anchor="end" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">0%</text>' +
         // Y-axis title
-        '<text x="12" y="120" text-anchor="middle" font-size="12" fill="#6B6B6B" font-family="DM Sans,sans-serif" transform="rotate(-90 15 120)">Improvement</text>' +
+        '<text x="12" y="120" text-anchor="middle" font-size="15" fill="#6B6B6B" font-family="DM Sans,sans-serif" transform="rotate(-90 15 120)">Improvement</text>' +
         // Grid lines
         '<line x1="60" y1="65" x2="590" y2="65" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
         '<line x1="60" y1="110" x2="590" y2="110" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
         '<line x1="60" y1="155" x2="590" y2="155" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
         // X-axis labels
-        '<text x="60" y="225" text-anchor="middle" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">Start</text>' +
-        '<text x="192" y="225" text-anchor="middle" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 2</text>' +
-        '<text x="325" y="225" text-anchor="middle" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 4</text>' +
-        '<text x="458" y="225" text-anchor="middle" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 8</text>' +
-        '<text x="590" y="225" text-anchor="middle" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 12</text>' +
+        '<text x="60" y="240" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">Start</text>' +
+        '<text x="192" y="240" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 2</text>' +
+        '<text x="325" y="240" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 4</text>' +
+        '<text x="458" y="240" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 8</text>' +
+        '<text x="590" y="240" text-anchor="middle" font-size="18" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 12</text>' +
         // Curve 1: Hot Flashes / Night Sweats (fastest response) — rose
         '<path d="M60,200 C120,185 160,140 192,100 C230,60 280,42 325,35 C400,26 480,24 590,22" fill="none" stroke="#C4826A" stroke-width="2.5" stroke-linecap="round"/>' +
         '<circle cx="590" cy="22" r="4" fill="#C4826A"/>' +
