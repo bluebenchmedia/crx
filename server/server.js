@@ -636,7 +636,7 @@ const QUARTERLY_CPID_MAP = {
   57:  179,   // Estrogen pills low-dose (monthly → 3-month)
   67:  187,   // Progesterone 100mg (monthly → 3-month)
   69:  189,   // Progesterone 200mg alt (monthly → 3-month)
-  65:  185,   // Vaginal tablet add-on (monthly → 3-month)
+  63:  185,   // Vaginal tablet add-on (monthly → 3-month)
 };
 
 function applyQuarterlySubstitution(url) {
@@ -938,7 +938,7 @@ const CPID_PRODUCT_MAP = {
   57:  { name: 'Estrogen Pills',         type: 'pill',  price: 99,  img: 'estradiol-pill.jpg', lowDose: true },
   67:  { name: 'Progesterone 100mg',     type: 'prog',  price: 39,  img: 'progesterone-hero.jpg' },
   69:  { name: 'Progesterone 200mg',     type: 'prog',  price: 39,  img: 'progesterone-hero.jpg' },
-  65:  { name: 'Vaginal Estrogen Tablet', type: 'vag-addon', price: 99, img: 'vaginal-estrogen-cream.jpg' },
+  63:  { name: 'Vaginal Estrogen Tablet', type: 'vag-addon', price: 99, img: 'vaginal-estrogen-cream.jpg' },
 };
 
 function parseCheckoutProducts(checkoutUrl) {

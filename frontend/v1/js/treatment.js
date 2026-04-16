@@ -108,7 +108,7 @@
     desc: 'Targeted relief for vaginal dryness and discomfort.',
     image: '../images/estradiol-pill-solo.jpg',
     ingredient: '<strong>Estradiol Vaginal Tablet</strong> — delivers localized estrogen for vaginal dryness, irritation, and discomfort',
-    monthly: { cpid: 65, price: 99 },
+    monthly: { cpid: 63, price: 99 },
   };
 
   var IMG_TO_ID = {
