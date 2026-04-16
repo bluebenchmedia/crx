@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+<\!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Your personalized HRT treatment match — ClearedRx" />
+  <meta name="description" content="Your personalized HRT treatment plan — ClearedRx" />
   <link rel="icon" href="../images/clearedrx-icon.png" />
-  <title>Your Treatment Match — ClearedRx</title>
+  <title>Your Treatment Plan — ClearedRx</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --forest:#2C3E2D;--rose:#C4826A;--rose-dk:#A86B55;--sage:#7A9E7E;--sage-lt:#B5CCBA;
@@ -24,71 +24,121 @@
     .site-nav__logo{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.375rem;font-weight:500;letter-spacing:-.02em;color:var(--charcoal);text-decoration:none;}
     .site-nav__logo span{color:var(--rose);}
 
-    /* APPROVAL BAR */
-    .approval-bar{background:rgba(16,185,129,.12);border-bottom:1px solid rgba(16,185,129,.25);text-align:center;padding:.5rem 1rem;font-size:.8125rem;font-weight:600;color:#065f46;}
+    /* DISCOUNT BANNER */
+    .discount-banner{background:var(--forest);color:white;text-align:center;padding:.375rem 1rem;font-size:.8125rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
 
-    /* MATCH HEADER */
-    .match-header{background:var(--cream-dk);padding:1.25rem 1rem 1rem;border-bottom:1px solid var(--taupe);text-align:center;}
-    .match-badge{display:inline-block;background:var(--forest);color:white;font-size:.6875rem;font-weight:700;padding:.25rem .75rem;border-radius:9999px;margin-bottom:.625rem;letter-spacing:.04em;text-transform:uppercase;}
-    .match-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.25rem;font-weight:600;color:var(--forest);margin-bottom:.375rem;}
-    .match-sub{font-size:.875rem;color:var(--light);max-width:520px;margin:0 auto;}
+    /* PRE-APPROVAL BAR */
+    .preapproval-bar{background:rgba(16,185,129,.12);border-bottom:1px solid rgba(16,185,129,.25);text-align:center;padding:.625rem 1rem;font-size:.9375rem;font-weight:600;color:#065f46;}
+    .preapproval-bar svg{vertical-align:-.15em;margin-right:.35rem;}
 
-    /* PRODUCT PANEL */
-    .product-section{background:white;padding:1.5rem 1rem 2rem;}
+    /* HERO SECTION */
+    .hero{background:var(--cream-dk);padding:2rem 1rem 2.5rem;text-align:center;border-bottom:1px solid var(--taupe);}
+    .hero__inner{max-width:640px;margin:0 auto;}
+    .hero__headline{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.75rem;font-weight:600;color:var(--forest);line-height:1.25;margin-bottom:1rem;}
+    @media(min-width:640px){.hero__headline{font-size:2.125rem;}}
+    .hero__sub{font-size:1rem;color:var(--mid);line-height:1.6;margin-bottom:1.25rem;}
 
-    .panel-top{display:flex;flex-direction:column;gap:1.25rem;margin-bottom:1.5rem;}
-    @media(min-width:768px){.panel-top{flex-direction:row;align-items:flex-start;gap:2rem;}}
-    .panel-img-wrap{flex-shrink:0;width:100%;max-width:320px;border-radius:1rem;overflow:hidden;background:var(--cream-dk);}
-    @media(min-width:768px){.panel-img-wrap{width:38%;}}
-    .panel-img{width:100%;height:auto;object-fit:cover;display:block;}
-    .panel-info{flex:1;}
-    .panel-name{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.625rem;font-weight:600;color:var(--forest);margin-bottom:.375rem;line-height:1.2;}
-    .panel-sub{font-size:.9375rem;color:var(--light);margin-bottom:1rem;}
-    .panel-benefits{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem;}
-    .panel-benefit{display:flex;align-items:flex-start;gap:.5rem;font-size:.9rem;color:var(--mid);line-height:1.45;}
-    .benefit-check{color:var(--sage);font-weight:700;flex-shrink:0;margin-top:.05rem;}
+    /* Symptom tags */
+    .symptom-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin-bottom:1.5rem;}
+    .symptom-tag{display:inline-flex;align-items:center;gap:.35rem;background:white;border:1px solid var(--taupe);padding:.35rem .75rem;border-radius:9999px;font-size:.8125rem;font-weight:600;color:var(--forest);}
 
-    /* Schedule cards */
-    .sched-wrap{display:grid;grid-template-columns:1fr 1fr;gap:.625rem;margin-bottom:1.25rem;}
-    .sched-card{position:relative;padding:.875rem;border:2px solid var(--taupe);border-radius:.75rem;background:var(--cream);cursor:pointer;transition:border-color .15s,background .15s;overflow:hidden;-webkit-tap-highlight-color:transparent;}
-    .sched-card:hover{border-color:var(--sage-lt);}
-    .sched-card--active{border-color:var(--forest);background:rgba(44,62,45,.04);}
-    .sched-card-name{font-size:.875rem;font-weight:700;color:var(--forest);margin-bottom:.25rem;}
-    .sched-price-orig{display:block;font-size:.875rem;color:var(--light);text-decoration:line-through;}
-    .sched-price-disc{display:block;font-size:1.125rem;font-weight:800;color:var(--emerald);}
-    .sched-detail{font-size:.75rem;color:var(--light);margin-top:.25rem;}
+    /* Stat banner */
+    .stat-banner{background:var(--forest);color:white;border-radius:.75rem;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;}
+    .stat-banner__text{font-size:.9375rem;line-height:1.45;text-align:left;}
+    .stat-banner__text strong{color:var(--sage-lt);}
+    .stat-banner__number{font-size:2.25rem;font-weight:800;color:var(--sage-lt);flex-shrink:0;line-height:1;}
+    .stat-banner__label{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--sage-lt);text-align:center;}
 
-    /* Add-on rows */
-    .addons-wrap{margin-bottom:1.25rem;}
-    .addon-row{display:flex;align-items:flex-start;flex-wrap:wrap;gap:.5rem .75rem;padding:.75rem;border:1px solid var(--taupe);border-radius:.625rem;background:var(--cream);margin-bottom:.625rem;justify-content:space-between;}
-    .addon-row--toggle{display:flex;flex-direction:column;gap:.375rem;}
-    .addon-row--recommended{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.04);}
-    .addon-recommended{font-size:.75rem;color:var(--sage);font-weight:600;}
-    .addon-toggle-label{display:flex;align-items:center;gap:.75rem;cursor:pointer;width:100%;}
-    .addon-toggle-label input[type="checkbox"]{width:1.125rem;height:1.125rem;accent-color:var(--forest);flex-shrink:0;cursor:pointer;}
-    .addon-info{flex:1;min-width:0;}
-    .addon-name{font-size:.875rem;font-weight:700;color:var(--forest);}
-    .addon-sub{font-size:.8125rem;color:var(--light);margin-top:.1rem;}
-    .addon-price{font-size:.875rem;font-weight:700;color:var(--mid);flex-shrink:0;white-space:nowrap;}
+    /* Reassurance strip */
+    .reassurance{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 1.25rem;font-size:.8125rem;color:var(--light);margin-bottom:1.5rem;}
+    .reassurance span{display:inline-flex;align-items:center;gap:.3rem;}
+    .reassurance svg{color:var(--emerald);flex-shrink:0;}
 
-    /* Total section */
-    .total-wrap{margin-bottom:1.25rem;padding:1rem;background:var(--cream-dk);border-radius:.75rem;border:1px solid var(--taupe);}
-    .total-label{font-size:.875rem;font-weight:700;color:var(--forest);margin-bottom:.375rem;}
-    .total-prices{display:flex;align-items:baseline;gap:.75rem;margin-bottom:.25rem;}
-    .total-orig{font-size:1.125rem;color:var(--light);text-decoration:line-through;}
-    .total-disc{font-size:2rem;font-weight:800;color:var(--emerald);}
-    .total-then{font-size:.8125rem;color:var(--light);}
+    /* Mini testimonial */
+    .mini-testimonial{background:white;border:1px solid var(--taupe);border-radius:.75rem;padding:1rem;display:flex;align-items:flex-start;gap:.75rem;text-align:left;max-width:480px;margin:0 auto;}
+    .mini-testimonial__avatar{width:2.75rem;height:2.75rem;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--taupe);}
+    .mini-testimonial__text{font-size:.875rem;color:var(--mid);line-height:1.5;font-style:italic;}
+    .mini-testimonial__name{font-size:.8125rem;font-weight:700;color:var(--charcoal);margin-top:.25rem;}
+    .mini-testimonial__stars{display:flex;gap:.1rem;margin-bottom:.25rem;}
+    .mini-testimonial__stars svg{width:.75rem;height:.75rem;fill:#f59e0b;}
 
-    /* Checkout button */
-    .checkout-btn{width:100%;padding:.9375rem 2rem;background:#c4826a;color:white;font-family:'DM Sans',sans-serif;font-size:1.125rem;font-weight:700;border:none;border-radius:.75rem;cursor:pointer;transition:transform .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent;}
-    .checkout-btn:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(196,130,106,.35);}
-    .checkout-btn:disabled{background:#d1d5db;cursor:not-allowed;transform:none;}
-    .checkout-note{text-align:center;font-size:.75rem;color:var(--light);margin-top:.5rem;}
+    /* TIMELINE SECTION */
+    .timeline-section{background:white;padding:2rem 1rem 2.5rem;border-bottom:1px solid var(--taupe);}
+    .timeline-section__inner{max-width:700px;margin:0 auto;}
+    .section-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.5rem;font-weight:600;color:var(--forest);margin-bottom:.375rem;text-align:center;}
+    .section-sub{font-size:.9375rem;color:var(--light);text-align:center;margin-bottom:1.5rem;}
+    .timeline-graph{position:relative;padding:1rem 0;margin-bottom:1.5rem;}
+    .timeline-graph svg{width:100%;height:auto;display:block;}
+    .timeline-milestones{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+    @media(min-width:640px){.timeline-milestones{grid-template-columns:repeat(4,1fr);}}
+    .milestone{background:var(--cream);border:1px solid var(--taupe);border-radius:.75rem;padding:.875rem;text-align:center;}
+    .milestone__week{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--sage);margin-bottom:.25rem;}
+    .milestone__text{font-size:.8125rem;font-weight:600;color:var(--forest);line-height:1.35;}
 
-    /* DISCOVER SECTION */
+    /* YOUR PLAN SECTION */
+    .plan-section{background:var(--cream-dk);padding:2rem 1rem 2.5rem;border-bottom:1px solid var(--taupe);}
+    .plan-section__inner{max-width:700px;margin:0 auto;}
+    .plan-items{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem;}
+    .plan-item{display:flex;align-items:center;gap:1rem;background:white;border:1px solid var(--taupe);border-radius:.75rem;padding:1rem;transition:box-shadow .15s;}
+    .plan-item__img{width:4.5rem;height:4.5rem;border-radius:.625rem;object-fit:cover;background:var(--cream);flex-shrink:0;}
+    .plan-item__info{flex:1;min-width:0;}
+    .plan-item__name{font-size:.9375rem;font-weight:700;color:var(--forest);margin-bottom:.15rem;}
+    .plan-item__desc{font-size:.8125rem;color:var(--light);line-height:1.4;}
+    .plan-item__price{font-size:.875rem;font-weight:700;color:var(--mid);flex-shrink:0;text-align:right;}
+
+    /* Pricing block */
+    .pricing-block{background:white;border:1px solid var(--taupe);border-radius:.75rem;padding:1.25rem;margin-bottom:1.25rem;text-align:center;}
+    .pricing-block__label{font-size:.8125rem;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem;}
+    .pricing-block__prices{display:flex;align-items:baseline;justify-content:center;gap:.75rem;margin-bottom:.25rem;}
+    .pricing-block__orig{font-size:1.25rem;color:var(--light);text-decoration:line-through;}
+    .pricing-block__disc{font-size:2.25rem;font-weight:800;color:var(--emerald);}
+    .pricing-block__period{font-size:.875rem;font-weight:600;color:var(--mid);}
+    .pricing-block__then{font-size:.8125rem;color:var(--light);margin-top:.25rem;}
+    .pricing-block__savings{display:inline-block;background:rgba(16,185,129,.1);color:var(--emerald);font-size:.8125rem;font-weight:700;padding:.25rem .75rem;border-radius:9999px;margin-top:.5rem;}
+
+    /* CTA button */
+    .cta-btn{display:block;width:100%;max-width:480px;margin:0 auto 0.625rem;padding:1rem 2rem;background:var(--rose);color:white;font-family:'DM Sans',sans-serif;font-size:1.125rem;font-weight:700;border:none;border-radius:.75rem;cursor:pointer;transition:transform .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent;}
+    .cta-btn:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(196,130,106,.35);}
+    .cta-btn:disabled{background:#d1d5db;cursor:not-allowed;transform:none;}
+    .cta-note{text-align:center;font-size:.75rem;color:var(--light);max-width:480px;margin:0 auto;}
+
+    /* INCLUDED SECTION */
+    .included-section{background:white;padding:2rem 1rem;border-bottom:1px solid var(--taupe);}
+    .included-section__inner{max-width:700px;margin:0 auto;}
+    .included-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1.25rem;}
+    @media(min-width:640px){.included-grid{grid-template-columns:repeat(3,1fr);}}
+    .included-card{background:var(--cream);border:1px solid var(--taupe);border-radius:.75rem;padding:1rem;text-align:center;}
+    .included-card__icon{font-size:1.5rem;margin-bottom:.375rem;}
+    .included-card__title{font-size:.875rem;font-weight:700;color:var(--forest);margin-bottom:.15rem;}
+    .included-card__desc{font-size:.8125rem;color:var(--light);line-height:1.35;}
+
+    /* NEXT STEPS SECTION */
+    .steps-section{background:var(--cream-dk);padding:2rem 1rem 2.5rem;border-bottom:1px solid var(--taupe);}
+    .steps-section__inner{max-width:700px;margin:0 auto;}
+    .steps-list{display:flex;flex-direction:column;gap:0;margin-top:1.25rem;}
+    .step-item{display:flex;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--taupe);}
+    .step-item:last-child{border-bottom:none;}
+    .step-item__badge{flex-shrink:0;width:2.25rem;height:2.25rem;border-radius:50%;background:var(--forest);color:white;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;}
+    .step-item__content{flex:1;}
+    .step-item__title{font-size:.9375rem;font-weight:700;color:var(--forest);margin-bottom:.15rem;}
+    .step-item__desc{font-size:.875rem;color:var(--mid);line-height:1.5;}
+
+    /* GUARANTEE SECTION */
+    .guarantee-section{background:white;padding:2rem 1rem;border-bottom:1px solid var(--taupe);}
+    .guarantee-section__inner{max-width:600px;margin:0 auto;text-align:center;}
+    .guarantee-icon{width:3.5rem;height:3.5rem;margin:0 auto .75rem;}
+    .guarantee-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.375rem;font-weight:600;color:var(--forest);margin-bottom:.5rem;}
+    .guarantee-text{font-size:.9375rem;color:var(--mid);line-height:1.6;margin-bottom:1rem;}
+
+    /* Second CTA block */
+    .cta-section{background:var(--cream-dk);padding:2rem 1rem;border-bottom:1px solid var(--taupe);}
+    .cta-section__inner{max-width:600px;margin:0 auto;text-align:center;}
+    .cta-section__headline{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.375rem;font-weight:600;color:var(--forest);margin-bottom:.75rem;}
+    .cta-section__sub{font-size:.9375rem;color:var(--mid);margin-bottom:1.25rem;}
+
+    /* DISCOVER SECTION (kept from original) */
     .discover-section{background:var(--cream-dk);padding:2rem 1rem;}
     .discover-section__inner{max-width:960px;margin:0 auto;}
-    .section-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.5rem;font-weight:600;color:var(--forest);margin-bottom:1.25rem;text-align:center;}
     .discover-layout{display:flex;flex-direction:column;border-radius:.75rem;overflow:hidden;border:1px solid var(--taupe);}
     @media(min-width:1024px){.discover-layout{flex-direction:row;}}
     .discover-sidebar{background:#E8F4F8;border-bottom:1px solid #c5dce4;padding:1.25rem 1rem;}
@@ -108,12 +158,10 @@
     .discover-panel.active{display:block;}
     .discover-panel h3{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.375rem;font-weight:600;color:var(--forest);margin-bottom:.875rem;}
     .discover-panel p{font-size:.9375rem;line-height:1.65;color:var(--mid);margin-bottom:.875rem;}
-
     .stage-badges{display:flex;flex-wrap:wrap;gap:.75rem 1rem;margin-bottom:1.5rem;}
     .stage-badge{display:flex;flex-direction:column;align-items:center;gap:.4rem;font-size:.8125rem;color:var(--mid);font-weight:500;}
     .stage-badge__circle{width:3rem;height:3rem;border-radius:50%;background:var(--taupe);display:flex;align-items:center;justify-content:center;overflow:hidden;}
     .stage-badge__circle img{width:100%;height:100%;object-fit:contain;}
-
     .benefits-table{width:100%;border-collapse:collapse;font-size:.875rem;border:1px solid var(--taupe);border-radius:.5rem;overflow:hidden;background:white;margin-bottom:1.25rem;}
     .benefits-table th,.benefits-table td{padding:.6rem .75rem;text-align:left;border-bottom:1px solid var(--taupe);}
     .benefits-table th{background:var(--cream-dk);font-weight:600;color:var(--forest);}
@@ -126,21 +174,18 @@
     .benefits-vs__list{font-size:.875rem;color:var(--mid);line-height:1.5;padding-left:1.25rem;}
     .benefits-vs__list li{margin-bottom:.25rem;}
     .benefits-vs__note{font-size:.75rem;color:var(--light);margin-top:.875rem;font-style:italic;}
-
     .formula-block{background:var(--cream);padding:1rem 1rem 1rem 1.25rem;margin-bottom:.625rem;border-radius:0 .5rem .5rem 0;border-left:3px solid var(--forest);}
     .formula-block h4{font-size:.9375rem;font-weight:700;color:var(--forest);margin-bottom:.375rem;}
     .formula-block p{font-size:.875rem;color:var(--mid);line-height:1.55;margin-bottom:0;}
-
     .how-block{margin-bottom:1rem;}
     .how-block h4{font-size:.9375rem;font-weight:700;color:var(--forest);margin-bottom:.25rem;}
     .how-block p{font-size:.875rem;color:var(--mid);line-height:1.55;margin-bottom:0;}
-
     .guarantee-promise{background:var(--cream-dk);border:1px solid var(--taupe);border-radius:.75rem;padding:1.25rem;margin-bottom:1rem;}
     .guarantee-promise__title{font-size:1.0625rem;font-weight:700;color:var(--forest);margin-bottom:.375rem;}
     .guarantee-promise__text{font-size:.875rem;color:var(--mid);line-height:1.55;margin-bottom:0;}
     .guarantee-risk{font-size:.875rem;color:var(--light);font-style:italic;line-height:1.5;}
 
-    /* SOCIAL TESTIMONIALS */
+    /* SOCIAL TESTIMONIALS (kept) */
     .social-section{background:var(--cream);padding:2rem 1rem;}
     .social-section__inner{max-width:960px;margin:0 auto;}
     .social-grid{display:grid;grid-template-columns:1fr;gap:.875rem;}
@@ -156,7 +201,7 @@
     .social-card__text{font-size:.875rem;color:var(--mid);line-height:1.55;}
     .social-card__treatment{font-size:.75rem;color:var(--sage);font-weight:600;}
 
-    /* FAQ */
+    /* FAQ (kept) */
     .faq-section{background:var(--cream-dk);padding:2rem 1rem;}
     .faq-section__inner{max-width:760px;margin:0 auto;}
     .faq-item{border-bottom:1px solid var(--taupe);}
@@ -170,7 +215,7 @@
     .faq-body{display:none;padding-bottom:1rem;font-size:.9rem;color:var(--mid);line-height:1.65;}
     .faq-body.open{display:block;}
 
-    /* FOOTER */
+    /* FOOTER (kept) */
     .site-footer{background:var(--forest);color:white;padding:2.5rem 1.25rem;}
     .site-footer__inner{max-width:960px;margin:0 auto;}
     .site-footer__logo{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.375rem;font-weight:500;letter-spacing:-.02em;color:white;margin-bottom:1.25rem;display:block;}
@@ -182,20 +227,17 @@
     .site-footer__col a:hover{color:white;}
     .site-footer__legal{font-size:.75rem;color:rgba(255,255,255,.45);line-height:1.6;border-top:1px solid rgba(255,255,255,.1);padding-top:1.25rem;}
 
-    /* Discount banner */
-    .discount-banner{background:var(--forest);color:white;text-align:center;padding:.375rem 1rem;font-size:.8125rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
-
     /* Mobile input zoom fix */
-    input[type="text"],input[type="email"],input[type="tel"],input[type="number"],select,textarea{font-size:16px!important;}
+    input[type="text"],input[type="email"],input[type="tel"],input[type="number"],select,textarea{font-size:16px\!important;}
   </style>
 
-  <!-- Meta Pixel Code -->
+  <\!-- Meta Pixel Code -->
   <script>
-  !function(f,b,e,v,n,t,s)
+  \!function(f,b,e,v,n,t,s)
   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
+  if(\!f._fbq)f._fbq=n;n.push=n;n.loaded=\!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=\!0;
   t.src=v;s=b.getElementsByTagName(e)[0];
   s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
@@ -207,7 +249,7 @@
   src="https://www.facebook.com/tr?id=3455971567888613&ev=step1&noscript=1"
   /></noscript>
 
-  <!-- Google tag (gtag.js) -->
+  <\!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16906106213"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -225,7 +267,7 @@
 </head>
 <body>
 
-<div class="discount-banner">50% off applied</div>
+<div class="discount-banner">50% off your first month &mdash; applied at checkout</div>
 
 <nav class="site-nav">
   <div class="site-nav__inner">
@@ -237,21 +279,161 @@
   </div>
 </nav>
 
-<div class="approval-bar" id="patient-greeting">Your prescription is pre-approved.</div>
+<\!-- Pre-approval bar -->
+<div class="preapproval-bar" id="preapproval-bar">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+  <span id="preapproval-text">Your prescription plan is pre-approved</span>
+</div>
 
-<!-- Match header (replaces product selector) -->
-<section class="match-header">
-  <div style="max-width:600px;margin:0 auto;">
-    <span class="match-badge">Matched For You</span>
-    <h2 class="match-title" id="match-title">Your Personalized Treatment</h2>
-    <p class="match-sub">Based on your symptoms and health profile, our physicians matched you with the treatment below.</p>
+<\!-- HERO -->
+<section class="hero">
+  <div class="hero__inner">
+    <h1 class="hero__headline" id="hero-headline">Your Personalized Treatment Plan</h1>
+    <p class="hero__sub" id="hero-sub">Based on your symptoms and health profile, our physicians have matched you with a treatment plan designed specifically for you.</p>
+    <div class="symptom-tags" id="symptom-tags"></div>
+    <div class="stat-banner">
+      <div class="stat-banner__text">Based on your answers, you have a <strong>very high</strong> chance of meaningful symptom improvement with HRT</div>
+      <div style="text-align:center;">
+        <div class="stat-banner__number">87%</div>
+        <div class="stat-banner__label">Success Rate</div>
+      </div>
+    </div>
+    <div class="reassurance">
+      <span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Most women notice improvements in 2&ndash;4 weeks</span>
+      <span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Cancel anytime</span>
+      <span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> 30-day money-back guarantee</span>
+    </div>
+    <div class="mini-testimonial">
+      <img src="../images/r1.jpg" alt="Sandra K." class="mini-testimonial__avatar" />
+      <div>
+        <div class="mini-testimonial__stars"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+        <p class="mini-testimonial__text">"Hot flashes gone in 3 weeks. I actually sleep through the night now."</p>
+        <p class="mini-testimonial__name">Sandra K., 52 &mdash; Verified Customer</p>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- Product detail panel -->
-<section class="product-section"><div id="product-panel" style="max-width:960px;margin:0 auto;padding:1.5rem 1rem 2rem;"></div></section>
+<\!-- TIMELINE -->
+<section class="timeline-section">
+  <div class="timeline-section__inner">
+    <h2 class="section-title">Your Expected Relief Timeline</h2>
+    <p class="section-sub">Most women on HRT begin feeling meaningful improvements within the first few weeks.</p>
+    <div class="timeline-graph" id="timeline-graph"></div>
+    <div class="timeline-milestones" id="timeline-milestones"></div>
+  </div>
+</section>
 
-<!-- Discover ClearedRx -->
+<\!-- YOUR PLAN -->
+<section class="plan-section">
+  <div class="plan-section__inner">
+    <h2 class="section-title">Your Personalized Treatment Plan</h2>
+    <p class="section-sub">Everything you need, matched to your body and your symptoms.</p>
+    <div class="plan-items" id="plan-items"></div>
+    <div class="pricing-block" id="pricing-block"></div>
+    <button class="cta-btn" id="cta-btn">Start My Treatment &rarr;</button>
+    <p class="cta-note">Secure checkout &bull; Card authorized only &mdash; not charged until physician approves &bull; Cancel anytime</p>
+  </div>
+</section>
+
+<\!-- WHAT'S INCLUDED -->
+<section class="included-section">
+  <div class="included-section__inner">
+    <h2 class="section-title">What's Included</h2>
+    <div class="included-grid">
+      <div class="included-card">
+        <div class="included-card__icon"><svg width="28" height="28" fill="none" stroke="var(--forest)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg></div>
+        <div class="included-card__title">Prescription Medication</div>
+        <div class="included-card__desc">Cost of medication and all supplies included</div>
+      </div>
+      <div class="included-card">
+        <div class="included-card__icon"><svg width="28" height="28" fill="none" stroke="var(--forest)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg></div>
+        <div class="included-card__title">Physician Oversight</div>
+        <div class="included-card__desc">Board-certified doctor reviews your health profile</div>
+      </div>
+      <div class="included-card">
+        <div class="included-card__icon"><svg width="28" height="28" fill="none" stroke="var(--forest)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.142-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg></div>
+        <div class="included-card__title">Free Shipping</div>
+        <div class="included-card__desc">Delivered to your door in discreet packaging</div>
+      </div>
+      <div class="included-card">
+        <div class="included-card__icon"><svg width="28" height="28" fill="none" stroke="var(--forest)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg></div>
+        <div class="included-card__title">Results Guarantee</div>
+        <div class="included-card__desc">30-day money-back guarantee, no questions asked</div>
+      </div>
+      <div class="included-card">
+        <div class="included-card__icon"><svg width="28" height="28" fill="none" stroke="var(--forest)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg></div>
+        <div class="included-card__title">Ongoing Support</div>
+        <div class="included-card__desc">Contact our care team anytime you need help</div>
+      </div>
+      <div class="included-card">
+        <div class="included-card__icon"><svg width="28" height="28" fill="none" stroke="var(--forest)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg></div>
+        <div class="included-card__title">Easy Refills</div>
+        <div class="included-card__desc">Automatic refills shipped on your schedule</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<\!-- WHAT HAPPENS NEXT -->
+<section class="steps-section">
+  <div class="steps-section__inner">
+    <h2 class="section-title">What Happens Next?</h2>
+    <div class="steps-list">
+      <div class="step-item">
+        <div class="step-item__badge">1</div>
+        <div class="step-item__content">
+          <div class="step-item__title">Physician Review</div>
+          <div class="step-item__desc">You're already pre-qualified. After checkout, a board-certified physician reviews your health profile and verifies your treatment match.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-item__badge">2</div>
+        <div class="step-item__content">
+          <div class="step-item__title">Prescription Approval</div>
+          <div class="step-item__desc">Most prescriptions are approved within 24 hours. Your card is only charged once the doctor signs off.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-item__badge">3</div>
+        <div class="step-item__content">
+          <div class="step-item__title">Medication Prepared &amp; Shipped</div>
+          <div class="step-item__desc">Your treatment is compounded fresh by a licensed US pharmacy and shipped directly to your door in discreet packaging.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-item__badge">4</div>
+        <div class="step-item__content">
+          <div class="step-item__title">Easy Refills &amp; Ongoing Support</div>
+          <div class="step-item__desc">Refills ship automatically so you never run out. Cancel, pause, or adjust your treatment at any time.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<\!-- GUARANTEE -->
+<section class="guarantee-section">
+  <div class="guarantee-section__inner">
+    <div class="guarantee-icon">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="26" stroke="#059669" stroke-width="2.5"/><path d="M18 28l7 7 13-13" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2 class="guarantee-title">30-Day Money-Back Guarantee</h2>
+    <p class="guarantee-text">Your satisfaction is our priority. If you decide before your prescription ships that our program isn't for you, we'll cancel your order and provide a full refund. No forms, no hassle. Our expert staff has lots of options to help you hit your goals, and you can cancel future shipments at any time.</p>
+  </div>
+</section>
+
+<\!-- SECOND CTA -->
+<section class="cta-section">
+  <div class="cta-section__inner">
+    <h2 class="cta-section__headline" id="cta-headline">Ready to Feel Like Yourself Again?</h2>
+    <p class="cta-section__sub">Join thousands of women who have reclaimed their energy, sleep, and confidence with ClearedRx.</p>
+    <button class="cta-btn" id="cta-btn-2">Start My Treatment &rarr;</button>
+    <p class="cta-note">Secure checkout &bull; Cancel anytime &bull; 30-day money-back guarantee</p>
+  </div>
+</section>
+
+<\!-- Discover ClearedRx -->
 <section class="discover-section">
   <div class="discover-section__inner">
     <h2 class="section-title">Discover ClearedRx</h2>
@@ -355,7 +537,7 @@
   </div>
 </section>
 
-<!-- Social proof -->
+<\!-- Social proof -->
 <section class="social-section">
   <div class="social-section__inner">
     <h2 class="section-title">What Women Are Saying</h2>
@@ -400,7 +582,7 @@
   </div>
 </section>
 
-<!-- FAQ -->
+<\!-- FAQ -->
 <section class="faq-section">
   <div class="faq-section__inner">
     <h2 class="section-title">Frequently Asked Questions</h2>
@@ -408,12 +590,12 @@
   </div>
 </section>
 
-<!-- Footer -->
+<\!-- Footer -->
 <footer class="site-footer">
   <div class="site-footer__inner">
     <span class="site-footer__logo">Cleared<span>Rx</span></span>
     <div class="site-footer__grid">
-      <div class="site-footer__col"><h4>Support</h4><a href="mailto:support@clearedrx.com">support@clearedrx.com</a><a href="tel:+18005550100">1-800-555-0100</a><p>Mon&ndash;Fri 9am&ndash;6pm ET</p></div>
+      <div class="site-footer__col"><h4>Support</h4><a href="mailto:support@clearedrx.com">support@clearedrx.com</a><a href="tel:+12029519915">(202) 951-9915</a><p>Mon&ndash;Fri 9am&ndash;5pm ET</p></div>
       <div class="site-footer__col"><h4>Company</h4><a href="#">About Us</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
       <div class="site-footer__col"><h4>Medical</h4><p>Physician network: Beluga Health</p><p>Licensed in all 50 states</p><p>US compounding pharmacy</p></div>
     </div>

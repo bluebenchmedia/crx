@@ -1,127 +1,86 @@
 /* ============================================================
-   ClearedRx V1 Treatment Match Page — treatment.js
+   ClearedRx V1 Pre-Approval Page — treatment.js
    ============================================================
-   Adapted from v0 treatments.js but for SINGLE matched product.
-   No product selector — the server picks the one best product.
-   Schedule toggle and vaginal add-on still available.
-
-   The checkout URL is rebuilt client-side from known CPIDs
-   because the Dosable session is already completed at this point.
+   Redesigned pre-approval page. No schedule selector, no add-on
+   toggles. Product combo is auto-determined from clinical flags.
+   Dynamic personalization from quiz answers.
    ============================================================ */
 (function() {
   'use strict';
 
-  /* ── Product Catalog (identical to v0) ──────────────────────────────────── */
+  /* ── Product Catalog ─────────────────────────────────────────────────────── */
   var PRODUCTS = [
     {
       id: 'vcream',
       name: 'Estrogen + Progesterone Vaginal Cream',
+      shortName: 'Vaginal Cream',
       subtitle: 'Complete symptom relief, applied once daily',
       image: '../images/vaginal-cream.jpg',
-      benefits: [
-        'Delivers estrogen and progesterone directly where vaginal tissue needs it most, relieving dryness, irritation, and painful intercourse at the source',
-        'Also provides full systemic hormone support for hot flashes, mood, sleep, and bone health',
-        'Applied vaginally once daily using a pre-measured applicator &mdash; no pills, patches, or guesswork',
-        'Compounded fresh by a licensed US pharmacy to your exact prescribed dose',
-        'Progesterone included &mdash; protects the uterine lining and supports better sleep and mood'
-      ],
+      desc: 'Delivers estrogen and progesterone directly where vaginal tissue needs it most, while also providing full systemic hormone support.',
       monthly:      { cpid: 163, price: 189 },
-      quarterly:    { cpid: 199, price: 469 },
       monthlyLow:   { cpid: 161, price: 189 },
-      quarterlyLow: { cpid: 197, price: 469 },
       isCompoundedEP:  true,
       isVaginalFocused: true,
     },
     {
       id: 'cream',
       name: 'Estrogen + Progesterone Body Cream',
+      shortName: 'Body Cream',
       subtitle: 'Compounded cream, applied once daily',
       image: '../images/compounded-cream.jpg',
-      benefits: [
-        'Combines estrogen and progesterone in a single daily application &mdash; no separate progesterone pill needed',
-        'Applied to clean, dry skin once daily using a medical-grade TopiClick&trade; dispenser that delivers your exact 1g dose every time',
-        'Absorbs quickly, non-greasy, and non-comedogenic &mdash; designed for comfortable everyday use',
-        'Compounded fresh by a licensed US pharmacy specifically for your prescription',
-        'Progesterone included &mdash; protects the uterine lining and supports better sleep and mood'
-      ],
+      desc: 'Combines estrogen and progesterone in a single daily application using a medical-grade TopiClick dispenser. Absorbs quickly, non-greasy.',
       monthly:      { cpid: 73,  price: 189 },
-      quarterly:    { cpid: 193, price: 469 },
       monthlyLow:   { cpid: 71,  price: 189 },
-      quarterlyLow: { cpid: 191, price: 469 },
       isCompoundedEP:  true,
       isVaginalFocused: false,
     },
     {
       id: 'gel',
       name: 'Estrogen Gel',
-      subtitle: 'Gel applied to arm or shoulder, plus a daily progesterone pill',
+      shortName: 'Estrogen Gel',
+      subtitle: 'Clear gel applied to arm or shoulder',
       image: '../images/estradiol-gel.jpg',
-      benefits: [
-        'A clear, fast-absorbing gel applied once daily to your upper arm or shoulder &mdash; dries in under a minute with no residue',
-        'Delivers estradiol (the primary estrogen your body loses during menopause) through the skin for steady, consistent hormone levels',
-        'No adhesive and nothing to swallow &mdash; an ideal option if you have sensitive skin or prefer not to take pills',
-        'Easy for your physician to adjust your dose over time as your body responds to treatment',
-        'Comes with a daily progesterone pill &mdash; protects the uterine lining and supports better sleep and mood'
-      ],
+      desc: 'A clear, fast-absorbing gel applied once daily to your upper arm or shoulder. Dries in under a minute with no residue.',
       monthly:      { cpid: 47,  price: 151 },
-      quarterly:    { cpid: 169, price: 379 },
       monthlyLow:   { cpid: 45,  price: 151 },
-      quarterlyLow: { cpid: 167, price: 379 },
       isCompoundedEP:  false,
       isVaginalFocused: false,
     },
     {
       id: 'patch',
       name: 'Estrogen Patch',
+      shortName: 'Estrogen Patch',
       subtitle: 'Worn on skin, changed twice a week',
       image: '../images/estradiol-patch.jpg',
-      benefits: [
-        'A small, discreet patch worn on your lower abdomen, buttock, or upper thigh &mdash; changed just twice a week',
-        'Delivers a steady, consistent stream of estradiol 24/7 so your hormone levels stay balanced between applications',
-        'No daily routine to remember &mdash; apply it and forget about it until your next change day',
-        'Water-resistant and designed to stay in place through showers, exercise, and daily life',
-        'Comes with a daily progesterone pill &mdash; protects the uterine lining and supports better sleep and mood'
-      ],
+      desc: 'A small, discreet patch worn on your lower abdomen or thigh. Delivers steady estradiol 24/7. Changed just twice a week.',
       monthly:      { cpid: 53,  price: 139 },
-      quarterly:    { cpid: 175, price: 379 },
       monthlyLow:   { cpid: 51,  price: 139 },
-      quarterlyLow: { cpid: 173, price: 379 },
       isCompoundedEP:  false,
       isVaginalFocused: false,
     },
     {
       id: 'pill',
       name: 'Estrogen Pills',
-      subtitle: 'Two small pills taken once daily',
+      shortName: 'Estrogen Pills',
+      subtitle: 'One small pill taken once daily',
       image: '../images/estradiol-pill.jpg',
-      benefits: [
-        'One small pill taken once daily &mdash; the simplest possible HRT routine with nothing to apply, stick on, or measure',
-        'A familiar format that fits seamlessly into your existing routine, just like any other daily vitamin or medication',
-        'Estradiol is absorbed through your digestive system and metabolized by the liver, delivering effective systemic hormone support',
-        'Comes with a progesterone pill taken at bedtime &mdash; protects the uterine lining and supports better sleep and mood'
-      ],
+      desc: 'The simplest possible HRT routine. One small pill taken once daily, just like any other vitamin or medication.',
       monthly:      { cpid: 59,  price: 99 },
-      quarterly:    { cpid: 181, price: 269 },
       monthlyLow:   { cpid: 57,  price: 99 },
-      quarterlyLow: { cpid: 179, price: 269 },
       isCompoundedEP:  false,
       isVaginalFocused: false,
     },
   ];
 
   var PROG_ADDON = {
-    monthly:      { cpid: 67,  price: 39  },
-    quarterly:    { cpid: 187, price: 99  },
-    monthlyAlt:   { cpid: 69,  price: 39  },
-    quarterlyAlt: { cpid: 189, price: 99  },
+    monthly:    { cpid: 67,  price: 39 },
+    monthlyAlt: { cpid: 69,  price: 39 },
   };
 
   var VAGINAL_ADDON = {
-    monthly:   { cpid: 65,  price: 99  },
-    quarterly: { cpid: 185, price: 269 },
+    monthly: { cpid: 65, price: 99 },
   };
 
-  /* ── Map server image filename to product ID ──────────────────────────── */
   var IMG_TO_ID = {
     'vaginal-cream.jpg':    'vcream',
     'compounded-cream.jpg': 'cream',
@@ -130,15 +89,27 @@
     'estradiol-pill.jpg':   'pill',
   };
 
-  /* ── State ───────────────────────────────────────────────────────────────── */
-  var flags            = {};
-  var selectedId       = 'vcream';
-  var selectedSchedule = 'monthly';
-  var vaginalChecked   = false;
-  var checkoutBaseUrl  = '';
-  var checkoutBusy     = false;
+  /* ── Symptom mapping for personalization ──────────────────────────────────── */
+  var SYMPTOM_MAP = {
+    'hot-flashes':     { label: 'Hot Flashes',         tag: 'Hot Flashes',      headline: 'Ending Hot Flashes',             week2: 'Hot flash frequency starts decreasing',     week4: 'Hot flashes significantly reduced',          week8: 'Hot flashes under control' },
+    'night-sweats':    { label: 'Night Sweats',        tag: 'Night Sweats',     headline: 'Stopping Night Sweats',           week2: 'Night sweats begin easing',                  week4: 'Night sweats significantly reduced',         week8: 'Restful, uninterrupted sleep' },
+    'sleep-problems':  { label: 'Sleep Problems',      tag: 'Better Sleep',     headline: 'Sleeping Through the Night',      week2: 'Sleep quality begins improving',             week4: 'Falling asleep faster, staying asleep',      week8: 'Deep, restorative sleep returns' },
+    'mood-anxiety':    { label: 'Mood & Anxiety',      tag: 'Mood Balance',     headline: 'Feeling Like Yourself Again',     week2: 'Mood swings start to stabilize',             week4: 'Emotional balance noticeably better',        week8: 'Calm, steady mood throughout the day' },
+    'brain-fog':       { label: 'Brain Fog',           tag: 'Mental Clarity',   headline: 'Clearing the Brain Fog',          week2: 'Mental clarity starts returning',            week4: 'Focus and memory improving',                 week8: 'Sharp, clear thinking restored' },
+    'vaginal-dryness': { label: 'Vaginal Dryness',     tag: 'Vaginal Comfort',  headline: 'Restoring Comfort and Intimacy',  week2: 'Vaginal tissue begins responding',           week4: 'Dryness and discomfort easing',              week8: 'Comfort and intimacy restored' },
+    'low-libido':      { label: 'Low Libido',          tag: 'Libido',           headline: 'Reigniting Your Desire',          week2: 'Hormone levels begin stabilizing',           week4: 'Interest and desire returning',              week8: 'Healthy libido restored' },
+    'fatigue':         { label: 'Fatigue',             tag: 'Energy',           headline: 'Getting Your Energy Back',        week2: 'Energy levels start to lift',                week4: 'Sustained energy throughout the day',        week8: 'Vitality and motivation fully restored' },
+    'weight-changes':  { label: 'Weight Changes',      tag: 'Metabolism',       headline: 'Stabilizing Your Metabolism',     week2: 'Metabolism begins to respond',               week4: 'Cravings and bloating reduced',              week8: 'Healthy weight management support' },
+  };
 
-  /* ── FAQ ─────────────────────────────────────────────────────────────────── */
+  /* ── State ─────────────────────────────────────────────────────────────────── */
+  var flags         = {};
+  var selectedId    = 'vcream';
+  var quizAnswers   = {};
+  var checkoutBaseUrl = '';
+  var checkoutBusy  = false;
+
+  /* ── FAQ items ─────────────────────────────────────────────────────────────── */
   var FAQ_ITEMS = [
     { q: 'Is hormone replacement therapy safe?', a: 'For most healthy women under 60 or within 10 years of menopause, the benefits of HRT outweigh the risks. Modern bioidentical hormones are well-studied and considered safe when prescribed by a licensed physician who reviews your full health history. Your ClearedRx physician will evaluate your individual situation before prescribing.' },
     { q: 'How long until I feel results?', a: 'Many women notice improvements in sleep and hot flashes within 2\u20134 weeks. Full benefits \u2014 including mood, energy, and libido \u2014 typically develop over 2\u20133 months as hormone levels stabilize. Your physician may adjust your dose over time to optimize your results.' },
@@ -146,249 +117,274 @@
     { q: 'How is my prescription filled?', a: 'Your prescription is sent to a licensed US compounding pharmacy. Your treatment is prepared fresh for your specific prescription and shipped directly to your door in discreet packaging. Most orders arrive within 5\u20137 business days of physician approval.' },
     { q: 'Can I cancel or change my treatment?', a: 'Yes. You can cancel, pause, or request a treatment change at any time by contacting our support team. There are no long-term commitments. If you\'re not satisfied within the first 30 days of your first order, we offer a full money-back guarantee.' },
     { q: 'What if I have side effects?', a: 'Mild side effects such as breast tenderness, bloating, or spotting can occur during the first few weeks as your body adjusts. These usually resolve on their own. If you experience persistent or concerning symptoms, contact our support team and a physician will review your case and adjust your prescription if needed.' },
-    { q: 'Is this covered by insurance?', a: 'ClearedRx treatments are not currently billed through insurance. However, many patients find our pricing comparable to or lower than their insurance copays for traditional HRT, especially with our 50% first-month discount and quarterly supply savings.' },
+    { q: 'Is this covered by insurance?', a: 'ClearedRx treatments are not currently billed through insurance. However, many patients find our pricing comparable to or lower than their insurance copays for traditional HRT, especially with our 50% first-month discount.' },
     { q: 'What is bioidentical hormone therapy?', a: 'Bioidentical hormones are chemically identical to the hormones your body naturally produces. They are derived from plant sources and compounded to match your body\'s own estrogen and progesterone. Many women prefer bioidentical HRT because it closely mimics natural hormone activity.' },
-    { q: 'What happens after I purchase?', a: 'When you click \'Get My Treatment,\' your card is authorized but not charged. Within 24 hours, a board-certified ClearedRx physician reviews your health questionnaire and, if everything looks good, approves and signs your prescription. Your card is only charged once the prescription is approved. Your order is then sent to our licensed US compounding pharmacy, where your treatment is prepared fresh to your exact prescribed dose. Once compounded and packaged, it ships to you via USPS Priority Mail and typically arrives within 1\u20132 business days of shipment.' },
+    { q: 'What happens after I purchase?', a: 'When you click \u2018Start My Treatment,\u2019 your card is authorized but not charged. Within 24 hours, a board-certified ClearedRx physician reviews your health questionnaire and, if everything looks good, approves and signs your prescription. Your card is only charged once the prescription is approved. Your order is then sent to our licensed US compounding pharmacy, where your treatment is prepared fresh. Once packaged, it ships to you via USPS Priority Mail and typically arrives within 1\u20132 business days of shipment.' },
   ];
 
-  /* ── Init ────────────────────────────────────────────────────────────────── */
+  /* ── Init ──────────────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function() {
-    // Read v1 result from sessionStorage
     var raw = sessionStorage.getItem('crx_v1_result');
-    if (!raw) {
-      window.location.href = 'index.html';
-      return;
-    }
+    if (\!raw) { window.location.href = 'index.html'; return; }
 
     var result;
-    try { result = JSON.parse(raw); } catch(e) {
-      window.location.href = 'index.html';
-      return;
-    }
+    try { result = JSON.parse(raw); } catch(e) { window.location.href = 'index.html'; return; }
 
-    // Store base checkout URL (has contact info, coupon, etc.)
     checkoutBaseUrl = result.checkoutUrl || '';
 
-    // Map server product to catalog
     var serverProduct = result.product || {};
     var imgKey = serverProduct.img || '';
     selectedId = IMG_TO_ID[imgKey] || 'vcream';
 
-    // Load clinical flags from sessionStorage
+    // Load flags
     try {
       var rawFlags = sessionStorage.getItem('crx_flags');
       if (rawFlags) flags = JSON.parse(rawFlags);
     } catch(e) {}
-
     flags = Object.assign({
-      adhesiveAllergy:    false,
-      nicotineOrClot:     false,
-      doseTier:           'normal',
-      hysterectomy:       false,
-      needsProgesterone:  true,
-      progIntolerance:    false,
-      vaginalSymptoms:    false,
+      adhesiveAllergy:   false,
+      nicotineOrClot:    false,
+      doseTier:          'normal',
+      hysterectomy:      false,
+      needsProgesterone: true,
+      progIntolerance:   false,
+      vaginalSymptoms:   false,
     }, flags);
 
-    // Personalize greeting
+    // Load quiz answers for personalization
+    try {
+      var rawAnswers = sessionStorage.getItem('crx_answers');
+      if (rawAnswers) quizAnswers = JSON.parse(rawAnswers);
+    } catch(e) {}
+
     var firstName = result.firstName || sessionStorage.getItem('crx_first_name') || '';
-    var greet = document.getElementById('patient-greeting');
-    if (greet) {
-      greet.textContent = firstName
-        ? firstName + ', your prescription is pre-approved.'
-        : 'Your prescription is pre-approved.';
-    }
 
-    var matchTitle = document.getElementById('match-title');
-    if (matchTitle && firstName) {
-      matchTitle.textContent = firstName + ', Here\u2019s Your Personalized Treatment';
-    }
-
-    // Pre-check vaginal add-on if patient reported vaginal symptoms
-    vaginalChecked = !!flags.vaginalSymptoms;
-
-    renderPanel();
+    renderPreapprovalBar(firstName);
+    renderHero(firstName);
+    renderSymptomTags();
+    renderTimeline();
+    renderPlan();
+    renderPricing();
+    bindCheckoutButtons();
     initDiscoverAccordion();
     initFaq();
   });
 
-  /* ── Helpers ─────────────────────────────────────────────────────────────── */
+  /* ── Helpers ──────────────────────────────────────────────────────────────── */
   function getProduct(id) {
     return PRODUCTS.find(function(p) { return p.id === id; }) || PRODUCTS[0];
   }
 
-  function getPanelTitle(p) {
-    if (p.isCompoundedEP) return p.name;
-    if (!flags.needsProgesterone) return p.name;
-    if (p.id === 'pill')  return 'Estrogen + Progesterone Pills';
-    if (p.id === 'gel')   return 'Estrogen Gel + Progesterone Pills';
-    if (p.id === 'patch') return 'Estrogen Patches + Progesterone Pills';
-    return p.name;
+  function getSelectedSymptoms() {
+    var raw = quizAnswers['step-6'] || '';
+    if (\!raw) return [];
+    return raw.split(',').filter(function(s) { return s && SYMPTOM_MAP[s]; });
   }
 
-  function getPriceData(product, schedule) {
-    var isLow = (flags.doseTier === 'low');
-    if (schedule === 'quarterly') return isLow ? product.quarterlyLow : product.quarterly;
-    return isLow ? product.monthlyLow : product.monthly;
+  function getMonthlyPrice(product) {
+    return (flags.doseTier === 'low') ? product.monthlyLow : product.monthly;
   }
 
-  function getProgData(schedule) {
-    var isAlt = !!flags.progIntolerance;
-    if (schedule === 'quarterly') return isAlt ? PROG_ADDON.quarterlyAlt : PROG_ADDON.quarterly;
-    return isAlt ? PROG_ADDON.monthlyAlt : PROG_ADDON.monthly;
+  function getProgData() {
+    return flags.progIntolerance ? PROG_ADDON.monthlyAlt : PROG_ADDON.monthly;
   }
 
-  /* ── Render detail panel ─────────────────────────────────────────────────── */
-  function renderPanel() {
-    var panel = document.getElementById('product-panel');
-    if (!panel) return;
+  /* ── Pre-approval bar ────────────────────────────────────────────────────── */
+  function renderPreapprovalBar(firstName) {
+    var el = document.getElementById('preapproval-text');
+    if (\!el) return;
+    el.textContent = firstName
+      ? firstName + ', your prescription plan is pre-approved'
+      : 'Your prescription plan is pre-approved';
+  }
 
-    var p         = getProduct(selectedId);
-    var priceData = getPriceData(p, selectedSchedule);
+  /* ── Hero section ────────────────────────────────────────────────────────── */
+  function renderHero(firstName) {
+    var symptoms = getSelectedSymptoms();
+    var headlineEl = document.getElementById('hero-headline');
+    var subEl = document.getElementById('hero-sub');
 
-    var needsSeparateProg = flags.needsProgesterone && !p.isCompoundedEP;
-    var progData = needsSeparateProg ? getProgData(selectedSchedule) : null;
-
-    var showVagAddon = !p.isVaginalFocused;
-    var vagAddonData = showVagAddon
-      ? (selectedSchedule === 'quarterly' ? VAGINAL_ADDON.quarterly : VAGINAL_ADDON.monthly)
-      : null;
-
-    // Benefits
-    var benefitsHtml = p.benefits.map(function(b) {
-      return '<div class="panel-benefit"><span class="benefit-check">&#10003;</span>' + b + '</div>';
-    }).join('');
-
-    // Vaginal add-on
-    var vagHtml = '';
-    if (showVagAddon && vagAddonData) {
-      var vagNote = flags.vaginalSymptoms
-        ? '<div class="addon-recommended">&#10003; Recommended based on your symptoms</div>'
-        : '';
-      vagHtml =
-        '<div class="addon-row addon-row--toggle' + (flags.vaginalSymptoms ? ' addon-row--recommended' : '') + '">' +
-          vagNote +
-          '<label class="addon-toggle-label">' +
-            '<input type="checkbox" id="vag-toggle"' + (vaginalChecked ? ' checked' : '') + '>' +
-            '<div class="addon-info">' +
-            '<div class="addon-name">+ Estrogen Vaginal Tablets</div>' +
-            '<div class="addon-sub">Add-on for vaginal dryness &amp; comfort</div>' +
-            '</div>' +
-            '<div class="addon-price">+$' + vagAddonData.price + (selectedSchedule === 'quarterly' ? '' : '/mo') + '</div>' +
-          '</label>' +
-        '</div>';
+    if (headlineEl && symptoms.length >= 2) {
+      var s1 = SYMPTOM_MAP[symptoms[0]];
+      var s2 = SYMPTOM_MAP[symptoms[1]];
+      headlineEl.innerHTML = (firstName ? firstName + ', Your' : 'Your') +
+        ' Doctor-Matched Plan for ' + s1.headline + ' and ' + s2.headline;
+    } else if (headlineEl && symptoms.length === 1) {
+      var s = SYMPTOM_MAP[symptoms[0]];
+      headlineEl.innerHTML = (firstName ? firstName + ', Your' : 'Your') +
+        ' Doctor-Matched Plan for ' + s.headline;
+    } else if (headlineEl && firstName) {
+      headlineEl.innerHTML = firstName + ', Your Doctor-Matched Treatment Plan';
     }
 
-    // Pricing
-    var mainPrice = priceData.price;
-    var progPrice = progData ? progData.price : 0;
-    var vagPrice  = (showVagAddon && vaginalChecked && vagAddonData) ? vagAddonData.price : 0;
-    var totalFull = mainPrice + progPrice + vagPrice;
-    var totalDisc = Math.round(totalFull * 0.5);
+    if (subEl) {
+      subEl.textContent = 'Based on your symptoms and health profile, our physicians have matched you with a treatment plan designed specifically for you.';
+    }
 
-    // Schedule card prices (include prog cost for non-compounded)
-    var mData              = getPriceData(p, 'monthly');
-    var qData              = getPriceData(p, 'quarterly');
-    var progMonthlyPrice   = needsSeparateProg ? PROG_ADDON.monthly.price   : 0;
-    var progQuarterlyPrice = needsSeparateProg ? PROG_ADDON.quarterly.price : 0;
-    var schedMonthlyFull   = mData.price + progMonthlyPrice;
-    var schedQuarterlyFull = qData.price + progQuarterlyPrice;
+    // Also personalize the second CTA headline
+    var ctaHeadline = document.getElementById('cta-headline');
+    if (ctaHeadline && firstName) {
+      ctaHeadline.textContent = firstName + ', Ready to Feel Like Yourself Again?';
+    }
+  }
 
-    var scheduleHtml =
-      '<div class="sched-wrap">' +
-        '<div class="sched-card' + (selectedSchedule === 'monthly' ? ' sched-card--active' : '') + '" data-schedule="monthly">' +
-          '<div class="sched-card-name">1 Month Supply</div>' +
-          '<div class="sched-price-orig">$' + schedMonthlyFull + '</div>' +
-          '<div class="sched-price-disc">$' + Math.round(schedMonthlyFull * 0.5) + '</div>' +
-          '<div class="sched-detail">Billed monthly</div>' +
-        '</div>' +
-        '<div class="sched-card' + (selectedSchedule === 'quarterly' ? ' sched-card--active' : '') + '" data-schedule="quarterly">' +
-          '<div class="sched-card-name">3 Month Supply</div>' +
-          '<div class="sched-price-orig">$' + schedQuarterlyFull + '</div>' +
-          '<div class="sched-price-disc">$' + Math.round(schedQuarterlyFull * 0.5) + '</div>' +
-          '<div class="sched-detail">Billed every 3 months</div>' +
-        '</div>' +
-      '</div>';
+  /* ── Symptom tags ────────────────────────────────────────────────────────── */
+  function renderSymptomTags() {
+    var container = document.getElementById('symptom-tags');
+    if (\!container) return;
+    var symptoms = getSelectedSymptoms();
+    if (symptoms.length === 0) { container.style.display = 'none'; return; }
 
-    // Assemble
-    panel.innerHTML =
-      '<div class="panel-top">' +
-        '<div class="panel-img-wrap">' +
-          '<img src="' + p.image + '" alt="' + p.name + '" class="panel-img" ' +
-               'onerror="this.src=\'../images/estradiol-gel.jpg\'">' +
-        '</div>' +
-        '<div class="panel-info">' +
-          '<h2 class="panel-name">' + getPanelTitle(p) + '</h2>' +
-          '<p class="panel-sub">' + p.subtitle + '</p>' +
-          '<div class="panel-benefits">' + benefitsHtml + '</div>' +
-        '</div>' +
-      '</div>' +
-      scheduleHtml +
-      '<div class="addons-wrap">' + vagHtml + '</div>' +
-      '<div class="total-wrap">' +
-        '<div class="total-label">Total:</div>' +
-        '<div class="total-prices">' +
-          '<span class="total-orig">$' + totalFull + '</span>' +
-          '<span class="total-disc" id="total-disc">$' + totalDisc + '</span>' +
-        '</div>' +
-        (selectedSchedule === 'quarterly'
-          ? '<div class="total-then">Then $' + totalFull + ' every 3 months after</div>'
-          : '<div class="total-then">Then $' + totalFull + '/mo after</div>') +
-      '</div>' +
-      '<button class="checkout-btn" id="checkout-btn">Get My Treatment &rarr;</button>' +
-      '<p class="checkout-note">Secure checkout &bull; Physician-reviewed &bull; Cancel anytime</p>';
+    container.innerHTML = symptoms.map(function(key) {
+      var s = SYMPTOM_MAP[key];
+      return '<span class="symptom-tag">' + s.tag + '</span>';
+    }).join('');
+  }
 
-    // Bind schedule cards
-    panel.querySelectorAll('.sched-card').forEach(function(card) {
-      card.addEventListener('click', function() {
-        selectedSchedule = card.dataset.schedule;
-        renderPanel();
-      });
+  /* ── Timeline ────────────────────────────────────────────────────────────── */
+  function renderTimeline() {
+    var graphEl = document.getElementById('timeline-graph');
+    var milestonesEl = document.getElementById('timeline-milestones');
+    if (\!graphEl || \!milestonesEl) return;
+
+    var symptoms = getSelectedSymptoms();
+
+    // SVG improvement curve
+    graphEl.innerHTML =
+      '<svg viewBox="0 0 600 180" xmlns="http://www.w3.org/2000/svg" style="max-width:600px;margin:0 auto;display:block;">' +
+        '<defs><linearGradient id="curveGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7A9E7E" stop-opacity="0.3"/><stop offset="100%" stop-color="#7A9E7E" stop-opacity="0.02"/></linearGradient></defs>' +
+        '<path d="M30,140 C100,135 150,110 250,70 C350,30 450,18 570,12" fill="none" stroke="#7A9E7E" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M30,140 C100,135 150,110 250,70 C350,30 450,18 570,12 L570,160 L30,160 Z" fill="url(#curveGrad)"/>' +
+        '<circle cx="30" cy="140" r="5" fill="#C4826A"/><text x="30" y="165" text-anchor="middle" font-size="11" fill="#6B6B6B" font-family="DM Sans,sans-serif">Today</text>' +
+        '<circle cx="175" cy="100" r="5" fill="#7A9E7E"/><text x="175" y="165" text-anchor="middle" font-size="11" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 2</text>' +
+        '<circle cx="340" cy="45" r="5" fill="#7A9E7E"/><text x="340" y="165" text-anchor="middle" font-size="11" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 4</text>' +
+        '<circle cx="570" cy="12" r="6" fill="#059669"/><text x="570" y="165" text-anchor="middle" font-size="11" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 8</text>' +
+        '<text x="48" y="137" font-size="10" fill="#C4826A" font-family="DM Sans,sans-serif" font-weight="600">Symptoms</text>' +
+        '<text x="530" y="32" font-size="10" fill="#059669" font-family="DM Sans,sans-serif" font-weight="600">Relief</text>' +
+      '</svg>';
+
+    // Build milestones from symptoms or defaults
+    var week2Text = 'Sleep quality begins improving, night sweats start to ease';
+    var week4Text = 'Hot flash frequency decreases, mood stabilizes';
+    var week6Text = 'Energy returns, brain fog clears';
+    var week8Text = 'Full relief realized across all symptoms';
+
+    if (symptoms.length >= 1) week2Text = SYMPTOM_MAP[symptoms[0]].week2;
+    if (symptoms.length >= 2) week4Text = SYMPTOM_MAP[symptoms[1]].week4;
+    if (symptoms.length >= 3) week6Text = SYMPTOM_MAP[symptoms[2]].week4;
+    if (symptoms.length >= 1) week8Text = SYMPTOM_MAP[symptoms[0]].week8;
+
+    milestonesEl.innerHTML =
+      '<div class="milestone"><div class="milestone__week">Week 1-2</div><div class="milestone__text">' + week2Text + '</div></div>' +
+      '<div class="milestone"><div class="milestone__week">Week 2-4</div><div class="milestone__text">' + week4Text + '</div></div>' +
+      '<div class="milestone"><div class="milestone__week">Week 4-6</div><div class="milestone__text">' + week6Text + '</div></div>' +
+      '<div class="milestone"><div class="milestone__week">Week 6-8</div><div class="milestone__text">' + week8Text + '</div></div>';
+  }
+
+  /* ── Plan items (auto-built from product + flags) ────────────────────────── */
+  function renderPlan() {
+    var container = document.getElementById('plan-items');
+    if (\!container) return;
+
+    var p = getProduct(selectedId);
+    var items = [];
+
+    // Main product
+    items.push({
+      name: p.name,
+      desc: p.desc,
+      image: p.image,
+      price: getMonthlyPrice(p).price,
     });
 
-    // Bind vaginal add-on toggle
-    var vagToggle = document.getElementById('vag-toggle');
-    if (vagToggle) {
-      vagToggle.addEventListener('change', function() {
-        vaginalChecked = this.checked;
-        renderPanel();
+    // Auto-add progesterone if needed and product doesn't include it
+    if (flags.needsProgesterone && \!p.isCompoundedEP) {
+      items.push({
+        name: 'Progesterone Pills',
+        desc: 'Taken at bedtime to protect the uterine lining and support better sleep and mood. Included in your plan.',
+        image: '../images/progesterone-pill.jpg',
+        price: getProgData().price,
       });
     }
 
-    // Bind checkout
-    var checkoutBtn = document.getElementById('checkout-btn');
-    if (checkoutBtn) {
-      checkoutBtn.addEventListener('click', proceedToCheckout);
+    // Auto-add vaginal tablets if patient has vaginal symptoms and main product isn't vaginal-focused
+    if (flags.vaginalSymptoms && \!p.isVaginalFocused) {
+      items.push({
+        name: 'Estrogen Vaginal Tablets',
+        desc: 'Targeted relief for vaginal dryness and discomfort. Added based on the symptoms you reported.',
+        image: '../images/vaginal-tablet.jpg',
+        price: VAGINAL_ADDON.monthly.price,
+      });
     }
+
+    container.innerHTML = items.map(function(item) {
+      return '<div class="plan-item">' +
+        '<img src="' + item.image + '" alt="' + item.name + '" class="plan-item__img" onerror="this.src=\'../images/estradiol-gel.jpg\'">' +
+        '<div class="plan-item__info">' +
+          '<div class="plan-item__name">' + item.name + '</div>' +
+          '<div class="plan-item__desc">' + item.desc + '</div>' +
+        '</div>' +
+        '<div class="plan-item__price">$' + item.price + '/mo</div>' +
+      '</div>';
+    }).join('');
   }
 
-  /* ── Checkout ────────────────────────────────────────────────────────────── */
+  /* ── Pricing block ───────────────────────────────────────────────────────── */
+  function renderPricing() {
+    var container = document.getElementById('pricing-block');
+    if (\!container) return;
+
+    var p = getProduct(selectedId);
+    var mainPrice = getMonthlyPrice(p).price;
+    var progPrice = (flags.needsProgesterone && \!p.isCompoundedEP) ? getProgData().price : 0;
+    var vagPrice  = (flags.vaginalSymptoms && \!p.isVaginalFocused) ? VAGINAL_ADDON.monthly.price : 0;
+    var totalFull = mainPrice + progPrice + vagPrice;
+    var totalDisc = Math.round(totalFull * 0.5);
+    var savings   = totalFull - totalDisc;
+
+    container.innerHTML =
+      '<div class="pricing-block__label">Your First Month</div>' +
+      '<div class="pricing-block__prices">' +
+        '<span class="pricing-block__orig">$' + totalFull + '</span>' +
+        '<span class="pricing-block__disc">$' + totalDisc + '</span>' +
+        '<span class="pricing-block__period">/mo</span>' +
+      '</div>' +
+      '<div class="pricing-block__then">Then $' + totalFull + '/mo after &bull; Cancel anytime</div>' +
+      '<div class="pricing-block__savings">You save $' + savings + ' this month</div>';
+  }
+
+  /* ── Checkout ──────────────────────────────────────────────────────────────── */
+  function bindCheckoutButtons() {
+    var btn1 = document.getElementById('cta-btn');
+    var btn2 = document.getElementById('cta-btn-2');
+    if (btn1) btn1.addEventListener('click', proceedToCheckout);
+    if (btn2) btn2.addEventListener('click', proceedToCheckout);
+  }
+
   function proceedToCheckout() {
     if (checkoutBusy) return;
     checkoutBusy = true;
 
-    var btn = document.getElementById('checkout-btn');
-    if (btn) { btn.disabled = true; btn.textContent = 'Preparing your checkout\u2026'; }
+    var btns = document.querySelectorAll('.cta-btn');
+    btns.forEach(function(btn) { btn.disabled = true; btn.textContent = 'Preparing your checkout\u2026'; });
 
     // Fire conversion pixels
     if (typeof fbq === 'function') fbq('track', 'InitiateCheckout');
     if (typeof gtag === 'function') gtag('event', 'begin_checkout');
 
-    // Build the correct checkout URL with updated CPIDs based on schedule + add-ons
+    // Build checkout URL with CPIDs — always monthly
     var p = getProduct(selectedId);
-    var priceData = getPriceData(p, selectedSchedule);
+    var priceData = getMonthlyPrice(p);
     var cpids = [priceData.cpid + ':1'];
 
-    // Add progesterone for non-compounded products
-    if (flags.needsProgesterone && !p.isCompoundedEP) {
-      var progData = getProgData(selectedSchedule);
-      cpids.push(progData.cpid + ':1');
+    // Progesterone for non-compounded
+    if (flags.needsProgesterone && \!p.isCompoundedEP) {
+      cpids.push(getProgData().cpid + ':1');
     }
 
-    // Add vaginal add-on if selected
-    if (vaginalChecked && !p.isVaginalFocused) {
-      var vagData = selectedSchedule === 'quarterly' ? VAGINAL_ADDON.quarterly : VAGINAL_ADDON.monthly;
-      cpids.push(vagData.cpid + ':1');
+    // Vaginal add-on if symptoms flagged and not vaginal product
+    if (flags.vaginalSymptoms && \!p.isVaginalFocused) {
+      cpids.push(VAGINAL_ADDON.monthly.cpid + ':1');
     }
 
     try {
@@ -396,13 +392,12 @@
       url.searchParams.set('products', cpids.join(';'));
       window.location.href = url.toString();
     } catch(e) {
-      // Fallback: use original URL if parsing fails
       console.error('URL parse error, using original checkout URL:', e);
       window.location.href = checkoutBaseUrl;
     }
   }
 
-  /* ── Discover accordion ──────────────────────────────────────────────────── */
+  /* ── Discover accordion (kept) ─────────────────────────────────────────── */
   function initDiscoverAccordion() {
     var navBtns = document.querySelectorAll('.discover-nav-btn');
     var panels  = document.querySelectorAll('.discover-panel');
@@ -418,10 +413,10 @@
     });
   }
 
-  /* ── FAQ ─────────────────────────────────────────────────────────────────── */
+  /* ── FAQ (kept) ────────────────────────────────────────────────────────── */
   function initFaq() {
     var list = document.getElementById('faq-list');
-    if (!list) return;
+    if (\!list) return;
     list.innerHTML = FAQ_ITEMS.map(function(item, i) {
       return '<div class="faq-item">' +
         '<button class="faq-btn" data-faq="' + i + '">' +
@@ -442,7 +437,7 @@
         var open = body.classList.contains('open');
         list.querySelectorAll('.faq-body').forEach(function(b) { b.classList.remove('open'); });
         list.querySelectorAll('.faq-btn').forEach(function(b) { b.classList.remove('open'); });
-        if (!open) {
+        if (\!open) {
           body.classList.add('open');
           btn.classList.add('open');
         }
