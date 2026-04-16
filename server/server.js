@@ -996,11 +996,11 @@ function remapAnswersV1(a) {
   if (step13.indexOf('stroke-tia') !== -1)           conds1Parts.push('History of stroke');
   if (step13.indexOf('heart-disease') !== -1)        conds1Parts.push('Coronary artery disease');
   if (step13.indexOf('gallbladder') !== -1)          conds1Parts.push('Gallbladder disease');
-  apiAnswers[Q.conditions_1] = { value: conds1Parts.length > 0 ? conds1Parts : ['None of the above'], question: 'Do you have any of the following? (cancer/stroke/CAD/gallbladder)' };
+  apiAnswers[Q.conditions_1] = { value: conds1Parts.length > 0 ? conds1Parts : ['I do NOT have any of these'], question: 'Do you have any of the following? (cancer/stroke/CAD/gallbladder)' };
 
   const conds2Parts = [];
   if (step13.indexOf('blood-clots') !== -1) conds2Parts.push('Deep vein thrombosis (DVT) or pulmonary embolism (PE)');
-  apiAnswers[Q.conditions_2] = { value: conds2Parts.length > 0 ? conds2Parts : ['None of the above'], question: 'Do you have any of the following? (DVT/lupus)' };
+  apiAnswers[Q.conditions_2] = { value: conds2Parts.length > 0 ? conds2Parts : ['I do NOT have any of these'], question: 'Do you have any of the following? (DVT/lupus)' };
 
   // ── Adhesive allergy (HONEST — no injection) ──────────────────────────────
   const adhesiveAllergy = (a['step-19'] === 'yes');
@@ -1033,9 +1033,9 @@ function remapAnswersV1(a) {
   const nicotineUse = (a['step-20'] === 'yes');
   const bloodClotHistory = (step13.indexOf('blood-clots') !== -1);
   const nicotineClotParts = [];
-  if (nicotineUse)       nicotineClotParts.push('Current nicotine use');
-  if (bloodClotHistory)  nicotineClotParts.push('History of blood clots');
-  apiAnswers[Q.nicotine_clot] = { value: nicotineClotParts.length > 0 ? nicotineClotParts : ['None of the above'], question: 'Do you have any of the following? (nicotine/clot history)' };
+  if (nicotineUse)       nicotineClotParts.push('Do you currently use nicotine products?');
+  if (bloodClotHistory)  nicotineClotParts.push('Do you have a family history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?');
+  apiAnswers[Q.nicotine_clot] = { value: nicotineClotParts.length > 0 ? nicotineClotParts : ['None of these apply to me'], question: 'Do you have any of the following? (nicotine/clot history)' };
 
   // ── Hysterectomy (HONEST) ─────────────────────────────────────────────────
   const hystMap = { 'no': 'No', 'yes': 'Yes', 'yes-uterus-removed': 'Yes', 'yes-full-removal': 'Yes' };
@@ -1082,7 +1082,7 @@ function remapAnswersV1(a) {
   if (step14.indexOf('topiramate') !== -1)    enzymeMeds.push('Topiramate');
   if (step14.indexOf('lamotrigine') !== -1)   enzymeMeds.push('Lamotrigine');
   if (step14.indexOf('barbiturates') !== -1)  enzymeMeds.push('Barbiturates');
-  apiAnswers[Q.enzyme_meds] = { value: enzymeMeds.length > 0 ? enzymeMeds : ['None of the above'], question: 'Are you currently taking any of the following medications?' };
+  apiAnswers[Q.enzyme_meds] = { value: enzymeMeds.length > 0 ? enzymeMeds : ['None apply'], question: 'Are you currently taking any of the following medications?' };
 
   // Blood pressure
   const bpMap = {
