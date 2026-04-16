@@ -152,14 +152,14 @@
 
   /* ── FAQ ──────────────────────────────────────────────────────── */
   var FAQ_ITEMS = [
-    { q: 'Is hormone replacement therapy safe?', a: 'For most healthy women under 60 or within 10 years of menopause, the benefits of HRT outweigh the risks. Modern bioidentical hormones are well-studied and considered safe when prescribed by a licensed physician who reviews your full health history.' },
+    { q: 'Is hormone replacement therapy safe?', a: 'For most healthy women under 60 or within 10 years of menopause, the benefits of HRT outweigh the risks. Modern bioidentical hormones are well-studied and considered safe when prescribed by a licensed doctor who reviews your full health history.' },
     { q: 'How long until I feel results?', a: 'Many women notice improvements in sleep and hot flashes within 2\u20134 weeks. Full benefits \u2014 including mood, energy, and libido \u2014 typically develop over 2\u20133 months as hormone levels stabilize.' },
-    { q: 'Do I need to see a doctor in person?', a: 'No. ClearedRx is fully online. A board-certified physician reviews your health questionnaire and writes your prescription if appropriate. No office visit required.' },
+    { q: 'Do I need to see a doctor in person?', a: 'No. ClearedRx is fully online. A board-certified doctor reviews your health questionnaire and writes your prescription if appropriate. No office visit required.' },
     { q: 'How is my prescription filled?', a: 'Your prescription is sent to a licensed US compounding pharmacy. Your treatment is prepared fresh and shipped directly to your door in discreet packaging within 5\u20137 business days.' },
     { q: 'Can I cancel or change my treatment?', a: 'Yes. Cancel, pause, or change anytime by contacting our support team. No long-term commitments. 30-day money-back guarantee on your first order.' },
     { q: 'What if I have side effects?', a: 'Mild side effects like breast tenderness or spotting can occur in the first few weeks as your body adjusts. These usually resolve on their own. Our care team is available 24/7 if you have concerns.' },
     { q: 'Is this covered by insurance?', a: 'ClearedRx is not billed through insurance, but many patients find our pricing lower than their copays for traditional HRT \u2014 especially with the 50% first-month discount.' },
-    { q: 'What happens after I purchase?', a: 'Your card is authorized but not charged. Within 24 hours, a physician reviews and approves your prescription. Your card is only charged once approved. Your order ships within 1\u20132 business days after that.' },
+    { q: 'What happens after I purchase?', a: 'Your card is authorized but not charged. Within 24 hours, a doctor reviews and approves your prescription. Your card is only charged once approved. Your order ships within 1\u20132 business days after that.' },
   ];
 
   /* ── State ────────────────────────────────────────────────────── */
@@ -168,7 +168,7 @@
   var quizAnswers = {};
   var checkoutBaseUrl = '';
   var checkoutBusy = false;
-  var timerSeconds = 600; // 10 minutes
+  var timerSeconds = 1200; // 20 minutes
   var timerInterval = null;
 
   /* ── Init ─────────────────────────────────────────────────────── */
@@ -205,6 +205,7 @@
     } catch(e) {}
 
     var firstName = result.firstName || sessionStorage.getItem('crx_first_name') || '';
+    if (firstName) firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
 
     // Render all sections
     startTimer();
@@ -339,6 +340,7 @@
     if (!wrap) return;
 
     // Multi-line chart showing 4 symptom improvement curves over 12 weeks
+    // Font sizes optimized for mobile readability
     wrap.innerHTML =
       '<svg viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">' +
         // Background grid
@@ -347,23 +349,23 @@
         '</defs>' +
         '<rect x="60" y="20" width="530" height="180" fill="url(#bgFade)" rx="4"/>' +
         // Y-axis labels
-        '<text x="52" y="30" text-anchor="end" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif">100%</text>' +
-        '<text x="52" y="75" text-anchor="end" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif">75%</text>' +
-        '<text x="52" y="120" text-anchor="end" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif">50%</text>' +
-        '<text x="52" y="165" text-anchor="end" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif">25%</text>' +
-        '<text x="52" y="205" text-anchor="end" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif">0%</text>' +
+        '<text x="52" y="30" text-anchor="end" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">100%</text>' +
+        '<text x="52" y="75" text-anchor="end" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">75%</text>' +
+        '<text x="52" y="120" text-anchor="end" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">50%</text>' +
+        '<text x="52" y="165" text-anchor="end" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">25%</text>' +
+        '<text x="52" y="205" text-anchor="end" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">0%</text>' +
         // Y-axis title
-        '<text x="15" y="120" text-anchor="middle" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif" transform="rotate(-90 15 120)">Improvement</text>' +
+        '<text x="12" y="120" text-anchor="middle" font-size="12" fill="#6B6B6B" font-family="DM Sans,sans-serif" transform="rotate(-90 15 120)">Improvement</text>' +
         // Grid lines
         '<line x1="60" y1="65" x2="590" y2="65" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
         '<line x1="60" y1="110" x2="590" y2="110" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
         '<line x1="60" y1="155" x2="590" y2="155" stroke="#E0D8CF" stroke-width="0.5" stroke-dasharray="4,4"/>' +
         // X-axis labels
-        '<text x="60" y="225" text-anchor="middle" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif">Start</text>' +
-        '<text x="192" y="225" text-anchor="middle" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 2</text>' +
-        '<text x="325" y="225" text-anchor="middle" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 4</text>' +
-        '<text x="458" y="225" text-anchor="middle" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 8</text>' +
-        '<text x="590" y="225" text-anchor="middle" font-size="10" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 12</text>' +
+        '<text x="60" y="225" text-anchor="middle" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">Start</text>' +
+        '<text x="192" y="225" text-anchor="middle" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 2</text>' +
+        '<text x="325" y="225" text-anchor="middle" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 4</text>' +
+        '<text x="458" y="225" text-anchor="middle" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 8</text>' +
+        '<text x="590" y="225" text-anchor="middle" font-size="13" fill="#6B6B6B" font-family="DM Sans,sans-serif">Week 12</text>' +
         // Curve 1: Hot Flashes / Night Sweats (fastest response) — rose
         '<path d="M60,200 C120,185 160,140 192,100 C230,60 280,42 325,35 C400,26 480,24 590,22" fill="none" stroke="#C4826A" stroke-width="2.5" stroke-linecap="round"/>' +
         '<circle cx="590" cy="22" r="4" fill="#C4826A"/>' +
@@ -497,7 +499,7 @@
     // Included checks below the cards
     if (checksEl) {
       var checks = [
-        'Board-certified physician review & prescription',
+        'Board-certified doctor review & prescription',
         'Licensed US compounding pharmacy',
         'Free express shipping to your door',
         '24/7 care team support & dosage adjustments',
@@ -520,7 +522,7 @@
 
     // Pricing includes list
     var includesList = [
-      'Physician-prescribed bioidentical HRT',
+      'Doctor-prescribed bioidentical HRT',
       'Free express shipping',
       '24/7 care team support',
       'Dosage adjustments at no extra cost',
@@ -552,7 +554,7 @@
         '<button class="cta-btn" id="cta-pricing">START MY TREATMENT \u2014 50% OFF TODAY</button>' +
         '<p class="cta-note">No commitment \u2022 Cancel anytime \u2022 30-day guarantee</p>' +
       '</div>' +
-      '<p style="font-size:.8125rem;color:var(--light);margin-top:1rem">Then $' + totalFull + '/mo. Physician review included. Cancel anytime.</p>';
+      '<p style="font-size:.8125rem;color:var(--light);margin-top:1rem">Then $' + totalFull + '/mo. Doctor review included. Cancel anytime.</p>';
   }
 
   /* ── S8: Testimonials ────────────────────────────────────────── */

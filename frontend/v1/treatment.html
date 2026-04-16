@@ -37,7 +37,7 @@
 
     /* ── Timer Bar ─────────────────────────── */
     .timer-bar{background:var(--forest);color:white;text-align:center;padding:.5rem 1rem;font-size:.875rem;font-weight:600;letter-spacing:.03em}
-    .timer-bar__time{font-variant-numeric:tabular-nums;display:inline-block;min-width:3.5em}
+    .timer-bar__time{font-variant-numeric:tabular-nums;display:inline-block;min-width:auto;margin-left:.15em}
 
     /* ── S1: Hero ──────────────────────────── */
     .hero{padding:2rem 1.25rem 2.25rem;text-align:center}
@@ -54,7 +54,7 @@
     .goals-card__list li svg{flex-shrink:0;margin-top:.15rem;color:var(--sage)}
 
     .hero__body{font-size:.9375rem;color:var(--mid);line-height:1.6;max-width:540px;margin:0 auto 1rem}
-    .hero__price-lock{font-size:.875rem;font-weight:700;color:var(--forest);display:flex;align-items:center;justify-content:center;gap:.4rem}
+    .hero__price-lock{font-size:.875rem;font-weight:700;color:var(--forest);display:flex;flex-direction:column;align-items:center;text-align:center;gap:.25rem}
 
     /* ── S2: Effectiveness Chart ───────────── */
     .chart-section{background:white;padding:2rem 1.25rem 2.5rem;border-top:1px solid var(--taupe);border-bottom:1px solid var(--taupe)}
@@ -237,7 +237,7 @@
 
 <!-- TIMER BAR -->
 <div class="timer-bar" id="timer-bar-top">
-  <span id="timer-name-top"></span> APPROVAL IS VALID FOR <span class="timer-bar__time" id="timer-top">10:00</span>
+  <span id="timer-name-top"></span> PRE-APPROVAL IS VALID FOR <span class="timer-bar__time" id="timer-top">20:00</span>
 </div>
 
 <!-- S1: HERO — Personalized Headline + Goals -->
@@ -253,9 +253,9 @@
       <ul class="goals-card__list" id="goals-list"></ul>
     </div>
 
-    <p class="hero__body">You get clinician-prescribed hormone therapy, personalized dosing delivered discreetly to your door. Plus, 1:1 physician guidance, and 24/7 ClearedRx support.</p>
+    <p class="hero__body">You get doctor-prescribed hormone therapy, personalized dosing delivered discreetly to your door. Plus, 1:1 doctor guidance, and 24/7 ClearedRx support.</p>
     <p class="hero__price-lock">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
       Your medication price never goes up &mdash; even when your dosage is adjusted!
     </p>
   </div>
@@ -302,18 +302,18 @@
   <div class="wrap">
     <h2 class="section-title">What happens <em>next?</em></h2>
     <div class="steps">
-      <div class="step"><div class="step__num">1</div><div><div class="step__title">Physician Review</div><div class="step__desc">You're already pre-qualified. After checkout, a board-certified physician will review your information and begin the approval process.</div></div></div>
-      <div class="step"><div class="step__num">2</div><div><div class="step__title">Fast Prescription Approval</div><div class="step__desc">Most prescriptions are approved in less than 24 hours. If needed, same-day consultations with a licensed clinician are available &mdash; at no extra charge.</div></div></div>
+      <div class="step"><div class="step__num">1</div><div><div class="step__title">Doctor Review</div><div class="step__desc">You're already pre-qualified. After checkout, a board-certified doctor will review your information and begin the approval process.</div></div></div>
+      <div class="step"><div class="step__num">2</div><div><div class="step__title">Fast Prescription Approval</div><div class="step__desc">Most prescriptions are approved in less than 24 hours. If needed, same-day consultations with a licensed doctor are available &mdash; at no extra charge.</div></div></div>
       <div class="step"><div class="step__num">3</div><div><div class="step__title">Medication Shipped to You</div><div class="step__desc">Once approved, your medication is prepared and shipped. You'll receive tracking info within 2 business days, and your prescription will be on its way.</div></div></div>
       <div class="step"><div class="step__num">4</div><div><div class="step__title">Monthly Refills</div><div class="step__desc">At the end of each month, we'll send you a quick refill reminder. We'll send email and text updates with tracking info as your next shipment heads your way.</div></div></div>
-      <div class="step"><div class="step__num">5</div><div><div class="step__title">Unlimited Support</div><div class="step__desc">Have questions about your progress, side effects, or dosage? You'll have unlimited, 24/7 access to our care team and licensed clinicians &mdash; whenever you need us.</div></div></div>
+      <div class="step"><div class="step__num">5</div><div><div class="step__title">Unlimited Support</div><div class="step__desc">Have questions about your progress, side effects, or dosage? You'll have unlimited, 24/7 access to our care team and licensed doctors &mdash; whenever you need us.</div></div></div>
     </div>
   </div>
 </section>
 
 <!-- S7: URGENCY + PRICING -->
 <div class="timer-bar" id="timer-bar-mid">
-  Your approval is reserved for <span class="timer-bar__time" id="timer-mid">10:00</span>
+  Your pre-approval is reserved for <span class="timer-bar__time" id="timer-mid">20:00</span>
 </div>
 
 <section class="section">
@@ -364,7 +364,7 @@
 <section class="section">
   <div class="wrap">
     <h2 class="section-title">Your <em>care team:</em></h2>
-    <p class="section-sub">Our network of board-certified physicians specializes in women's health and hormone therapy. Every ClearedRx prescription is personally reviewed by a licensed doctor.</p>
+    <p class="section-sub">Our network of board-certified doctors specializes in women's health and hormone therapy. Every ClearedRx prescription is personally reviewed by a licensed doctor.</p>
     <div class="docs-row">
       <div class="doc-card"><img src="../images/crx-medteam.png" alt="ClearedRx Medical Team" class="doc-card__photo" /><div class="doc-card__name">ClearedRx</div><div class="doc-card__cred">Medical Team</div></div>
     </div>
@@ -387,10 +387,10 @@
 <!-- S12: FINAL CTA -->
 <section class="final-cta">
   <div class="wrap">
-    <p class="final-cta__timer">Your approval is reserved for <span class="timer-bar__time" id="timer-bottom">10:00</span></p>
+    <p class="final-cta__timer">Your pre-approval is reserved for <span class="timer-bar__time" id="timer-bottom">20:00</span></p>
     <h2 class="final-cta__headline">Start feeling like yourself again.</h2>
     <div class="final-cta__checks">
-      <span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Physician-prescribed bioidentical HRT</span>
+      <span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Doctor-prescribed bioidentical HRT</span>
       <span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Free express shipping</span>
       <span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> 30-day money-back guarantee</span>
       <span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Cancel anytime</span>
@@ -413,9 +413,9 @@
     <div class="site-footer__grid">
       <div class="site-footer__col"><h4>Support</h4><a href="mailto:support@clearedrx.com">support@clearedrx.com</a><a href="tel:+12029519915">(202) 951-9915</a><p>Mon&ndash;Fri 9am&ndash;5pm ET</p></div>
       <div class="site-footer__col"><h4>Company</h4><a href="#">About Us</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Refund Policy</a></div>
-      <div class="site-footer__col"><h4>Medical</h4><p>Physician network: Beluga Health</p><p>Licensed in all 50 states</p><p>US compounding pharmacy</p></div>
+      <div class="site-footer__col"><h4>Medical</h4><p>Doctor network: Beluga Health</p><p>Licensed in all 50 states</p><p>US compounding pharmacy</p></div>
     </div>
-    <p class="site-footer__legal">ClearedRx is not a pharmacy. Prescriptions are issued by licensed physicians and filled by a licensed US compounding pharmacy. This website is for informational purposes only and does not constitute medical advice. Results may vary. &copy; 2025 ClearedRx. All rights reserved.</p>
+    <p class="site-footer__legal">ClearedRx is not a pharmacy. Prescriptions are issued by licensed doctors and filled by a licensed US compounding pharmacy. This website is for informational purposes only and does not constitute medical advice. Results may vary. &copy; 2025 ClearedRx. All rights reserved.</p>
   </div>
 </footer>
 
