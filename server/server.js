@@ -63,6 +63,15 @@
 
 'use strict';
 
+// ─── Global Error Handlers (prevent silent crashes) ───────────────────────────
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION:', err.message, err.stack);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('UNHANDLED REJECTION:', reason);
+});
+
+
 const express  = require('express');
 const axios    = require('axios');
 const path     = require('path');
@@ -88,7 +97,7 @@ app.use(cors({
   ],
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const DOSABLE_BASE  = process.env.DOSABLE_BASE_URL  || 'https://intake.dosable.com';
@@ -127,6 +136,24 @@ function normalizeState(input) {
   return abbr || null;
 }
 
+
+
+// ─── API Request Logger ──────────────────────────────────────────────────────
+app.use('/api', (req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const elapsed = Date.now() - start;
+    const logLevel = res.statusCode >= 400 ? 'error' : (elapsed > 3000 ? 'warn' : 'log');
+    console[logLevel](`[API] ${req.method} ${req.originalUrl} → ${res.statusCode} (${elapsed}ms)`);
+  });
+  next();
+});
+
+
+// ─── Health Check ─────────────────────────────────────────────────────────────
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', version: 'v1.1', timestamp: new Date().toISOString() });
+});
 
 // Serve frontend static files
 app.use(express.static(FRONTEND_DIR));
@@ -560,13 +587,24 @@ function formatDob(raw) {
 }
 
 // ─── Helper: Dosable API call ─────────────────────────────────────────────────
-async function dosable(method, urlPath, data) {
+async function dosable(method, urlPath, data, timeoutMs = 15000) {
+  const startTime = Date.now();
   try {
-    const res = await axios({ method, url: DOSABLE_BASE + urlPath, headers: HEADERS, data });
+    const res = await axios({
+      method,
+      url: DOSABLE_BASE + urlPath,
+      headers: HEADERS,
+      data,
+      timeout: timeoutMs,
+    });
+    const elapsed = Date.now() - startTime;
+    if (elapsed > 5000) console.warn('Dosable slow response:', method.toUpperCase(), urlPath, elapsed + 'ms');
     return { ok: true, data: res.data, status: res.status };
   } catch (err) {
-    const status  = err.response ? err.response.status : 500;
-    const errData = err.response ? err.response.data   : { message: err.message };
+    const elapsed = Date.now() - startTime;
+    const status  = err.response ? err.response.status : (err.code === 'ECONNABORTED' ? 504 : 500);
+    const errData = err.response ? err.response.data   : { message: err.code === 'ECONNABORTED' ? 'Dosable API timed out after ' + timeoutMs + 'ms' : err.message };
+    console.error('Dosable API error:', method.toUpperCase(), urlPath, 'status=' + status, elapsed + 'ms', JSON.stringify(errData).slice(0, 300));
     return { ok: false, data: errData, status };
   }
 }
