@@ -938,7 +938,7 @@ const CPID_PRODUCT_MAP = {
   57:  { name: 'Estrogen Pills',         type: 'pill',  price: 99,  img: 'estradiol-pill.jpg', lowDose: true },
   67:  { name: 'Progesterone 100mg',     type: 'prog',  price: 39,  img: 'progesterone-hero.jpg' },
   69:  { name: 'Progesterone 200mg',     type: 'prog',  price: 39,  img: 'progesterone-hero.jpg' },
-  63:  { name: 'Vaginal Estrogen Tablet', type: 'vag-addon', price: 99, img: 'vaginal-estrogen-cream.jpg' },
+  63:  { name: 'Vaginal Estrogen Tablet', type: 'vag-addon', price: 99, img: 'vaginal-tablet.jpg' },
 };
 
 function parseCheckoutProducts(checkoutUrl) {

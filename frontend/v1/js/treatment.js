@@ -106,7 +106,7 @@
   var VAGINAL_ADDON = {
     name: 'Estrogen Vaginal Tablets',
     desc: 'Targeted relief for vaginal dryness and discomfort.',
-    image: '../images/estradiol-pill-solo.jpg',
+    image: '../images/vaginal-tablet.jpg',
     ingredient: '<strong>Estradiol Vaginal Tablet</strong> — delivers localized estrogen for vaginal dryness, irritation, and discomfort',
     monthly: { cpid: 63, price: 99 },
   };
