@@ -125,7 +125,7 @@
   /* ── Init ──────────────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function() {
     var raw = sessionStorage.getItem('crx_v1_result');
-    if (\!raw) { window.location.href = 'index.html'; return; }
+    if (!raw) { window.location.href = 'index.html'; return; }
 
     var result;
     try { result = JSON.parse(raw); } catch(e) { window.location.href = 'index.html'; return; }
@@ -177,7 +177,7 @@
 
   function getSelectedSymptoms() {
     var raw = quizAnswers['step-6'] || '';
-    if (\!raw) return [];
+    if (!raw) return [];
     return raw.split(',').filter(function(s) { return s && SYMPTOM_MAP[s]; });
   }
 
@@ -192,7 +192,7 @@
   /* ── Pre-approval bar ────────────────────────────────────────────────────── */
   function renderPreapprovalBar(firstName) {
     var el = document.getElementById('preapproval-text');
-    if (\!el) return;
+    if (!el) return;
     el.textContent = firstName
       ? firstName + ', your prescription plan is pre-approved'
       : 'Your prescription plan is pre-approved';
@@ -231,7 +231,7 @@
   /* ── Symptom tags ────────────────────────────────────────────────────────── */
   function renderSymptomTags() {
     var container = document.getElementById('symptom-tags');
-    if (\!container) return;
+    if (!container) return;
     var symptoms = getSelectedSymptoms();
     if (symptoms.length === 0) { container.style.display = 'none'; return; }
 
@@ -245,7 +245,7 @@
   function renderTimeline() {
     var graphEl = document.getElementById('timeline-graph');
     var milestonesEl = document.getElementById('timeline-milestones');
-    if (\!graphEl || \!milestonesEl) return;
+    if (!graphEl || !milestonesEl) return;
 
     var symptoms = getSelectedSymptoms();
 
@@ -284,7 +284,7 @@
   /* ── Plan items (auto-built from product + flags) ────────────────────────── */
   function renderPlan() {
     var container = document.getElementById('plan-items');
-    if (\!container) return;
+    if (!container) return;
 
     var p = getProduct(selectedId);
     var items = [];
@@ -298,7 +298,7 @@
     });
 
     // Auto-add progesterone if needed and product doesn't include it
-    if (flags.needsProgesterone && \!p.isCompoundedEP) {
+    if (flags.needsProgesterone && !p.isCompoundedEP) {
       items.push({
         name: 'Progesterone Pills',
         desc: 'Taken at bedtime to protect the uterine lining and support better sleep and mood. Included in your plan.',
@@ -308,7 +308,7 @@
     }
 
     // Auto-add vaginal tablets if patient has vaginal symptoms and main product isn't vaginal-focused
-    if (flags.vaginalSymptoms && \!p.isVaginalFocused) {
+    if (flags.vaginalSymptoms && !p.isVaginalFocused) {
       items.push({
         name: 'Estrogen Vaginal Tablets',
         desc: 'Targeted relief for vaginal dryness and discomfort. Added based on the symptoms you reported.',
@@ -332,12 +332,12 @@
   /* ── Pricing block ───────────────────────────────────────────────────────── */
   function renderPricing() {
     var container = document.getElementById('pricing-block');
-    if (\!container) return;
+    if (!container) return;
 
     var p = getProduct(selectedId);
     var mainPrice = getMonthlyPrice(p).price;
-    var progPrice = (flags.needsProgesterone && \!p.isCompoundedEP) ? getProgData().price : 0;
-    var vagPrice  = (flags.vaginalSymptoms && \!p.isVaginalFocused) ? VAGINAL_ADDON.monthly.price : 0;
+    var progPrice = (flags.needsProgesterone && !p.isCompoundedEP) ? getProgData().price : 0;
+    var vagPrice  = (flags.vaginalSymptoms && !p.isVaginalFocused) ? VAGINAL_ADDON.monthly.price : 0;
     var totalFull = mainPrice + progPrice + vagPrice;
     var totalDisc = Math.round(totalFull * 0.5);
     var savings   = totalFull - totalDisc;
@@ -378,12 +378,12 @@
     var cpids = [priceData.cpid + ':1'];
 
     // Progesterone for non-compounded
-    if (flags.needsProgesterone && \!p.isCompoundedEP) {
+    if (flags.needsProgesterone && !p.isCompoundedEP) {
       cpids.push(getProgData().cpid + ':1');
     }
 
     // Vaginal add-on if symptoms flagged and not vaginal product
-    if (flags.vaginalSymptoms && \!p.isVaginalFocused) {
+    if (flags.vaginalSymptoms && !p.isVaginalFocused) {
       cpids.push(VAGINAL_ADDON.monthly.cpid + ':1');
     }
 
@@ -416,7 +416,7 @@
   /* ── FAQ (kept) ────────────────────────────────────────────────────────── */
   function initFaq() {
     var list = document.getElementById('faq-list');
-    if (\!list) return;
+    if (!list) return;
     list.innerHTML = FAQ_ITEMS.map(function(item, i) {
       return '<div class="faq-item">' +
         '<button class="faq-btn" data-faq="' + i + '">' +
@@ -437,7 +437,7 @@
         var open = body.classList.contains('open');
         list.querySelectorAll('.faq-body').forEach(function(b) { b.classList.remove('open'); });
         list.querySelectorAll('.faq-btn').forEach(function(b) { b.classList.remove('open'); });
-        if (\!open) {
+        if (!open) {
           body.classList.add('open');
           btn.classList.add('open');
         }
