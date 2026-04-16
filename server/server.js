@@ -120,7 +120,7 @@ const STATE_ABBREV = {
   'district of columbia':'DC','puerto rico':'PR'
 };
 function normalizeState(input) {
-  if (\!input) return null;
+  if (!input) return null;
   const trimmed = input.trim();
   if (/^[A-Za-z]{2}$/.test(trimmed)) return trimmed.toUpperCase();
   const abbr = STATE_ABBREV[trimmed.toLowerCase()];

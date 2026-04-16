@@ -185,7 +185,7 @@
     var serverProduct = result.product || {};
     var imgKey = serverProduct.img || '';
     selectedId = IMG_TO_ID[imgKey] || null;
-    if (\!selectedId) {
+    if (!selectedId) {
       console.warn('[CRX] IMG_TO_ID miss for "' + imgKey + '" — defaulting to vcream. Check CPID_PRODUCT_MAP img values on server.');
       selectedId = 'vcream';
     }
@@ -692,7 +692,7 @@
     // Use the server-provided checkout URL directly.
     // Dosable is the authoritative source for product routing and CPIDs.
     // Do NOT reconstruct CPIDs locally — that risks divergence from Dosable.
-    if (\!checkoutBaseUrl) {
+    if (!checkoutBaseUrl) {
       console.error('[CRX] No checkout URL available');
       document.querySelectorAll('.cta-btn').forEach(function(btn) {
         btn.disabled = false;
