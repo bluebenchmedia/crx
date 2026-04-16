@@ -104,6 +104,30 @@ const HEADERS = {
   'X-API-KEY':    API_KEY,
 };
 
+// ─── State Name → Abbreviation Map (defensive normalization) ──────────────────
+const STATE_ABBREV = {
+  'alabama':'AL','alaska':'AK','arizona':'AZ','arkansas':'AR','california':'CA',
+  'colorado':'CO','connecticut':'CT','delaware':'DE','florida':'FL','georgia':'GA',
+  'hawaii':'HI','idaho':'ID','illinois':'IL','indiana':'IN','iowa':'IA',
+  'kansas':'KS','kentucky':'KY','louisiana':'LA','maine':'ME','maryland':'MD',
+  'massachusetts':'MA','michigan':'MI','minnesota':'MN','mississippi':'MS',
+  'missouri':'MO','montana':'MT','nebraska':'NE','nevada':'NV','new hampshire':'NH',
+  'new jersey':'NJ','new mexico':'NM','new york':'NY','north carolina':'NC',
+  'north dakota':'ND','ohio':'OH','oklahoma':'OK','oregon':'OR','pennsylvania':'PA',
+  'rhode island':'RI','south carolina':'SC','south dakota':'SD','tennessee':'TN',
+  'texas':'TX','utah':'UT','vermont':'VT','virginia':'VA','washington':'WA',
+  'west virginia':'WV','wisconsin':'WI','wyoming':'WY',
+  'district of columbia':'DC','puerto rico':'PR'
+};
+function normalizeState(input) {
+  if (\!input) return null;
+  const trimmed = input.trim();
+  if (/^[A-Za-z]{2}$/.test(trimmed)) return trimmed.toUpperCase();
+  const abbr = STATE_ABBREV[trimmed.toLowerCase()];
+  return abbr || null;
+}
+
+
 // Serve frontend static files
 app.use(express.static(FRONTEND_DIR));
 app.get('/',            (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'index.html')));
@@ -644,7 +668,7 @@ app.post('/api/lead', async (req, res) => {
     email,
     phone:      phone.replace(/\D/g, ''),
     birthday:   formatDob(dob) || undefined,
-    lead_state: state || undefined,
+    lead_state: normalizeState(state) || undefined,
     zip_code:   zip   || undefined,
     gender:     'Female',
   };
@@ -733,7 +757,7 @@ app.post('/api/complete', async (req, res) => {
         email,
         phone:      phone.replace(/\D/g, ''),
         ...(contactInfo.dob   && { birthday:   formatDob(contactInfo.dob) }),
-        ...(contactInfo.state && { lead_state: contactInfo.state }),
+        ...(contactInfo.state && { lead_state: normalizeState(contactInfo.state) }),
         gender:     'Female',
       };
       const newLeadRes = await dosable('post', '/leads/', newLeadPayload);
@@ -780,7 +804,7 @@ app.post('/api/complete', async (req, res) => {
     ...(contactInfo.firstName && { first_name: contactInfo.firstName }),
     ...(contactInfo.lastName  && { last_name:  contactInfo.lastName }),
     ...(contactInfo.dob       && { birthday:   formatDob(contactInfo.dob) }),
-    ...(contactInfo.state     && { lead_state: contactInfo.state }),
+    ...(contactInfo.state     && { lead_state: normalizeState(contactInfo.state) }),
     gender: 'Female',
   };
 
@@ -1185,7 +1209,7 @@ app.post('/api/v1/complete', async (req, res) => {
     ...(contactInfo.firstName && { first_name: contactInfo.firstName }),
     ...(contactInfo.lastName  && { last_name:  contactInfo.lastName }),
     ...(contactInfo.dob       && { birthday:   formatDob(contactInfo.dob) }),
-    ...(contactInfo.state     && { lead_state: contactInfo.state }),
+    ...(contactInfo.state     && { lead_state: normalizeState(contactInfo.state) }),
     gender: 'Female',
   };
 
