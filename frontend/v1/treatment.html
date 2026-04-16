@@ -1,0 +1,243 @@
+<\!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Treatment Match | ClearedRx</title>
+  <meta name="description" content="Your personalized HRT treatment, matched by our physicians to your symptoms and health profile.">
+  <link rel="icon" href="../images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/treatments.css">
+
+  <\!-- Meta Pixel Code -->
+  <script>
+  \!function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(\!f._fbq)f._fbq=n;n.push=n;n.loaded=\!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=\!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '3455971567888613');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=3455971567888613&ev=PageView&noscript=1"
+  /></noscript>
+
+  <\!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16906106213"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-16906106213');
+  </script>
+
+  <style>
+    /* V1 treatment page — single matched product */
+    :root {
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans:  'Inter', -apple-system, sans-serif;
+      --charcoal: #3a3632;
+      --charcoal-60: rgba(58,54,50,0.6);
+      --cream: #faf8f5;
+      --sage: #7c9a82;
+      --sage-dark: #5d7d63;
+      --rose: #c4727f;
+      --taupe: #c4b5a5;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      color: var(--charcoal);
+      background: var(--cream);
+      min-height: 100vh;
+    }
+
+    /* Navbar */
+    .t-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 24px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .t-nav-logo { font-family: var(--font-serif); font-size: 22px; color: var(--charcoal); text-decoration: none; }
+    .t-nav-logo span { color: var(--sage); }
+    .t-nav-phone { font-size: 13px; color: var(--charcoal-60); text-align: right; line-height: 1.4; }
+    .t-nav-phone a { color: var(--charcoal); font-weight: 600; text-decoration: none; }
+
+    /* Approval banner */
+    .t-approval {
+      background: var(--sage); color: #fff; text-align: center;
+      padding: 12px 20px; font-size: 15px; font-weight: 500;
+    }
+
+    /* Main container */
+    .t-container {
+      max-width: 560px; margin: 0 auto; padding: 32px 20px 60px;
+    }
+
+    /* Section header */
+    .t-header {
+      text-align: center; margin-bottom: 28px;
+    }
+    .t-header h1 {
+      font-family: var(--font-serif); font-size: 24px; font-weight: 500;
+      margin-bottom: 8px; line-height: 1.3;
+    }
+    .t-header p {
+      font-size: 14px; color: var(--charcoal-60); line-height: 1.5;
+    }
+
+    /* Product card */
+    .t-card {
+      background: #fff; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 20px;
+    }
+    .t-card-img {
+      width: 100%; height: 200px; object-fit: cover; display: block;
+    }
+    .t-card-body { padding: 24px; }
+    .t-card-badge {
+      display: inline-block; background: var(--sage); color: #fff;
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; letter-spacing: 0.5px;
+    }
+    .t-card-name {
+      font-family: var(--font-serif); font-size: 20px; font-weight: 500;
+      margin-bottom: 8px; line-height: 1.3;
+    }
+    .t-card-desc {
+      font-size: 13.5px; color: var(--charcoal-60); line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .t-card-why {
+      font-size: 12.5px; color: var(--charcoal-60); line-height: 1.55;
+      padding: 12px 14px; background: var(--cream); border-radius: 8px;
+      border-left: 3px solid var(--sage); margin-bottom: 16px;
+    }
+    .t-card-why strong { color: var(--charcoal); }
+
+    /* Pricing */
+    .t-pricing {
+      display: flex; align-items: baseline; gap: 8px;
+      margin-bottom: 6px;
+    }
+    .t-price-main {
+      font-size: 28px; font-weight: 700; color: var(--sage-dark);
+    }
+    .t-price-was {
+      font-size: 15px; color: var(--charcoal-60); text-decoration: line-through;
+    }
+    .t-price-period {
+      font-size: 13px; color: var(--charcoal-60);
+    }
+    .t-price-note {
+      font-size: 12px; color: var(--sage-dark); font-weight: 500; margin-bottom: 20px;
+    }
+
+    /* CTA */
+    .t-cta {
+      display: block; width: 100%; padding: 16px 24px;
+      background: var(--sage); color: #fff; border: none;
+      font-size: 16px; font-weight: 600; border-radius: 8px;
+      cursor: pointer; text-align: center; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .t-cta:hover { background: var(--sage-dark); }
+
+    /* Trust bar */
+    .t-trust {
+      display: flex; justify-content: center; gap: 24px;
+      margin-top: 24px; padding: 16px 0;
+    }
+    .t-trust-item {
+      text-align: center; font-size: 11px; color: var(--charcoal-60); line-height: 1.4;
+    }
+    .t-trust-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+    /* Doctor note */
+    .t-doctor {
+      text-align: center; margin-top: 20px; padding: 16px;
+      font-size: 12.5px; color: var(--charcoal-60); line-height: 1.5;
+      background: #fff; border-radius: 8px;
+    }
+    .t-doctor strong { color: var(--charcoal); }
+
+    /* Charge note */
+    .t-charge-note {
+      text-align: center; margin-top: 12px;
+      font-size: 12px; color: var(--sage-dark); font-weight: 500;
+    }
+
+    @media (max-width: 480px) {
+      .t-container { padding: 24px 16px 48px; }
+      .t-header h1 { font-size: 21px; }
+      .t-card-name { font-size: 18px; }
+      .t-card-img { height: 160px; }
+    }
+  </style>
+</head>
+<body>
+
+  <\!-- Navbar -->
+  <nav class="t-nav">
+    <a href="https://clearedrx.com" class="t-nav-logo">Cleared<span>Rx</span></a>
+    <div class="t-nav-phone">
+      <a href="tel:2029519915">(202) 951-9915</a><br>
+      Mon&ndash;Sun 9am&ndash;8pm ET
+    </div>
+  </nav>
+
+  <\!-- Approval banner -->
+  <div class="t-approval" id="approvalBanner">
+    Your prescription is pre-approved.
+  </div>
+
+  <\!-- Main -->
+  <div class="t-container">
+    <div class="t-header">
+      <h1 id="headerTitle">Your Personalized Treatment</h1>
+      <p id="headerSub">Based on your symptoms and health profile, our physicians matched you with the treatment below.</p>
+    </div>
+
+    <div class="t-card">
+      <img class="t-card-img" id="productImg" src="../images/vaginal-cream.jpg" alt="Treatment">
+      <div class="t-card-body">
+        <div class="t-card-badge" id="productBadge">Your Match</div>
+        <h2 class="t-card-name" id="productName">Loading&hellip;</h2>
+        <p class="t-card-desc" id="productDesc"></p>
+        <div class="t-card-why" id="productWhy">
+          <strong>Why this treatment?</strong> Based on your symptoms, health history, and preferences, this is the best-matched option for your body.
+        </div>
+        <div class="t-pricing">
+          <span class="t-price-main" id="priceMain"></span>
+          <span class="t-price-was" id="priceWas"></span>
+          <span class="t-price-period">/month</span>
+        </div>
+        <p class="t-price-note">50% off your first month &mdash; applied at checkout</p>
+        <a class="t-cta" id="ctaBtn" href="#">Start My Treatment &rarr;</a>
+      </div>
+    </div>
+
+    <p class="t-charge-note">You&rsquo;re only charged after our doctor approves your prescription. Most are approved same-day.</p>
+
+    <div class="t-trust">
+      <div class="t-trust-item"><span class="t-trust-icon">&#128274;</span>HIPAA<br>Compliant</div>
+      <div class="t-trust-item"><span class="t-trust-icon">&#129657;</span>Doctor<br>Reviewed</div>
+      <div class="t-trust-item"><span class="t-trust-icon">&#128230;</span>Free<br>Shipping</div>
+      <div class="t-trust-item"><span class="t-trust-icon">&#127799;</span>Bio-identical<br>Hormones</div>
+    </div>
+
+    <div class="t-doctor">
+      <strong>Reviewed by licensed physicians.</strong><br>
+      Your treatment plan is reviewed by a board-certified physician licensed in your state before any prescription is written.
+    </div>
+  </div>
+
+  <script src="js/treatment.js"></script>
+</body>
+</html>
