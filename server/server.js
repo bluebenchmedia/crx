@@ -249,13 +249,13 @@ function remapAnswers(a, productSelection) {
   const transdermalSideEffects = (a['step-25'] === 'yes');
   const symptomDurationLong    = (a['step-3'] === '3-plus-years');
   const hysterectomy           = !!(a['step-21'] && a['step-21'] !== 'no');
-  const sleepTenderness        = hysterectomy && \!\!(a['step-22'] && a['step-22'] \!== 'neither');
+  const sleepTenderness        = hysterectomy && !!(a['step-22'] && a['step-22'] !== 'neither');
   const progIntolerance        = sleepTenderness && (a['step-23'] === 'yes');
   const step38raw = a['step-38'] || '';
-  const vaginalSymptoms        = (step38raw && step38raw \!== 'none') || symptoms.includes('vaginal-dryness');
+  const vaginalSymptoms        = (step38raw && step38raw !== 'none') || symptoms.includes('vaginal-dryness');
   const osteoporosis           = conditions.includes('osteoporosis');
   // Per beluga doc: non-hysterectomy always gets prog; hysterectomy depends on sleep+tenderness
-  const needsProgesterone      = hysterectomy ? (sleepTenderness && \!progIntolerance) : true;
+  const needsProgesterone      = hysterectomy ? (sleepTenderness && !progIntolerance) : true;
 
   const flags = {
     adhesiveAllergy, nicotineUse, nicotineOrClot, transdermalSideEffects,
@@ -1123,7 +1123,7 @@ function remapAnswersV1(a) {
     if (sleepTenderness) {
       const progIntolerance = (a['step-23'] === 'yes');
       apiAnswers[Q.prog_intolerance] = { value: progIntolerance ? 'Yes' : 'No', question: 'Have you had intolerance to micronized progesterone in the past?' };
-      needsProgesterone = \!progIntolerance;
+      needsProgesterone = !progIntolerance;
     } else {
       needsProgesterone = false;
     }

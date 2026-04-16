@@ -237,11 +237,11 @@
     // Step 28 (blood pressure) → conditionally show compound (step 26) or skip to 29
     if (from === 28) {
       var hystForCompound = answers['step-21'] || '';
-      var isHyst = (hystForCompound \!== 'no' && hystForCompound \!== '');
+      var isHyst = (hystForCompound !== 'no' && hystForCompound !== '');
       if (isHyst) {
         var sleepAns = answers['step-22'] || '';
         var hasSleep = (sleepAns === 'sleep-issues' || sleepAns === 'breast-tenderness' || sleepAns === 'both');
-        if (\!hasSleep) return 29;
+        if (!hasSleep) return 29;
         if (answers['step-23'] === 'yes') return 29;
       }
       return 26;
@@ -309,12 +309,12 @@
       // Step 29 -> back to 26 (compound) or 28 (if compound was skipped)
       if (currentStep === 29) {
         var hystB = answers['step-21'] || '';
-        var isHystB = (hystB \!== 'no' && hystB \!== '');
+        var isHystB = (hystB !== 'no' && hystB !== '');
         var skipComp = false;
         if (isHystB) {
           var sleepB = answers['step-22'] || '';
           var hasSleepB = (sleepB === 'sleep-issues' || sleepB === 'breast-tenderness' || sleepB === 'both');
-          if (\!hasSleepB) skipComp = true;
+          if (!hasSleepB) skipComp = true;
           else if (answers['step-23'] === 'yes') skipComp = true;
         }
         prev = skipComp ? 28 : 26;
@@ -882,12 +882,12 @@
 
     var adhesiveAllergy   = (a['adhesive-allergy'] === 'yes');
     var nicotineUse       = (a['nicotine-use'] === 'yes' || a['nicotine-use'] === 'recently-quit');
-    var bloodClotHistory  = (a['step-13'] && a['step-13'].indexOf('blood-clots') \!== -1);
+    var bloodClotHistory  = (a['step-13'] && a['step-13'].indexOf('blood-clots') !== -1);
     var nicotineOrClot    = nicotineUse || bloodClotHistory;
 
     var hystAnswer        = a['step-21'] || 'no';
     var hasUterus         = (hystAnswer === 'no');
-    var hysterectomy      = \!hasUterus;
+    var hysterectomy      = !hasUterus;
 
     // Progesterone logic per beluga doc:
     // Non-hysterectomy -> always gets progesterone
@@ -898,7 +898,7 @@
     if (hysterectomy) {
       var sleepAns = a['step-22'] || '';
       var hasSleepTenderness = (sleepAns === 'sleep-issues' || sleepAns === 'breast-tenderness' || sleepAns === 'both');
-      if (\!hasSleepTenderness) {
+      if (!hasSleepTenderness) {
         needsProgesterone = false;
       } else if (a['step-23'] === 'yes') {
         needsProgesterone = false;
@@ -906,7 +906,7 @@
     }
 
     var hrtHistory        = a['step-24'] || 'never';
-    var everUsedHRT       = (hrtHistory \!== 'never');
+    var everUsedHRT       = (hrtHistory !== 'never');
     var transdermalSE     = everUsedHRT && (a['transdermal-se'] === 'yes');
 
     var symptomDuration   = a['step-3'] || '';
@@ -915,12 +915,12 @@
     // Vaginal symptoms from dedicated step 38 (Q3228 triggers)
     var vaginalSymptoms   = false;
     var step38 = a['step-38'] || '';
-    if (step38 && step38 \!== 'none') {
+    if (step38 && step38 !== 'none') {
       vaginalSymptoms = true;
     }
     // Also check step 6 for backward compat
     var step6 = a['step-6'] || '';
-    if (step6.indexOf('vaginal-dryness') \!== -1) {
+    if (step6.indexOf('vaginal-dryness') !== -1) {
       vaginalSymptoms = true;
     }
 
