@@ -134,12 +134,12 @@
 
   /* Default goals for when no symptoms available */
   var DEFAULT_GOALS = [
-    { icon: '🔥', goalTitle: 'Fewer Hot Flashes',    goalDesc: 'Most women see hot flash frequency drop significantly within the first 2\u20134 weeks of treatment.' },
-    { icon: '😴', goalTitle: 'Deeper, Better Sleep',  goalDesc: 'Progesterone supports natural sleep cycles. Many women report sleeping through the night within weeks.' },
-    { icon: '🧠', goalTitle: 'Emotional Balance',     goalDesc: 'Balanced hormones help stabilize mood swings, irritability, and anxiety that menopause can trigger.' },
-    { icon: '⚡', goalTitle: 'Natural Energy',         goalDesc: 'Say goodbye to the 2pm crash. Balanced hormones support sustained energy throughout the day.' },
-    { icon: '💡', goalTitle: 'Mental Clarity',         goalDesc: 'Estrogen supports cognitive function. Expect improved focus, memory, and mental sharpness.' },
-    { icon: '❤️', goalTitle: 'Restored Desire',        goalDesc: 'Hormone balance is key to healthy libido. Many women notice renewed interest and arousal.' },
+    { icon: '🔥', title: 'Fewer Hot Flashes',    desc: 'Most women see hot flash frequency drop significantly within the first 2\u20134 weeks of treatment.' },
+    { icon: '😴', title: 'Deeper, Better Sleep',  desc: 'Progesterone supports natural sleep cycles. Many women report sleeping through the night within weeks.' },
+    { icon: '🧠', title: 'Emotional Balance',     desc: 'Balanced hormones help stabilize mood swings, irritability, and anxiety that menopause can trigger.' },
+    { icon: '⚡', title: 'Natural Energy',         desc: 'Say goodbye to the 2pm crash. Balanced hormones support sustained energy throughout the day.' },
+    { icon: '💡', title: 'Mental Clarity',         desc: 'Estrogen supports cognitive function. Expect improved focus, memory, and mental sharpness.' },
+    { icon: '❤️', title: 'Restored Desire',        desc: 'Hormone balance is key to healthy libido. Many women notice renewed interest and arousal.' },
   ];
 
   /* ── Testimonials ────────────────────────────────────────────── */
