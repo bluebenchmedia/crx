@@ -108,7 +108,7 @@ const HEADERS = {
 app.use(express.static(FRONTEND_DIR));
 app.get('/',            (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'index.html')));
 app.get('/treatments',  (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'treatments.html')));
-app.get('/v1',          (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'v1', 'index.html')));
+app.get('/v1',          (req, res) => res.redirect(301, '/v1/'));
 app.get('/v1/',         (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'v1', 'index.html')));
 
 // ─── Dosable Question ID Map ──────────────────────────────────────────────────
