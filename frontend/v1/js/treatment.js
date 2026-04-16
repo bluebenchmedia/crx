@@ -155,7 +155,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     // Read v1 result from sessionStorage
     var raw = sessionStorage.getItem('crx_v1_result');
-    if (\!raw) {
+    if (!raw) {
       window.location.href = 'index.html';
       return;
     }
@@ -205,7 +205,7 @@
     }
 
     // Pre-check vaginal add-on if patient reported vaginal symptoms
-    vaginalChecked = \!\!flags.vaginalSymptoms;
+    vaginalChecked = !!flags.vaginalSymptoms;
 
     renderPanel();
     initDiscoverAccordion();
@@ -219,7 +219,7 @@
 
   function getPanelTitle(p) {
     if (p.isCompoundedEP) return p.name;
-    if (\!flags.needsProgesterone) return p.name;
+    if (!flags.needsProgesterone) return p.name;
     if (p.id === 'pill')  return 'Estrogen + Progesterone Pills';
     if (p.id === 'gel')   return 'Estrogen Gel + Progesterone Pills';
     if (p.id === 'patch') return 'Estrogen Patches + Progesterone Pills';
@@ -233,7 +233,7 @@
   }
 
   function getProgData(schedule) {
-    var isAlt = \!\!flags.progIntolerance;
+    var isAlt = !!flags.progIntolerance;
     if (schedule === 'quarterly') return isAlt ? PROG_ADDON.quarterlyAlt : PROG_ADDON.quarterly;
     return isAlt ? PROG_ADDON.monthlyAlt : PROG_ADDON.monthly;
   }
@@ -241,15 +241,15 @@
   /* ── Render detail panel ─────────────────────────────────────────────────── */
   function renderPanel() {
     var panel = document.getElementById('product-panel');
-    if (\!panel) return;
+    if (!panel) return;
 
     var p         = getProduct(selectedId);
     var priceData = getPriceData(p, selectedSchedule);
 
-    var needsSeparateProg = flags.needsProgesterone && \!p.isCompoundedEP;
+    var needsSeparateProg = flags.needsProgesterone && !p.isCompoundedEP;
     var progData = needsSeparateProg ? getProgData(selectedSchedule) : null;
 
-    var showVagAddon = \!p.isVaginalFocused;
+    var showVagAddon = !p.isVaginalFocused;
     var vagAddonData = showVagAddon
       ? (selectedSchedule === 'quarterly' ? VAGINAL_ADDON.quarterly : VAGINAL_ADDON.monthly)
       : null;
@@ -380,13 +380,13 @@
     var cpids = [priceData.cpid + ':1'];
 
     // Add progesterone for non-compounded products
-    if (flags.needsProgesterone && \!p.isCompoundedEP) {
+    if (flags.needsProgesterone && !p.isCompoundedEP) {
       var progData = getProgData(selectedSchedule);
       cpids.push(progData.cpid + ':1');
     }
 
     // Add vaginal add-on if selected
-    if (vaginalChecked && \!p.isVaginalFocused) {
+    if (vaginalChecked && !p.isVaginalFocused) {
       var vagData = selectedSchedule === 'quarterly' ? VAGINAL_ADDON.quarterly : VAGINAL_ADDON.monthly;
       cpids.push(vagData.cpid + ':1');
     }
@@ -421,7 +421,7 @@
   /* ── FAQ ─────────────────────────────────────────────────────────────────── */
   function initFaq() {
     var list = document.getElementById('faq-list');
-    if (\!list) return;
+    if (!list) return;
     list.innerHTML = FAQ_ITEMS.map(function(item, i) {
       return '<div class="faq-item">' +
         '<button class="faq-btn" data-faq="' + i + '">' +
@@ -442,7 +442,7 @@
         var open = body.classList.contains('open');
         list.querySelectorAll('.faq-body').forEach(function(b) { b.classList.remove('open'); });
         list.querySelectorAll('.faq-btn').forEach(function(b) { b.classList.remove('open'); });
-        if (\!open) {
+        if (!open) {
           body.classList.add('open');
           btn.classList.add('open');
         }
