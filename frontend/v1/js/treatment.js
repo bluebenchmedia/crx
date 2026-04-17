@@ -129,7 +129,11 @@
     'vaginal-dryness': { label: 'Relieve vaginal dryness',     icon: '💧', goalTitle: 'Vaginal Comfort',           goalDesc: 'Targeted estrogen therapy restores vaginal tissue health, relieving dryness and discomfort.' },
     'low-libido':      { label: 'Restore libido',              icon: '❤️', goalTitle: 'Restored Desire',           goalDesc: 'Hormone balance is key to healthy libido. Many women notice renewed interest and arousal.' },
     'fatigue':         { label: 'Boost energy levels',         icon: '⚡', goalTitle: 'Natural Energy',             goalDesc: 'Say goodbye to the 2pm crash. Balanced hormones support sustained energy throughout the day.' },
-    'weight-changes':  { label: 'Support healthy weight',      icon: '⚖️', goalTitle: 'Metabolic Support',         goalDesc: 'HRT can help reduce menopause-related weight gain by supporting metabolic function and reducing cravings.' },
+    'weight-changes':  { label: 'Support healthy weight',      icon: '\u2696\ufe0f', goalTitle: 'Metabolic Support',         goalDesc: 'HRT can help reduce menopause-related weight gain by supporting metabolic function and reducing cravings.' },
+    'painful-intercourse': { label: 'Relieve painful intercourse',  icon: '\ud83d\udc95', goalTitle: 'Pain-Free Intimacy',        goalDesc: 'Localized estrogen restores vaginal tissue, relieving pain during intercourse so you can enjoy intimacy again.' },
+    'vaginal-irritation':  { label: 'Soothe vaginal irritation',    icon: '\ud83c\udf3f', goalTitle: 'Vaginal Comfort',            goalDesc: 'Targeted estrogen therapy calms irritation and restores the natural moisture your body needs.' },
+    'urinary-urgency':     { label: 'Reduce urinary urgency',       icon: '\ud83d\udca7', goalTitle: 'Bladder Control',             goalDesc: 'Estrogen supports urinary tract tissue health, reducing urgency and frequency.' },
+    'recurrent-utis':      { label: 'Prevent recurrent UTIs',       icon: '\ud83d\udee1\ufe0f', goalTitle: 'UTI Prevention',              goalDesc: 'Vaginal estrogen helps restore protective flora and tissue health, reducing UTI recurrence.' },
   };
 
   /* Default goals for when no symptoms available */
@@ -246,9 +250,23 @@
   }
 
   function getSelectedSymptoms() {
-    var raw = quizAnswers['step-6'] || '';
-    if (!raw) return [];
-    return raw.split(',').filter(function(s) { return s && SYMPTOM_MAP[s]; });
+    var keys = [];
+    var seen = {};
+    // Pull from step-6 (main symptom checklist)
+    var raw6 = quizAnswers['step-6'] || '';
+    if (raw6) {
+      raw6.split(',').forEach(function(s) {
+        if (s && SYMPTOM_MAP[s] && !seen[s]) { seen[s] = true; keys.push(s); }
+      });
+    }
+    // Pull from step-38 (vaginal & urinary symptoms)
+    var raw38 = quizAnswers['step-38'] || '';
+    if (raw38 && raw38 !== 'none') {
+      raw38.split(',').forEach(function(s) {
+        if (s && SYMPTOM_MAP[s] && !seen[s]) { seen[s] = true; keys.push(s); }
+      });
+    }
+    return keys;
   }
 
   function getMonthlyPrice(product) {
@@ -281,10 +299,23 @@
 
   function getDisplayName() {
     var p = getProduct(selectedId);
-    if (flags.needsProgesterone && !p.isCompoundedEP) {
-      return p.shortName + ' + Progesterone';
+    var parts = [];
+    // Compounded products already include progesterone in their name
+    if (p.isCompoundedEP) {
+      parts.push(p.name);
+    } else {
+      // Non-compounded: start with short name
+      parts.push(p.shortName);
+      // Add progesterone only when clinically indicated
+      if (flags.needsProgesterone) {
+        parts.push('Progesterone');
+      }
     }
-    return p.name;
+    // Add vaginal tablets when indicated (unless main product already covers vaginal)
+    if (flags.vaginalSymptoms && !p.isVaginalFocused) {
+      parts.push('Vaginal Tablets');
+    }
+    return parts.join(' + ');
   }
 
   function svgCheck() {
