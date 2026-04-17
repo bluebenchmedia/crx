@@ -318,6 +318,24 @@
     return parts.join(' + ');
   }
 
+  function getDisplayDesc() {
+    var p = getProduct(selectedId);
+    var desc = p.desc;
+    // Append brief acknowledgment of additional products in the plan
+    var extras = [];
+    if (flags.needsProgesterone && !p.isCompoundedEP) {
+      extras.push('a progesterone pill taken at bedtime');
+    }
+    if (flags.vaginalSymptoms && !p.isVaginalFocused) {
+      extras.push('an estrogen vaginal tablet for targeted vaginal relief');
+    }
+    if (extras.length > 0) {
+      desc += ' Taken with ' + extras.join(' and ') + '.';
+    }
+    return desc;
+  }
+
+
   function svgCheck() {
     return '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
   }
@@ -451,7 +469,7 @@
         '<div class="match-card__info">' +
           '<span class="match-card__badge">Your Match</span>' +
           '<div class="match-card__name">' + getDisplayName() + '</div>' +
-          '<p class="match-card__desc">' + p.desc + '</p>' +
+          '<p class="match-card__desc">' + getDisplayDesc() + '</p>' +
         '</div>' +
       '</div>' +
       '<div class="match-card__score">' +
