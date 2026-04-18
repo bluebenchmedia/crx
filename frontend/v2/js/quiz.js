@@ -655,6 +655,10 @@
   function updateSymptomCount() {
     var el = document.getElementById('symptom-count');
     if (!el) return;
+    // Show/hide "Other" textarea
+    var otherWrap = document.getElementById('other-symptom-wrap');
+    var otherSelected = document.querySelector('#step-6 .option-btn.selected[data-value="other"]');
+    if (otherWrap) otherWrap.style.display = otherSelected ? 'block' : 'none';
     var count = document.querySelectorAll('#step-6 .option-btn.selected').length;
     if (count >= 3) {
       el.textContent = "You\u2019ve identified " + count + " symptoms linked to hormone decline.";
