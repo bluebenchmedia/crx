@@ -344,7 +344,7 @@
     }
     // Step 26 -> 25 or 24
     if (from === 26) {
-      return (answers['step-24'] \!== 'never') ? 25 : 24;
+      return (answers['step-24'] !== 'never') ? 25 : 24;
     }
     // Default: previous step
     return from - 1;
@@ -963,7 +963,7 @@
 
   /* ── Chip buttons (for hysterectomy reason step 39) ──────────────── */
   document.addEventListener('click', function(e) {
-    if (\!e.target.classList.contains('chip-btn')) return;
+    if (!e.target.classList.contains('chip-btn')) return;
     e.target.classList.toggle('selected');
   });
 
