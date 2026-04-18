@@ -45,11 +45,9 @@
   'use strict';
 
   var TOTAL_STEPS = 38;
-  var STEP_ORDER = [1,2,3,4,5,6,7,8,9,10,11,12,38,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37];
-  var currentStep = 1;
+  var STEP_ORDER = [2,1,3,4,5,6,7,8,9,10,11,12,38,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37];
+  var currentStep = 2;
   var answers     = {};
-  var consentAgreed = 0;
-  var CONSENT_REQUIRED = 3;
 
   var PROXY_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:3001'
@@ -115,6 +113,14 @@
         'joint-pain': 'Joint stiffness and aches reduce',
       }
     }
+  };
+
+
+  var SEVERITY_VALIDATION = {
+    mild: 'Even mild symptoms deserve attention \u2014 early treatment prevents them from getting worse.',
+    moderate: 'You don\u2019t have to keep pushing through this. Treatment can help.',
+    significant: 'We hear this a lot. The good news: these symptoms respond very well to treatment.',
+    severe: 'You\u2019ve been dealing with a lot. Relief is closer than you think.',
   };
 
   var DURATION_LABELS = {
@@ -223,7 +229,7 @@
 
     // Back button visibility
     var backBtn = document.getElementById('quizBackBtn');
-    if (backBtn) backBtn.style.display = (n <= 1) ? 'none' : '';
+    if (backBtn) backBtn.style.display = (n <= 2) ? 'none' : '';
 
     // Remove active from ALL steps first (prevents stale steps on session restore)
     var allSteps = document.querySelectorAll('.quiz-step.active');
@@ -237,6 +243,7 @@
     // Populate dynamic interstitials before showing
     if (n === 7) populateSymptomInterstitial();
     if (n === 27) populateReliefTimeline();
+    if (n === 36) populateGreatCandidate();
 
     el.classList.add('active');
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -382,6 +389,18 @@
             if (stepEl.id === 'step-25') recordAnswer('transdermal-se', btn.dataset.value);
 
             recordAnswer(stepEl.id, btn.dataset.value);
+
+            // Severity validation message (step 8)
+            if (stepEl.id === 'step-8' && SEVERITY_VALIDATION[btn.dataset.value]) {
+              var sevEl = document.getElementById('severity-validation');
+              if (sevEl) {
+                sevEl.textContent = SEVERITY_VALIDATION[btn.dataset.value];
+                sevEl.classList.add('visible');
+              }
+              // Delay advance to let user read the message
+              setTimeout(advance, 1200);
+              return;
+            }
 
             // DQ check for single-select
             if (DISQUALIFY[stepEl.id] && DISQUALIFY[stepEl.id].indexOf(btn.dataset.value) !== -1) {
@@ -580,6 +599,25 @@
     }
   }
 
+  /* ── Personalize Great Candidate screen (step 36) ────────────────── */
+  function populateGreatCandidate() {
+    var headEl = document.getElementById('great-candidate-headline');
+    var bodyEl = document.getElementById('great-candidate-body');
+    if (\!headEl || \!bodyEl) return;
+    var name = answers['firstName'] || '';
+    if (name) {
+      headEl.textContent = name + ', you\u2019re a strong candidate for HRT.';
+    }
+    // Reference their top symptom and severity
+    var selected = (answers['step-6'] || '').split(',').filter(function(s) { return s; });
+    var severity = answers['step-8'] || '';
+    var sevLabel = { mild: 'noticeable', moderate: 'moderate', significant: 'significant', severe: 'severe' };
+    var sevText = sevLabel[severity] || '';
+    if (selected.length > 0 && sevText) {
+      bodyEl.textContent = 'Your ' + sevText + ' symptoms are highly treatable. Most women see meaningful improvement within 2\u20134 weeks of starting their personalized plan.';
+    }
+  }
+
   /* ── Contact field next buttons ──────────────────────────────────────── */
   function bindContactNextButtons() {
     // State
@@ -680,18 +718,7 @@
       });
     }
 
-    // Consent next
-    var consentBtn = document.getElementById('step-35-next');
-    if (consentBtn) {
-      consentBtn.addEventListener('click', function() {
-        // Check DOM for agreed badges instead of stale counter
-        var agreedCount = document.querySelectorAll('.consent-agreed-badge[style*="flex"]').length;
-        if (agreedCount < CONSENT_REQUIRED) return;
-        recordAnswer('consent_hrt', 'yes');
-        recordAnswer('consent_truthfulness', 'yes');
-        advance();
-      });
-    }
+    // Consent is now a single button handled by global consentAndContinue()
   }
 
   /* ── Lead capture ────────────────────────────────────────────────────── */
@@ -815,6 +842,9 @@
         product:     data.product,
         flags:       flags,
         firstName:   answers['firstName'] || '',
+        barrier:     answers['step-12'] || '',
+        severity:    answers['step-8'] || '',
+        symptomCount: (answers['step-6'] || '').split(',').filter(function(s) { return s; }).length,
       }));
       if (loadingBar) loadingBar.style.width = '100%';
       setTimeout(function() {
@@ -890,9 +920,16 @@
   }
 
   /* ── Expose internal functions for global onclick wrappers ────────── */
+  function recordAndAdvanceConsent(key, val) {
+    recordAnswer(key, val);
+    recordAnswer('consent_truthfulness', 'yes');
+    advance();
+  }
+
   window.CRX = {
     advance: advance,
     startFinalSubmission: startFinalSubmission,
+    recordAndAdvance: recordAndAdvanceConsent,
   };
 
 })();
@@ -909,6 +946,32 @@ function startLoading() {
   if (window.CRX && window.CRX.startFinalSubmission) {
     window.CRX.startFinalSubmission();
   }
+}
+
+function submitDqGuide() {
+  var emailInput = document.getElementById('dq-email-input');
+  var btn = document.getElementById('dq-guide-btn');
+  var sent = document.getElementById('dq-guide-sent');
+  if (\!emailInput) return;
+  var email = emailInput.value.trim();
+  if (\!email || email.indexOf('@') === -1) { emailInput.focus(); return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending\u2026'; }
+  // Fire lead capture with DQ flag for the guide
+  var PROXY_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:3001'
+    : 'https://crx-server-hzyh.onrender.com';
+  fetch(PROXY_BASE + '/api/lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, source: 'dq-guide', firstName: '', lastName: '', phone: '', state: '', zip: '00000', dob: '' }),
+  }).then(function() {
+    if (sent) sent.style.display = 'block';
+    if (btn) { btn.textContent = 'Sent\!'; }
+    emailInput.style.display = 'none';
+  }).catch(function() {
+    if (sent) { sent.textContent = 'Something went wrong. Please try again.'; sent.style.display = 'block'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Send Guide'; }
+  });
 }
 
 function hideDisqualify() {
@@ -949,8 +1012,9 @@ function agreeConsent(n) {
   }
 }
 
-function agreeAllConsents() {
-  agreeConsent(1);
-  agreeConsent(2);
-  agreeConsent(3);
+function consentAndContinue() {
+  // Single consolidated consent
+  if (window.CRX && window.CRX.recordAndAdvance) {
+    window.CRX.recordAndAdvance('consent_hrt', 'yes');
+  }
 }
