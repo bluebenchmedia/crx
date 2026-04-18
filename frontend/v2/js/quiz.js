@@ -543,12 +543,11 @@
         else if (phase === phases[1]) items.push('Symptom relief becomes more noticeable day by day');
         else items.push('Full symptom improvement as hormone balance stabilizes');
       }
-      html += '<div class="timeline-phase">';
-      html += '<div class="timeline-dot"></div>';
-      html += '<div class="timeline-content">';
-      html += '<div class="timeline-title">' + phase.title + '</div>';
+      html += '<div class="relief-phase">';
+      html += '<div class="relief-phase-label">' + phase.title + '</div>';
+      html += '<div class="relief-phase-items">';
       items.forEach(function(item) {
-        html += '<div class="timeline-item">' + item + '</div>';
+        html += '<div class="relief-phase-item">' + item + '</div>';
       });
       html += '</div></div>';
     });
