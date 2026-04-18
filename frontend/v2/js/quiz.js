@@ -44,8 +44,8 @@
 (function() {
   'use strict';
 
-  var TOTAL_STEPS = 37;
-  var STEP_ORDER = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37];
+  var TOTAL_STEPS = 38;
+  var STEP_ORDER = [1,2,3,4,5,6,7,8,9,10,11,12,38,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37];
   var currentStep = 1;
   var answers     = {};
   var consentAgreed = 0;
@@ -251,6 +251,12 @@
 
   /* ── Navigation: getNextStep ─────────────────────────────────────────── */
   function getNextStep(from) {
+    // Step 12 = barriers: safety-concerns -> 38 (reassurance), else -> 13
+    if (from === 12) {
+      return (answers['step-12'] === 'safety-concerns') ? 38 : 13;
+    }
+    // Step 38 (safety reassurance) -> 13
+    if (from === 38) return 13;
     // Step 21 = hysterectomy: YES -> 22, NO -> 24
     if (from === 21) {
       return (answers['step-21'] === 'yes') ? 22 : 24;
@@ -277,6 +283,12 @@
 
   /* ── Navigation: getPrevStep ─────────────────────────────────────────── */
   function getPrevStep(from) {
+    // Step 38 -> 12
+    if (from === 38) return 12;
+    // Step 13 -> 38 (if safety-concerns) or 12
+    if (from === 13) {
+      return (answers['step-12'] === 'safety-concerns') ? 38 : 12;
+    }
     // Step 22 -> 21
     if (from === 22) return 21;
     // Step 24 -> depends on hysterectomy path
@@ -672,7 +684,9 @@
     var consentBtn = document.getElementById('step-35-next');
     if (consentBtn) {
       consentBtn.addEventListener('click', function() {
-        if (consentAgreed < CONSENT_REQUIRED) return;
+        // Check DOM for agreed badges instead of stale counter
+        var agreedCount = document.querySelectorAll('.consent-agreed-badge[style*="flex"]').length;
+        if (agreedCount < CONSENT_REQUIRED) return;
         recordAnswer('consent_hrt', 'yes');
         recordAnswer('consent_truthfulness', 'yes');
         advance();
@@ -908,11 +922,11 @@ function hideDisqualify() {
 }
 
 function toggleConsent(n) {
-  var body = document.getElementById('consent-body-' + n);
+  var item = document.getElementById('consent-' + n);
   var toggle = document.getElementById('consent-toggle-' + n);
-  if (body) {
-    var isOpen = body.classList.contains('open');
-    body.classList.toggle('open');
+  if (item) {
+    var isOpen = item.classList.contains('open');
+    item.classList.toggle('open');
     if (toggle) toggle.textContent = isOpen ? '+' : '\u2212';
   }
 }
@@ -923,6 +937,7 @@ function agreeConsent(n) {
   var agreeBtn = item ? item.querySelector('.consent-agree-btn') : null;
   if (badge) badge.style.display = 'flex';
   if (agreeBtn) agreeBtn.style.display = 'none';
+  if (item) { item.classList.add('agreed'); item.classList.remove('open'); }
 
   // Count agreed
   var agreed = document.querySelectorAll('.consent-agreed-badge[style*="flex"]').length;

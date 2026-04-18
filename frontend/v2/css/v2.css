@@ -24,9 +24,8 @@
   border-color: var(--rose);
 }
 
-.options-grid .option-btn.selected::before {
-  content: '\2713 ';
-  font-weight: 700;
+.options-grid .option-btn.selected::after {
+  content: none;
 }
 
 /* ── Symptom Count (animated line below checklist) ──────────────────── */
@@ -148,7 +147,7 @@
 }
 
 .relief-phase-item::before {
-  content: '\2713 ';
+  content: none;
   color: var(--sage);
   font-weight: 700;
   margin-right: 4px;
@@ -260,4 +259,56 @@
   .options-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── Safety Reassurance Cards (Step 38: conditional HRT safety) ────── */
+.safety-reassurance {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.safety-card {
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: var(--cream-dark);
+  border: 1px solid var(--taupe);
+}
+
+.safety-card.safety-card-good {
+  background: var(--sage-light);
+  border-color: var(--sage);
+}
+
+.safety-card-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--charcoal-60);
+  margin-bottom: 6px;
+}
+
+.safety-card.safety-card-good .safety-card-label {
+  color: var(--sage);
+}
+
+.safety-card-body {
+  font-size: 14px;
+  color: var(--charcoal);
+  line-height: 1.6;
+}
+
+.safety-card-body strong {
+  color: var(--sage);
+}
+
+.safety-footnote {
+  font-size: 12px;
+  color: var(--charcoal-60);
+  line-height: 1.5;
+  text-align: center;
+  font-style: italic;
 }

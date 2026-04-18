@@ -219,11 +219,33 @@
       <span class="step-eyebrow">One more thing</span>
       <h2 class="step-question">What&#x2019;s the main thing that&#x2019;s held you back from getting the right treatment?</h2>
       <div class="options-list">
-        <button class="option-btn" data-value="safety-concerns">Concerns about safety or side effects</button>
         <button class="option-btn" data-value="doctor-dismissal">My doctor dismissed my symptoms</button>
         <button class="option-btn" data-value="cost">The cost or hassle of appointments</button>
         <button class="option-btn" data-value="didnt-know">I didn&#x2019;t realize treatment was available like this</button>
+        <button class="option-btn" data-value="safety-concerns">I&#x2019;m concerned about the safety of HRT</button>
         <button class="option-btn" data-value="ready">Nothing &mdash; I&#x2019;m ready now</button>
+      </div>
+    </div>
+
+
+    <!-- STEP 38: CONDITIONAL — HRT Safety Reassurance (shown when step-12 = safety-concerns) -->
+    <div class="quiz-step" id="step-38">
+      <div class="interstitial">
+        <div class="interstitial-icon">&#x1F52C;</div>
+        <p class="interstitial-eyebrow">The truth about HRT safety</p>
+        <h2 class="interstitial-headline">Modern HRT is not what you&#x2019;ve heard.</h2>
+        <div class="safety-reassurance">
+          <div class="safety-card">
+            <div class="safety-card-label">The old study (WHI, 2002)</div>
+            <div class="safety-card-body">Used synthetic hormones (Premarin + Prempro) on women 10&ndash;20 years past menopause &mdash; a population and protocol no one uses today.</div>
+          </div>
+          <div class="safety-card safety-card-good">
+            <div class="safety-card-label">Modern HRT</div>
+            <div class="safety-card-body">Uses bioidentical hormones that are molecularly identical to what your body produces. Started within 10 years of menopause, it&#x2019;s associated with <strong>reduced</strong> cardiovascular risk and better long-term health outcomes.</div>
+          </div>
+          <p class="safety-footnote">Every major medical body &mdash; NAMS, ACOG, and the Endocrine Society &mdash; now recommends HRT as safe and effective when prescribed appropriately.</p>
+        </div>
+        <button class="interstitial-cta" onclick="advanceStep()">Got it &mdash; let&#x2019;s continue &#8594;</button>
       </div>
     </div>
 
