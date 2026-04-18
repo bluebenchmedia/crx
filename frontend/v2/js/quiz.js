@@ -192,6 +192,7 @@
     }
 
     bindOptions();
+    bindGynStep();
     bindNextButtons();
     bindAllergyFlow();
     bindContactNextButtons();
@@ -551,7 +552,6 @@
       });
     }
   }
-  bindGynStep();
 
   /* ── Allergy flow ────────────────────────────────────────────────────── */
   function bindAllergyFlow() {
