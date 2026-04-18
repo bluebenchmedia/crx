@@ -107,6 +107,7 @@ const API_KEY       = process.env.DOSABLE_API_KEY   || '169ded5e60f27843c1e110b3
 const CHECKOUT_BASE = process.env.CHECKOUT_BASE_URL || 'https://buy-hrt.clearedrx.com/checkout';
 const FRONTEND_DIR  = path.join(__dirname, '..', 'frontend');
 const LOG_DIR       = path.join(__dirname, 'logs');
+const GOOGLE_SHEET_WEBHOOK = process.env.GOOGLE_SHEET_WEBHOOK || '';
 try { fs.mkdirSync(LOG_DIR, { recursive: true }); } catch(e) {}
 
 function logSubmission(version, data) {
@@ -127,6 +128,182 @@ function logSubmission(version, data) {
     });
   } catch(e) {
     console.warn('logSubmission error:', e.message);
+  }
+}
+
+
+// ─── Google Sheet Webhook Logger ──────────────────────────────────────────────
+// Fire-and-forget POST to Google Apps Script web app.
+// Logs every quiz submission (complete or DQ) with full answer data.
+function logToSheet(version, { quizAnswers, contactInfo, apiAnswers, sessionId, clickId, affId, c1, checkoutUrl, productName, lastStep, lastStepName, isDq, dqReason, submissionStatus }) {
+  if (!GOOGLE_SHEET_WEBHOOK) return; // silently skip if not configured
+  try {
+    const a = quizAnswers || {};
+    const ci = contactInfo || {};
+
+    // ── Step name map (S1, S1A, etc.) ──
+    const STEP_NAMES = {
+      1: 'S1', 2: 'S2', 3: 'S3', 4: 'S4', 5: 'S5', 6: 'S6', 7: 'S7', 8: 'S8',
+      9: 'S9', 10: 'S10', 11: 'S11', 12: 'S12', 13: 'S13', 14: 'S14', 15: 'S15',
+      16: 'S16', 17: 'S17', 18: 'S18', 19: 'S19', 20: 'S20', 21: 'S21',
+      22: 'S22', 23: 'S23', 24: 'S24', 25: 'S25', 26: 'S26',
+      27: 'S27', 28: 'S28', 29: 'S29', 30: 'S30', 31: 'S31', 32: 'S32',
+      33: 'S33', 34: 'S34', 35: 'S35', 36: 'S36', 37: 'S37',
+      38: 'S12A', 39: 'S21A', 40: 'S24A', 41: 'S24B', 42: 'S24C',
+      43: 'S20A', 44: 'S20B', 45: 'S20C',
+    };
+
+    const safe = (v) => (v === undefined || v === null) ? '' : String(v);
+    const safeApi = (qid) => {
+      if (!apiAnswers || !apiAnswers[qid]) return '';
+      const val = apiAnswers[qid].value;
+      return Array.isArray(val) ? val.join(', ') : String(val);
+    };
+
+    // Compute flags from quiz answers (same logic as frontend/treatments)
+    const hyst = (a['step-21'] === 'yes' || a['step-21'] === 'yes-uterus-removed' || a['step-21'] === 'yes-full-removal');
+    const needsProg = !hyst;
+    const adhesiveFlag = (a['step-18'] === 'yes' || safe(a['allergies']).toLowerCase().indexOf('adhesive') !== -1);
+    const nicotineFlag = (a['step-20'] === 'yes');
+    const step16 = safe(a['step-16']);
+    const bloodClots = step16.indexOf('blood-clots') !== -1;
+    const nicotineOrClot = nicotineFlag || bloodClots;
+    const transdermalSe = (a['transdermal-se'] === 'yes' || a['step-25'] === 'yes');
+    const progIntol = (a['step-23'] === 'yes');
+    const step6 = safe(a['step-6']);
+    const vagSymptoms = (step6.indexOf('vaginal-dryness') !== -1 || step6.indexOf('low-libido') !== -1);
+    const duration = safe(a['step-1']);
+    const doseTier = (duration === '3-plus-years' || duration === 'more-than-5yr') ? 'low' : 'normal';
+
+    const payload = {
+      // -- META --
+      timestamp: new Date().toISOString(),
+      funnel_version: version,
+      session_id: safe(sessionId),
+      click_id: safe(clickId),
+      aff_id: safe(affId),
+      c1: safe(c1),
+      last_step_reached: safe(lastStep),
+      last_step_name: lastStep ? (STEP_NAMES[lastStep] || 'S' + lastStep) : '',
+      is_disqualified: isDq ? 'YES' : 'NO',
+      dq_reason: safe(dqReason),
+      submission_status: safe(submissionStatus || 'complete'),
+
+      // -- CONTACT --
+      first_name: safe(ci.firstName),
+      last_name: safe(ci.lastName),
+      email: safe(ci.email || a.email),
+      phone: safe(ci.phone || a.phone),
+      state: safe(ci.state || a.state),
+      dob: safe(ci.dob || a.dob),
+
+      // -- QUIZ ANSWERS (raw, using step labels) --
+      S1_symptom_duration: safe(a['step-1']),
+      S2_welcome_interstitial: '',
+      S3_age: safe(a['step-3']),
+      S4_menstrual_status: safe(a['step-4']),
+      S5_interstitial_stat: '',
+      S6_symptom_checklist: safe(a['step-6']),
+      S7_interstitial_relief: '',
+      S8_severity: safe(a['step-8']),
+      S9_vaginal_symptoms: safe(a['step-9']),
+      S10_interstitial_testimonial: '',
+      S11_tried_before: safe(a['step-11']),
+      S12_held_back: safe(a['step-12']),
+      S12A_safety_concerns_info: safe(a['step-38']),
+      S13_medical_conditions: safe(a['step-13']),
+      S14_sex_at_birth: safe(a['step-14']),
+      S15_pregnancy_breastfeeding: safe(a['step-15']),
+      S16_disease_history: safe(a['step-16']),
+      S17_medications: safe(a['step-17']),
+      S18_allergies: safe(a['step-18']),
+      S18A_allergy_detail: safe(a['allergies']),
+      S19_blood_pressure: safe(a['step-19']),
+      S20_nicotine: safe(a['step-20']),
+      S20A_endometriosis: safe(a['step-43']),
+      S20B_fibroids: safe(a['step-44']),
+      S20C_pcos: safe(a['step-45']),
+      S21_hysterectomy: safe(a['step-21']),
+      S21A_hysterectomy_reason: safe(a['step-39']),
+      S22_sleep_breast: safe(a['step-22']),
+      S23_prog_intolerance: safe(a['step-23']),
+      S24_hrt_history: safe(a['step-24']),
+      S24A_hrt_type_used: safe(a['step-40']),
+      S24B_hrt_side_effects_yn: safe(a['step-41']),
+      S24C_hrt_side_effects_detail: safe(a['step-42']),
+      S25_transdermal_se: safe(a['step-25'] || a['transdermal-se']),
+      S26_treatment_preference: safe(a['step-26']),
+      S35_consent: safe(a['consent_hrt']),
+
+      // -- DOSABLE API VALUES --
+      Q3200_medical_conditions: safeApi(Q.medical_conditions),
+      Q3201_medications: safeApi(Q.medications),
+      Q3202_allergies: safeApi(Q.allergies),
+      Q3203_sex: safeApi(Q.sex),
+      Q3204_consent_pregnancy: safeApi(Q.consent_pregnancy),
+      Q3205_pregnant: safeApi(Q.pregnant),
+      Q3206_possibility_pregnant: safeApi(Q.possibility_pregnant),
+      Q3207_breastfeeding: safeApi(Q.breastfeeding),
+      Q3208_vaginal_bleeding: safeApi(Q.vaginal_bleeding),
+      Q3209_liver_kidney: safeApi(Q.liver_kidney),
+      Q3210_menopause_symptoms: safeApi(Q.menopause_symptoms),
+      Q3211_symptom_checklist: safeApi(Q.symptom_checklist),
+      Q3212_other_symptoms: safeApi(Q.other_symptoms),
+      Q3213_conditions_1: safeApi(Q.conditions_1),
+      Q3214_conditions_2: safeApi(Q.conditions_2),
+      Q3215_adhesive_allergy: safeApi(Q.adhesive_allergy),
+      Q3216_symptom_duration: safeApi(Q.symptom_duration),
+      Q3217_hrt_history: safeApi(Q.hrt_history),
+      Q3218_hrt_formulation: safeApi(Q.hrt_formulation),
+      Q3219_hrt_side_effects: safeApi(Q.hrt_side_effects),
+      Q3220_hrt_side_effects_detail: safeApi(Q.hrt_side_effects_detail),
+      Q3221_transdermal_se: safeApi(Q.transdermal_side_effects),
+      Q3222_transdermal_reaction: safeApi(Q.transdermal_reaction),
+      Q3223_nicotine_clot: safeApi(Q.nicotine_clot),
+      Q3224_hysterectomy: safeApi(Q.hysterectomy),
+      Q3225_hysterectomy_reason: safeApi(Q.hysterectomy_reason),
+      Q3226_sleep_tenderness: safeApi(Q.sleep_tenderness),
+      Q3227_prog_intolerance: safeApi(Q.prog_intolerance),
+      Q3228_vaginal_symptoms: safeApi(Q.vaginal_symptoms),
+      Q3229_osteoporosis: safeApi(Q.osteoporosis),
+      Q3230_enzyme_meds: safeApi(Q.enzyme_meds),
+      Q3231_blood_pressure: safeApi(Q.blood_pressure),
+      Q3232_consent_fibroid: safeApi(Q.consent_fibroid),
+      Q3233_fibroids: safeApi(Q.fibroids),
+      Q3234_pcos: safeApi(Q.pcos),
+      Q3235_consent_pcos: safeApi(Q.consent_pcos),
+      Q3236_endometriosis: safeApi(Q.endometriosis),
+      Q3237_consent_endometriosis: safeApi(Q.consent_endometriosis),
+      Q3238_consent_screening: safeApi(Q.consent_screening),
+      Q3239_other_info: safeApi(Q.other_info),
+      Q3240_consent_hrt: safeApi(Q.consent_hrt),
+      Q3241_consent_truthfulness: 'I have read the above information and I do consent and wish to move forward',
+      Q3242_formulation_preference: safeApi(Q.formulation_preference),
+
+      // -- ROUTING/FLAGS --
+      selected_product: safe(productName),
+      needs_progesterone: needsProg ? 'YES' : 'NO',
+      adhesive_allergy_flag: adhesiveFlag ? 'YES' : 'NO',
+      nicotine_or_clot_flag: nicotineOrClot ? 'YES' : 'NO',
+      transdermal_se_flag: transdermalSe ? 'YES' : 'NO',
+      prog_intolerance_flag: progIntol ? 'YES' : 'NO',
+      vaginal_symptoms_flag: vagSymptoms ? 'YES' : 'NO',
+      dose_tier: doseTier,
+      checkout_url: safe(checkoutUrl),
+
+      // -- UTM (from quiz answers if frontend passes them) --
+      utm_source: safe(a.utm_source),
+      utm_medium: safe(a.utm_medium),
+      utm_campaign: safe(a.utm_campaign),
+      utm_content: safe(a.utm_content),
+      utm_term: safe(a.utm_term),
+    };
+
+    axios.post(GOOGLE_SHEET_WEBHOOK, payload, { timeout: 10000 })
+      .then(r => console.log('Sheet log OK:', r.data?.status || r.status))
+      .catch(e => console.warn('Sheet log failed (non-blocking):', e.message));
+  } catch(e) {
+    console.warn('logToSheet error:', e.message);
   }
 }
 
@@ -334,7 +511,7 @@ function remapAnswers(a, productSelection) {
   const realHrtSideEff  = a['step-41'] || null;
   const realHrtSEDetail = a['step-42'] || null;
 
-  if (selectedType === 'pill' && \!transdermalSideEffects && \!nicotineOrClot) {
+  if (selectedType === 'pill' && !transdermalSideEffects && !nicotineOrClot) {
     // SOFT ROUTING: inject synthetic transdermal SE to justify oral route
     const [seDetail, seReaction] = _pickSE();
     hrtHistory           = 'Yes, I have taken HRT in the past';
@@ -1357,6 +1534,13 @@ app.post('/api/v1/complete', async (req, res) => {
     state: contactInfo.state || quizAnswers.state || '',
   });
 
+  logToSheet('v1', {
+    quizAnswers, contactInfo, apiAnswers,
+    sessionId: resolvedSessionId, clickId, affId, c1,
+    checkoutUrl: finalCheckoutUrl, productName: productDisplay.name,
+    lastStep: 37, submissionStatus: 'complete',
+  });
+
   return res.json({
     ok: true,
     checkoutUrl: finalCheckoutUrl,
@@ -1697,6 +1881,13 @@ app.post('/api/v2/complete', async (req, res) => {
     product: productDisplay.name,
     checkoutUrl: finalCheckoutUrl,
     state: contactInfo.state || quizAnswers.state || '',
+  });
+
+  logToSheet('v2', {
+    quizAnswers, contactInfo, apiAnswers,
+    sessionId: resolvedSessionId, clickId, affId, c1,
+    checkoutUrl: finalCheckoutUrl, productName: productDisplay.name,
+    lastStep: 37, submissionStatus: 'complete',
   });
 
   return res.json({
