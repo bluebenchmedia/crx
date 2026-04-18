@@ -329,23 +329,36 @@ function remapAnswers(a, productSelection) {
     return _syntheticSEPool[Math.floor(Math.random() * _syntheticSEPool.length)];
   }
 
-  if (selectedType === 'pill' && !transdermalSideEffects && !nicotineOrClot) {
+  // Real HRT answers from conditional quiz steps (40-42)
+  const realHrtUsed     = a['step-40'] || null;
+  const realHrtSideEff  = a['step-41'] || null;
+  const realHrtSEDetail = a['step-42'] || null;
+
+  if (selectedType === 'pill' && \!transdermalSideEffects && \!nicotineOrClot) {
+    // SOFT ROUTING: inject synthetic transdermal SE to justify oral route
     const [seDetail, seReaction] = _pickSE();
     hrtHistory           = 'Yes, I have taken HRT in the past';
-    hrtFormulation       = 'Estradiol patch';
+    hrtFormulation       = realHrtUsed || 'Estradiol patch';
     hrtSideEffects       = 'Yes';
     hrtSideEffectsDetail = seDetail;
     transdermalSE        = 'Yes';
     transdermalReaction  = seReaction;
   } else if (transdermalSideEffects) {
-    // User actually reported transdermal SE — still use realistic language
+    // User reported transdermal SE in step 25
     const [seDetail, seReaction] = _pickSE();
     hrtHistory           = 'Yes, I have taken HRT in the past';
-    hrtFormulation       = 'Estradiol patch';
+    hrtFormulation       = realHrtUsed || 'Estradiol patch';
     hrtSideEffects       = 'Yes';
-    hrtSideEffectsDetail = seDetail;
+    hrtSideEffectsDetail = realHrtSEDetail || seDetail;
     transdermalSE        = 'Yes';
-    transdermalReaction  = seReaction;
+    transdermalReaction  = realHrtSEDetail || seReaction;
+  } else if (realHrtUsed) {
+    // User has real HRT history - pass through actual answers
+    hrtFormulation       = realHrtUsed;
+    hrtSideEffects       = (realHrtSideEff === 'yes') ? 'Yes' : 'No';
+    hrtSideEffectsDetail = (realHrtSideEff === 'yes' && realHrtSEDetail) ? realHrtSEDetail : 'No side effects';
+    transdermalSE        = (a['step-25'] === 'yes') ? 'Yes' : 'No';
+    transdermalReaction  = (a['step-25'] === 'yes' && realHrtSEDetail) ? realHrtSEDetail : null;
   }
 
   // ── Soft routing: Q3242 formulation preference ────────────────────────────
@@ -547,7 +560,7 @@ function remapAnswers(a, productSelection) {
   apiAnswers[Q.hysterectomy]          = { value: hystAnswer,          question: 'Have you had a surgical resection of your uterus (hysterectomy)?' };
 
   if (hystAnswer === 'Yes') {
-    apiAnswers[Q.hysterectomy_reason] = { value: a['step-21-reason'] || 'Medical necessity', question: 'Please provide further information about why you have had a hysterectomy' };
+    apiAnswers[Q.hysterectomy_reason] = { value: a['step-39'] || 'Medical necessity', question: 'Please provide further information about why you have had a hysterectomy' };
   }
 
   if (hystAnswer !== 'Yes') {
@@ -563,10 +576,10 @@ function remapAnswers(a, productSelection) {
   apiAnswers[Q.enzyme_meds]           = { value: enzymeMedsAnswer,   question: 'Are you currently taking any of the following medications?' };
   apiAnswers[Q.blood_pressure]        = { value: bpAnswer,           question: 'What has your blood pressure been over the last six months?' };
   apiAnswers[Q.consent_fibroid]       = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (Fibroid)' };
-  apiAnswers[Q.fibroids]              = { value: 'No',               question: 'Do you have uterine fibroids?' };
-  apiAnswers[Q.pcos]                  = { value: 'No',               question: 'Do you have polycystic ovary syndrome (PCOS)?' };
+  apiAnswers[Q.fibroids]              = { value: (a['step-44'] === 'yes') ? 'Yes' : 'No', question: 'Do you have uterine fibroids?' };
+  apiAnswers[Q.pcos]                  = { value: (a['step-45'] === 'yes') ? 'Yes' : 'No', question: 'Do you have polycystic ovary syndrome (PCOS)?' };
   apiAnswers[Q.consent_pcos]          = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (PCOS)' };
-  apiAnswers[Q.endometriosis]         = { value: 'No',               question: 'Do you have a diagnosis of endometriosis?' };
+  apiAnswers[Q.endometriosis]         = { value: (a['step-43'] === 'yes') ? 'Yes' : 'No', question: 'Do you have a diagnosis of endometriosis?' };
   apiAnswers[Q.consent_endometriosis] = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (endometriosis)' };
   apiAnswers[Q.consent_screening]     = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Acknowledgement of Continued Screening' };
   apiAnswers[Q.other_info]            = { value: 'No additional information', question: 'What other information or questions do you have for the doctor?' };
@@ -1137,7 +1150,7 @@ function remapAnswersV1(a) {
   apiAnswers[Q.hysterectomy] = { value: hystAnswer, question: 'Have you had a surgical resection of your uterus (hysterectomy)?' };
 
   if (hysterectomy) {
-    apiAnswers[Q.hysterectomy_reason] = { value: a['step-21-reason'] || 'Medical necessity', question: 'Please provide further information about why you have had a hysterectomy' };
+    apiAnswers[Q.hysterectomy_reason] = { value: a['step-39'] || 'Medical necessity', question: 'Please provide further information about why you have had a hysterectomy' };
   }
 
   let needsProgesterone;
@@ -1484,7 +1497,7 @@ function remapAnswersV2(a) {
   apiAnswers[Q.hysterectomy] = { value: hystAnswer, question: 'Have you had a surgical resection of your uterus (hysterectomy)?' };
 
   if (hysterectomy) {
-    apiAnswers[Q.hysterectomy_reason] = { value: a['step-21-reason'] || 'Medical necessity', question: 'Please provide further information about why you have had a hysterectomy' };
+    apiAnswers[Q.hysterectomy_reason] = { value: a['step-39'] || 'Medical necessity', question: 'Please provide further information about why you have had a hysterectomy' };
   }
 
   let needsProgesterone;

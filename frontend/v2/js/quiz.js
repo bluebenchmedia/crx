@@ -44,7 +44,7 @@
 (function() {
   'use strict';
 
-  var TOTAL_STEPS = 38;
+  var TOTAL_STEPS = 45;
   var STEP_ORDER = [2,1,3,4,5,6,7,8,9,10,11,12,38,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37];
   var currentStep = 2;
   var answers     = {};
@@ -264,24 +264,43 @@
     }
     // Step 38 (safety reassurance) -> 13
     if (from === 38) return 13;
-    // Step 21 = hysterectomy: YES -> 22, NO -> 24
+
+    // Step 20 (nicotine) -> 43 (endometriosis) — gynecological history block
+    if (from === 20) return 43;
+    // Step 43 (endometriosis) -> 44 (fibroids)
+    if (from === 43) return 44;
+    // Step 44 (fibroids) -> 45 (PCOS)
+    if (from === 44) return 45;
+    // Step 45 (PCOS) -> 21 (hysterectomy)
+    if (from === 45) return 21;
+
+    // Step 21 = hysterectomy: YES -> 39 (hyst reason), NO -> 24 (skip sleep/breast)
     if (from === 21) {
-      return (answers['step-21'] === 'yes') ? 22 : 24;
+      return (answers['step-21'] === 'yes') ? 39 : 24;
     }
+    // Step 39 (hyst reason) -> 22 (sleep/breast)
+    if (from === 39) return 22;
     // Step 22 = sleep/breast: neither -> 24, else -> 23
     if (from === 22) {
       return (answers['step-22'] === 'neither') ? 24 : 23;
     }
     // Step 23 -> 24
     if (from === 23) return 24;
-    // Step 24 = HRT history: never -> skip 25, go to 26
+    // Step 24 = HRT history: never -> skip HRT loop, go to 26
     if (from === 24) {
-      return (answers['step-24'] === 'never') ? 26 : 25;
+      return (answers['step-24'] === 'never') ? 26 : 40;
     }
+    // Step 40 (HRT type used) -> 41 (side effects y/n)
+    if (from === 40) return 41;
+    // Step 41 (HRT side effects y/n): yes -> 42 (detail), no -> 25
+    if (from === 41) {
+      return (answers['step-41'] === 'yes') ? 42 : 25;
+    }
+    // Step 42 (side effects detail) -> 25 (transdermal SE)
+    if (from === 42) return 25;
     // Step 25 -> 26
     if (from === 25) return 26;
     // Step 26 (treatment pref) -> 27 (relief timeline)
-    // BUT for hysterectomy patients who don't need progesterone AND didn't choose compound, skip to 27 anyway
     if (from === 26) return 27;
 
     // Default: next step
@@ -296,8 +315,17 @@
     if (from === 13) {
       return (answers['step-12'] === 'safety-concerns') ? 38 : 12;
     }
-    // Step 22 -> 21
-    if (from === 22) return 21;
+    // Gynecological block back nav
+    if (from === 43) return 20;
+    if (from === 44) return 43;
+    if (from === 45) return 44;
+    if (from === 21) return 45;
+    // Step 39 (hyst reason) <- 21
+    if (from === 39) return 21;
+    // Step 22 <- 39 (if hysterectomy=yes) or 21
+    if (from === 22) {
+      return (answers['step-21'] === 'yes') ? 39 : 21;
+    }
     // Step 24 -> depends on hysterectomy path
     if (from === 24) {
       if (answers['step-21'] === 'yes') {
@@ -307,9 +335,16 @@
       }
       return 21;
     }
+    // HRT conditional loop back nav
+    if (from === 40) return 24;
+    if (from === 41) return 40;
+    if (from === 42) return 41;
+    if (from === 25) {
+      return (answers['step-41'] === 'yes') ? 42 : 41;
+    }
     // Step 26 -> 25 or 24
     if (from === 26) {
-      return (answers['step-24'] !== 'never') ? 25 : 24;
+      return (answers['step-24'] \!== 'never') ? 25 : 24;
     }
     // Default: previous step
     return from - 1;
@@ -924,6 +959,47 @@
     recordAnswer(key, val);
     recordAnswer('consent_truthfulness', 'yes');
     advance();
+  }
+
+  /* ── Chip buttons (for hysterectomy reason step 39) ──────────────── */
+  document.addEventListener('click', function(e) {
+    if (\!e.target.classList.contains('chip-btn')) return;
+    e.target.classList.toggle('selected');
+  });
+
+  /* ── Free-text next buttons ────────────────────────────────────────── */
+  // Step 39: hysterectomy reason (chips + optional textarea)
+  var hyst39Next = document.getElementById('step-39-next');
+  if (hyst39Next) {
+    hyst39Next.addEventListener('click', function() {
+      var chips = document.querySelectorAll('#hyst-chips .chip-btn.selected');
+      var parts = [];
+      for (var i = 0; i < chips.length; i++) parts.push(chips[i].dataset.value);
+      var extra = (document.getElementById('step-39-text') || {}).value || '';
+      if (extra.trim()) parts.push(extra.trim());
+      recordAnswer('step-39', parts.join(', ') || 'Not specified');
+      advance();
+    });
+  }
+
+  // Step 40: HRT type used (textarea)
+  var hrt40Next = document.getElementById('step-40-next');
+  if (hrt40Next) {
+    hrt40Next.addEventListener('click', function() {
+      var val = (document.getElementById('step-40-text') || {}).value || '';
+      recordAnswer('step-40', val.trim() || 'Not specified');
+      advance();
+    });
+  }
+
+  // Step 42: HRT side effects detail (textarea)
+  var se42Next = document.getElementById('step-42-next');
+  if (se42Next) {
+    se42Next.addEventListener('click', function() {
+      var val = (document.getElementById('step-42-text') || {}).value || '';
+      recordAnswer('step-42', val.trim() || 'Not specified');
+      advance();
+    });
   }
 
   window.CRX = {
