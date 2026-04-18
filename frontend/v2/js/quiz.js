@@ -44,8 +44,8 @@
 (function() {
   'use strict';
 
-  var TOTAL_STEPS = 45;
-  var STEP_ORDER = [2,1,3,4,5,6,7,8,9,10,11,12,38,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37];
+  var TOTAL_STEPS = 46;
+  var STEP_ORDER = [2,1,3,4,5,6,7,8,9,10,11,12,38,13,14,15,16,17,18,46,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37];
   var currentStep = 2;
   var answers     = {};
 
@@ -265,6 +265,10 @@
     // Step 38 (safety reassurance) -> 13
     if (from === 38) return 13;
 
+    // Step 18 (allergies) -> 46 (adhesive allergy)
+    if (from === 18) return 46;
+    // Step 46 (adhesive allergy) -> 19 (blood pressure)
+    if (from === 46) return 19;
     // Step 20 (nicotine) -> 43 (endometriosis) — gynecological history block
     if (from === 20) return 43;
     // Step 43 (endometriosis) -> 44 (fibroids)
@@ -315,6 +319,10 @@
     if (from === 13) {
       return (answers['step-12'] === 'safety-concerns') ? 38 : 12;
     }
+    // Step 46 (adhesive allergy) <- 18
+    if (from === 46) return 18;
+    // Step 19 (blood pressure) <- 46
+    if (from === 19) return 46;
     // Gynecological block back nav
     if (from === 43) return 20;
     if (from === 44) return 43;
@@ -422,6 +430,7 @@
             // Record special answers
             if (stepEl.id === 'step-20') recordAnswer('nicotine-use', btn.dataset.value);
             if (stepEl.id === 'step-25') recordAnswer('transdermal-se', btn.dataset.value);
+            if (stepEl.id === 'step-46') recordAnswer('adhesive-allergy', btn.dataset.value);
 
             recordAnswer(stepEl.id, btn.dataset.value);
 

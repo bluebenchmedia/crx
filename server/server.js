@@ -150,7 +150,7 @@ function logToSheet(version, { quizAnswers, contactInfo, apiAnswers, sessionId, 
       27: 'S27', 28: 'S28', 29: 'S29', 30: 'S30', 31: 'S31', 32: 'S32',
       33: 'S33', 34: 'S34', 35: 'S35', 36: 'S36', 37: 'S37',
       38: 'S12A', 39: 'S21A', 40: 'S24A', 41: 'S24B', 42: 'S24C',
-      43: 'S20A', 44: 'S20B', 45: 'S20C',
+      43: 'S20A', 44: 'S20B', 45: 'S20C', 46: 'S18B',
     };
 
     const safe = (v) => (v === undefined || v === null) ? '' : String(v);
@@ -163,7 +163,7 @@ function logToSheet(version, { quizAnswers, contactInfo, apiAnswers, sessionId, 
     // Compute flags from quiz answers (same logic as frontend/treatments)
     const hyst = (a['step-21'] === 'yes' || a['step-21'] === 'yes-uterus-removed' || a['step-21'] === 'yes-full-removal');
     const needsProg = !hyst;
-    const adhesiveFlag = (a['step-18'] === 'yes' || safe(a['allergies']).toLowerCase().indexOf('adhesive') !== -1);
+    const adhesiveFlag = (a['adhesive-allergy'] === 'yes' || a['step-46'] === 'yes' || safe(a['allergies']).toLowerCase().indexOf('adhesive') !== -1);
     const nicotineFlag = (a['step-20'] === 'yes');
     const step16 = safe(a['step-16']);
     const bloodClots = step16.indexOf('blood-clots') !== -1;
@@ -218,6 +218,7 @@ function logToSheet(version, { quizAnswers, contactInfo, apiAnswers, sessionId, 
       S17_medications: safe(a['step-17']),
       S18_allergies: safe(a['step-18']),
       S18A_allergy_detail: safe(a['allergies']),
+      S18B_adhesive_allergy: safe(a['adhesive-allergy'] || a['step-46']),
       S19_blood_pressure: safe(a['step-19']),
       S20_nicotine: safe(a['step-20']),
       S20A_endometriosis: safe(a['step-43']),
@@ -1641,8 +1642,9 @@ function remapAnswersV2(a) {
   if (step16.indexOf('blood-clots') !== -1) conds2Parts.push('I have a known history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?');
   apiAnswers[Q.conditions_2] = { value: conds2Parts.length > 0 ? conds2Parts : ['I do NOT have any of these'], question: 'Do you have any of the following? (DVT/lupus)' };
 
-  // ── Adhesive allergy (V2 doesn't have dedicated question — default No) ────
-  apiAnswers[Q.adhesive_allergy] = { value: 'No', question: 'Do you have an adhesive allergy?' };
+  // ── Adhesive allergy (V2: step-46) ─────────────────────────────────────────
+  const adhesiveAllergyV2 = (a['adhesive-allergy'] === 'yes' || a['step-46'] === 'yes') ? 'Yes' : 'No';
+  apiAnswers[Q.adhesive_allergy] = { value: adhesiveAllergyV2, question: 'Do you have an adhesive allergy?' };
 
   // ── Symptom duration (V2: step-1) ─────────────────────────────────────────
   const symptomDuration = a['step-1'] || '';
