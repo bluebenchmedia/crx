@@ -45,7 +45,7 @@
   'use strict';
 
   var TOTAL_STEPS = 46;
-  var STEP_ORDER = [2,1,3,4,5,6,7,8,9,10,11,12,38,13,14,15,16,17,18,46,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37];
+  var STEP_ORDER = [2,1,3,4,6,7,8,9,10,11,12,38,13,14,15,16,17,18,46,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37];
   var currentStep = 2;
   var answers     = {};
 
@@ -962,6 +962,11 @@
       setTimeout(function() {
         if (loadingContent) loadingContent.style.display = 'none';
         if (loadingSuccess) loadingSuccess.style.display = 'block';
+        var loadingSubEl = document.getElementById('loading-success-sub');
+        var firstName = answers['firstName'] || '';
+        if (loadingSubEl && firstName) {
+          loadingSubEl.textContent = 'Taking you to ' + firstName + '\u2019s personalized treatment\u2026';
+        }
         setTimeout(function() {
           window.location.href = 'treatment-a.html';
         }, 1200);
