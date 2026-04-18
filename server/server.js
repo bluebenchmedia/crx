@@ -107,7 +107,7 @@ const API_KEY       = process.env.DOSABLE_API_KEY   || '169ded5e60f27843c1e110b3
 const CHECKOUT_BASE = process.env.CHECKOUT_BASE_URL || 'https://buy-hrt.clearedrx.com/checkout';
 const FRONTEND_DIR  = path.join(__dirname, '..', 'frontend');
 const LOG_DIR       = path.join(__dirname, 'logs');
-const GOOGLE_SHEET_WEBHOOK = process.env.GOOGLE_SHEET_WEBHOOK || '';
+const GOOGLE_SHEET_WEBHOOK = process.env.GOOGLE_SHEET_WEBHOOK || 'https://script.google.com/macros/s/AKfycbw0UrinlGqhdU6E0Zn9RMbRO1Q0glvqzxnSDSomz3cNryAcWLFyluA2txVKyn3G2r9i3A/exec';
 try { fs.mkdirSync(LOG_DIR, { recursive: true }); } catch(e) {}
 
 function logSubmission(version, data) {
