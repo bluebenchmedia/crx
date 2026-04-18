@@ -225,6 +225,12 @@
     var backBtn = document.getElementById('quizBackBtn');
     if (backBtn) backBtn.style.display = (n <= 1) ? 'none' : '';
 
+    // Remove active from ALL steps first (prevents stale steps on session restore)
+    var allSteps = document.querySelectorAll('.quiz-step.active');
+    for (var i = 0; i < allSteps.length; i++) {
+      allSteps[i].classList.remove('active', 'exit');
+    }
+
     var el = document.getElementById('step-' + n);
     if (!el) return;
 
