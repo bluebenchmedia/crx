@@ -145,6 +145,11 @@
         <button class="option-btn" data-value="dry-skin">Dry skin</button>
         <button class="option-btn" data-value="joint-pain">Joint pain or stiffness</button>
         <button class="option-btn" data-value="aging-skin">Aging skin / wrinkles</button>
+        <button class="option-btn" data-value="other">Other</button>
+      </div>
+      <div id="other-symptom-wrap" class="allergy-text-wrap">
+        <label>What other symptoms are you experiencing?</label>
+        <textarea class="quiz-textarea" id="other-symptom-text" rows="2" placeholder="e.g., Anxiety, dry eyes, brittle nails..." style="font-size:16px"></textarea>
       </div>
       <div class="symptom-count" id="symptom-count"></div>
       <button class="quiz-next-btn" id="step-6-next">Continue &#8594;</button>
@@ -298,6 +303,8 @@
         <button class="option-btn" data-value="heart-disease">Heart disease</button>
         <button class="option-btn" data-value="unexplained-bleeding">Unexplained vaginal bleeding</button>
         <button class="option-btn" data-value="liver-disease">Active liver disease</button>
+        <button class="option-btn" data-value="lupus">Lupus (SLE) with clotting antibodies</button>
+        <button class="option-btn" data-value="clotting-disorder">Inherited blood clotting disorder</button>
         <button class="option-btn" data-value="none">None of the above</button>
       </div>
       <button class="quiz-next-btn" id="step-16-next">Continue &#8594;</button>
@@ -667,6 +674,42 @@
 
   
     <!-- CONDITIONAL STEPS -->
+
+    <!-- STEP 45: Free-text medical conditions (conditional: step-16 != none) -->
+    <div class="quiz-step" id="step-45">
+      <span class="step-eyebrow">Medical history</span>
+      <h2 class="step-question">Please list any other medical conditions you have</h2>
+      <p class="step-sub">Include anything not already mentioned 2014 e.g., thyroid issues, diabetes, anxiety, arthritis.</p>
+      <div class="freetext-wrap">
+        <textarea class="quiz-textarea" id="step-45-text" rows="3" placeholder="e.g., Hypothyroid, ADHD, arthritis..." style="font-size:16px"></textarea>
+      </div>
+      <button class="quiz-next-btn visible" id="step-45-next">Continue 2192</button>
+    </div>
+
+    <!-- STEP 44: Free-text medications (conditional: step-17 != none) -->
+    <div class="quiz-step" id="step-44">
+      <span class="step-eyebrow">Current medications</span>
+      <h2 class="step-question">Please list all your current medications and dosages</h2>
+      <p class="step-sub">Include prescriptions, over-the-counter meds, and supplements.</p>
+      <div class="freetext-wrap">
+        <textarea class="quiz-textarea" id="step-44-text" rows="3" placeholder="e.g., Levothyroxine 50mcg, Vitamin D 2000IU..." style="font-size:16px"></textarea>
+      </div>
+      <button class="quiz-next-btn visible" id="step-44-next">Continue 2192</button>
+    </div>
+
+    <!-- STEP 47: Doctor questions (optional, before consent) -->
+    <div class="quiz-step" id="step-47">
+      <span class="step-eyebrow">Almost done</span>
+      <h2 class="step-question">Any questions or information for your doctor?</h2>
+      <p class="step-sub">This is optional 2014 skip if you don2019t have anything right now.</p>
+      <div class="freetext-wrap">
+        <textarea class="quiz-textarea" id="step-47-text" rows="3" placeholder="e.g., Can I also get testosterone tested? Do you check hormone levels via blood work?" style="font-size:16px"></textarea>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px;">
+        <button class="quiz-next-btn visible" id="step-47-skip" style="background:var(--taupe);color:var(--charcoal);">Skip 2192</button>
+        <button class="quiz-next-btn visible" id="step-47-next">Continue 2192</button>
+      </div>
+    </div>
     <div class="quiz-step" id="step-39">
       <span class="step-eyebrow">Surgical history</span>
       <h2 class="step-question">Can you tell us a bit about why you had your hysterectomy?</h2>

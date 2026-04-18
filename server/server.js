@@ -761,7 +761,9 @@ function remapAnswers(a, productSelection) {
   apiAnswers[Q.endometriosis]         = { value: (a['step-43'] === 'yes') ? 'Yes' : 'No', question: 'Do you have a diagnosis of endometriosis?' };
   apiAnswers[Q.consent_endometriosis] = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (endometriosis)' };
   apiAnswers[Q.consent_screening]     = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Acknowledgement of Continued Screening' };
-  apiAnswers[Q.other_info]            = { value: 'No additional information', question: 'What other information or questions do you have for the doctor?' };
+  // Doctor questions (step 47 free text)
+  const doctorQuestions = a['step-47'] || 'No additional information';
+  apiAnswers[Q.other_info] = { value: doctorQuestions, question: 'What other information or questions do you have for the doctor?' };
   apiAnswers[Q.consent_hrt]           = { value: 'I have read the above information, I understand the risks, and I would like to proceed.', question: 'Consent (Hormone Replacement Therapy (HRT))' };
 
   // Q3242 — SOFT ROUTING KEY: always sent regardless of hysterectomy status.
@@ -1272,7 +1274,9 @@ function remapAnswersV1(a) {
   const symptoms = (typeof step6 === 'string') ? step6.split(',') : (Array.isArray(step6) ? step6 : []);
   const uniqueSymptoms = [...new Set(symptoms.map(s => symptomMap[s.trim()]).filter(Boolean))];
   apiAnswers[Q.symptom_checklist] = { value: uniqueSymptoms.length > 0 ? uniqueSymptoms : ['Hot flashes'], question: 'Tell us more about the symptoms that you experience?' };
-  apiAnswers[Q.other_symptoms]    = { value: 'None', question: 'Tell us more about your other symptom(s)' };
+  // Other symptoms free text (from step 6 'Other' option)
+  const otherSymptomsText = a['other-symptoms-text'] || '';
+  apiAnswers[Q.other_symptoms] = { value: otherSymptomsText || 'None', question: 'Tell us more about your other symptom(s)' };
 
   // ── Conditions groups ─────────────────────────────────────────────────────
   const conds1Parts = [];
@@ -1415,12 +1419,14 @@ function remapAnswersV1(a) {
   apiAnswers[Q.pcos]                  = { value: hasPcos ? 'Yes' : 'No', question: 'Do you have polycystic ovary syndrome (PCOS)?' };
   apiAnswers[Q.consent_pcos]          = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (PCOS)' };
   apiAnswers[Q.consent_screening]     = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Acknowledgement of Continued Screening' };
-  apiAnswers[Q.other_info]            = { value: 'No additional information', question: 'What other information or questions do you have for the doctor?' };
+  // Doctor questions (step 47 free text)
+  const doctorQuestions = a['step-47'] || 'No additional information';
+  apiAnswers[Q.other_info] = { value: doctorQuestions, question: 'What other information or questions do you have for the doctor?' };
   apiAnswers[Q.consent_hrt]           = { value: 'I have read the above information, I understand the risks, and I would like to proceed.', question: 'Consent (Hormone Replacement Therapy (HRT))' };
 
   // ── Q3242 Formulation preference (from user's actual choice) ──────────────
   const step26 = a['step-26'] || 'standard';
-  const formulationPref = (step26 === 'compound')
+  const formulationPref = (step26 === 'compounded' || step26 === 'compound')
     ? 'Compounded estrogen/progesterone cream (combined formulation)'
     : 'FDA-approved estrogen and progesterone products (standard of care)';
   apiAnswers[Q.formulation_preference] = { value: formulationPref, question: 'Standard of care menopause treatment... which option would you prefer?' };
@@ -1580,7 +1586,11 @@ function remapAnswersV2(a) {
   const step16 = a['step-16'] || '';
   if (step16.indexOf('gallbladder') !== -1)  conditions.push('Gallbladder issues');
   if (step16.indexOf('osteoporosis') !== -1) conditions.push('Osteoporosis');
-  apiAnswers[Q.medical_conditions] = { value: conditions.join(', ') || 'None', question: 'List all medical conditions' };
+  // Append free-text conditions from step 45
+  const condFreeText = a['step-45'] || '';
+  if (condFreeText) conditions.push(condFreeText);
+  const conditionsStr = conditions.join(', ') || 'None';
+  apiAnswers[Q.medical_conditions] = { value: conditionsStr, question: 'List all medical conditions' };
 
   // ── Medications ───────────────────────────────────────────────────────────
   const meds = [];
@@ -1589,7 +1599,11 @@ function remapAnswersV2(a) {
   if (step17.indexOf('antidepressants') !== -1)    meds.push('Antidepressants');
   if (step17.indexOf('thyroid-meds') !== -1)       meds.push('Thyroid medication');
   if (step17.indexOf('blood-pressure-meds') !== -1) meds.push('Blood pressure medication');
-  apiAnswers[Q.medications] = { value: meds.join(', ') || 'None', question: 'List all current medications' };
+  // Append free-text medications from step 44
+  const medsFreeText = a['step-44'] || '';
+  if (medsFreeText) meds.push(medsFreeText);
+  const medsStr = meds.join(', ') || 'None';
+  apiAnswers[Q.medications] = { value: medsStr, question: 'List all current medications' };
 
   // ── Allergies ─────────────────────────────────────────────────────────────
   const allergyText = a['allergies'] || 'None';
@@ -1635,7 +1649,9 @@ function remapAnswersV2(a) {
   const symptoms = (typeof step6 === 'string') ? step6.split(',') : (Array.isArray(step6) ? step6 : []);
   const uniqueSymptoms = [...new Set(symptoms.map(s => symptomMap[s.trim()]).filter(Boolean))];
   apiAnswers[Q.symptom_checklist] = { value: uniqueSymptoms.length > 0 ? uniqueSymptoms : ['Hot flashes'], question: 'Tell us more about the symptoms that you experience?' };
-  apiAnswers[Q.other_symptoms]    = { value: 'None', question: 'Tell us more about your other symptom(s)' };
+  // Other symptoms free text (from step 6 'Other' option)
+  const otherSymptomsText = a['other-symptoms-text'] || '';
+  apiAnswers[Q.other_symptoms] = { value: otherSymptomsText || 'None', question: 'Tell us more about your other symptom(s)' };
 
   // ── Conditions groups ─────────────────────────────────────────────────────
   const conds1Parts = [];
@@ -1648,6 +1664,8 @@ function remapAnswersV2(a) {
 
   const conds2Parts = [];
   if (step16.indexOf('blood-clots') !== -1) conds2Parts.push('I have a known history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?');
+  if (step16.indexOf('lupus') !== -1) conds2Parts.push('I have Systemic Lupus Erythematous WITH antibodies that increase my risk of clotting');
+  if (step16.indexOf('clotting-disorder') !== -1) conds2Parts.push('I have an Inherited Blood Clotting Disorder');
   apiAnswers[Q.conditions_2] = { value: conds2Parts.length > 0 ? conds2Parts : ['I do NOT have any of these'], question: 'Do you have any of the following? (DVT/lupus)' };
 
   // ── Adhesive allergy (V2: step-46) ─────────────────────────────────────────
@@ -1668,12 +1686,26 @@ function remapAnswersV2(a) {
   apiAnswers[Q.hrt_history] = { value: hrtHistoryValue, question: 'Are you currently or have you ever been on hormone replacement therapy (HRT)?' };
 
   if (everUsedHRT) {
-    apiAnswers[Q.hrt_formulation]         = { value: 'Other', question: 'What HRT formulation are you on or have you tried?' };
-    const transdermalSE = (a['transdermal-se'] === 'yes');
-    apiAnswers[Q.hrt_side_effects]        = { value: transdermalSE ? 'Yes' : 'No', question: 'Have you ever experienced side effects from your HRT?' };
-    apiAnswers[Q.hrt_side_effects_detail] = { value: transdermalSE ? 'Skin irritation from transdermal product' : 'No side effects', question: 'Please tell us which product you had side effects to' };
-    apiAnswers[Q.transdermal_side_effects]= { value: transdermalSE ? 'Yes' : 'No', question: 'Have you ever had side effects to TRANSDERMAL estrogen products?' };
-    apiAnswers[Q.transdermal_reaction]    = { value: transdermalSE ? 'Skin irritation' : 'No reaction', question: 'Please tell us about your reaction to TRANSDERMAL estrogen products' };
+    // HRT product used (step 40 free text)
+    const hrtProductUsed = a['step-40'] || 'Not specified';
+    apiAnswers[Q.hrt_formulation] = { value: hrtProductUsed, question: 'What HRT formulation are you on or have you tried?' };
+
+    // HRT side effects (step 41 yes/no, step 42 free text detail)
+    const hadSideEffects = (a['step-41'] === 'yes');
+    const sideEffectsDetail = a['step-42'] || '';
+    apiAnswers[Q.hrt_side_effects] = { value: hadSideEffects ? 'Yes' : 'No', question: 'Have you ever experienced side effects from your HRT?' };
+    if (hadSideEffects && sideEffectsDetail) {
+      apiAnswers[Q.hrt_side_effects_detail] = { value: sideEffectsDetail, question: 'Please tell us which product you had side effects to and what symptoms' };
+    }
+
+    // Transdermal side effects (step 25)
+    const transdermalSE = (a['transdermal-se'] === 'yes' || a['step-25'] === 'yes');
+    apiAnswers[Q.transdermal_side_effects] = { value: transdermalSE ? 'Yes' : 'No', question: 'Have you ever had side effects to TRANSDERMAL gel, spray, or cream estrogen products?' };
+    if (transdermalSE) {
+      // Use side effects detail if it mentions transdermal, otherwise generic
+      const transReaction = (hadSideEffects && sideEffectsDetail) ? sideEffectsDetail : 'Skin irritation from transdermal product';
+      apiAnswers[Q.transdermal_reaction] = { value: transReaction, question: 'Please tell us about your reaction to TRANSDERMAL estrogen products' };
+    }
   }
 
   // ── Nicotine / clot (HONEST — sacred) ─────────────────────────────────────
@@ -1750,6 +1782,13 @@ function remapAnswersV2(a) {
 
   // Blood pressure (V2: step-19)
   const bpMap = {
+    // V2 step-19 values
+    'normal':             'My blood pressure has always been normal',
+    'elevated':           '90-139/50-89',
+    'managed':            '140-159/90-99',
+    'high-160-plus':      '160/100 or above',
+    'not-sure':           "I don't know my blood pressure",
+    // V1 fallbacks (for session restore compatibility)
     'normal-always':      'My blood pressure has always been normal',
     'normal-90-139':      '90-139/50-89',
     'elevated-controlled':'140-159/90-99',
@@ -1773,12 +1812,14 @@ function remapAnswersV2(a) {
   apiAnswers[Q.pcos]                  = { value: hasPcos ? 'Yes' : 'No', question: 'Do you have polycystic ovary syndrome (PCOS)?' };
   apiAnswers[Q.consent_pcos]          = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (PCOS)' };
   apiAnswers[Q.consent_screening]     = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Acknowledgement of Continued Screening' };
-  apiAnswers[Q.other_info]            = { value: 'No additional information', question: 'What other information or questions do you have for the doctor?' };
+  // Doctor questions (step 47 free text)
+  const doctorQuestions = a['step-47'] || 'No additional information';
+  apiAnswers[Q.other_info] = { value: doctorQuestions, question: 'What other information or questions do you have for the doctor?' };
   apiAnswers[Q.consent_hrt]           = { value: 'I have read the above information, I understand the risks, and I would like to proceed.', question: 'Consent (Hormone Replacement Therapy (HRT))' };
 
   // ── Q3242 Formulation preference (from user's actual choice) ──────────────
   const step26 = a['step-26'] || 'standard';
-  const formulationPref = (step26 === 'compound')
+  const formulationPref = (step26 === 'compounded' || step26 === 'compound')
     ? 'Compounded estrogen/progesterone cream (combined formulation)'
     : 'FDA-approved estrogen and progesterone products (standard of care)';
   apiAnswers[Q.formulation_preference] = { value: formulationPref, question: 'Standard of care menopause treatment... which option would you prefer?' };

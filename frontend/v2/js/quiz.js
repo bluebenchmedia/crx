@@ -44,8 +44,8 @@
 (function() {
   'use strict';
 
-  var TOTAL_STEPS = 46;
-  var STEP_ORDER = [2,1,3,4,6,7,8,9,10,11,12,38,13,14,15,16,17,18,46,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37];
+  var TOTAL_STEPS = 47;
+  var STEP_ORDER = [2,1,3,4,6,7,8,9,10,11,12,38,13,14,15,16,45,17,44,18,46,19,20,43,21,39,22,23,24,40,41,42,25,26,27,28,29,30,31,32,33,34,47,35,36,37];
   var currentStep = 2;
   var answers     = {};
 
@@ -152,6 +152,8 @@
     'pregnant':              { headline: 'HRT is not appropriate during pregnancy.', body: 'Hormone replacement therapy is not safe during pregnancy. Please speak with your OB-GYN for appropriate prenatal care and support.' },
     'breastfeeding':         { headline: 'HRT is not appropriate while breastfeeding.', body: 'Hormone replacement therapy is not recommended while breastfeeding. Please speak with your OB-GYN once you have finished breastfeeding.' },
     'male':                  { headline: 'This program is designed for women.', body: "ClearedRx\u2019s HRT program is specifically designed for women experiencing menopause or perimenopause. If you were looking for a different type of hormone therapy, please visit our main site." },
+    'lupus':                  { headline: 'Your safety comes first.', body: 'Lupus with clotting antibodies significantly increases the risk of blood clots with HRT. Our physicians cannot safely prescribe hormone therapy remotely in this case. Please speak with your rheumatologist or primary care physician.' },
+    'clotting-disorder':       { headline: 'Your safety comes first.', body: 'An inherited blood clotting disorder means HRT carries significant risks that require in-person specialist management. Please speak with a hematologist or your primary care physician.' },
     'high-160-plus':         { headline: 'Your blood pressure needs attention first.', body: 'A blood pressure reading of 160+ systolic means HRT is not safe to prescribe remotely. Please see your primary care physician to get your blood pressure managed before starting hormone therapy.' },
   };
 
@@ -159,7 +161,7 @@
     'step-14': ['male'],
     'step-15': ['pregnant','breastfeeding'],
     'step-16': ['active-breast-cancer','family-cancer','blood-clots','stroke-tia',
-                'heart-disease','unexplained-bleeding','liver-disease'],
+                'heart-disease','unexplained-bleeding','liver-disease','lupus','clotting-disorder'],
     'step-17': ['carbamazepine','phenytoin','rifampin','st-johns-wort',
                 'topiramate','lamotrigine','barbiturates'],
     'step-19': ['high-160-plus'],
@@ -271,6 +273,20 @@
     // Step 38 (safety reassurance) -> 13
     if (from === 38) return 13;
 
+    // Step 16 (conditions) -> 45 (free-text conditions) or 17 (meds)
+    if (from === 16) {
+      var conds = answers['step-16'] || 'none';
+      return (conds !== 'none') ? 45 : 17;
+    }
+    // Step 45 (conditions free text) -> 17
+    if (from === 45) return 17;
+    // Step 17 (meds) -> 44 (free-text meds) or 18 (allergies)
+    if (from === 17) {
+      var meds = answers['step-17'] || 'not-on-any-medications';
+      return (meds !== 'not-on-any-medications') ? 44 : 18;
+    }
+    // Step 44 (meds free text) -> 18
+    if (from === 44) return 18;
     // Step 18 (allergies) -> 46 (adhesive allergy)
     if (from === 18) return 46;
     // Step 46 (adhesive allergy) -> 19 (blood pressure)
@@ -308,6 +324,10 @@
     if (from === 25) return 26;
     // Step 26 (treatment pref) -> 27 (relief timeline)
     if (from === 26) return 27;
+    // Step 34 (phone) -> 47 (doctor questions)
+    if (from === 34) return 47;
+    // Step 47 (doctor questions) -> 35 (consent)
+    if (from === 47) return 35;
 
     // Default: next step
     return from + 1;
@@ -324,6 +344,20 @@
     // Step 13 -> 38 (if safety-concerns) or 12
     if (from === 13) {
       return (answers['step-12'] === 'safety-concerns') ? 38 : 12;
+    }
+    // Step 45 (conditions free text) <- 16
+    if (from === 45) return 16;
+    // Step 17 <- 45 or 16
+    if (from === 17) {
+      var conds = answers['step-16'] || 'none';
+      return (conds !== 'none') ? 45 : 16;
+    }
+    // Step 44 (meds free text) <- 17
+    if (from === 44) return 17;
+    // Step 18 <- 44 or 17
+    if (from === 18) {
+      var meds = answers['step-17'] || 'not-on-any-medications';
+      return (meds !== 'not-on-any-medications') ? 44 : 17;
     }
     // Step 46 (adhesive allergy) <- 18
     if (from === 46) return 18;
@@ -347,6 +381,10 @@
       }
       return 21;
     }
+    // Step 47 (doctor questions) <- 34
+    if (from === 47) return 34;
+    // Step 35 <- 47
+    if (from === 35) return 47;
     // HRT conditional loop back nav
     if (from === 40) return 24;
     if (from === 41) return 40;
@@ -484,6 +522,13 @@
           }
         }
         recordAnswer(stepEl.id, vals.join(','));
+        // Capture "Other" symptom free text for step-6
+        if (stepEl.id === 'step-6') {
+          var otherText = document.getElementById('other-symptom-text');
+          if (otherText && otherText.value.trim()) {
+            answers['other-symptoms-text'] = otherText.value.trim();
+          }
+        }
         advance();
       });
     });
@@ -1144,6 +1189,43 @@
     se42Next.addEventListener('click', function() {
       var val = (document.getElementById('step-42-text') || {}).value || '';
       recordAnswer('step-42', val.trim() || 'Not specified');
+      advance();
+    });
+  }
+
+  // Step 44: free-text medications
+  var med44Next = document.getElementById('step-44-next');
+  if (med44Next) {
+    med44Next.addEventListener('click', function() {
+      var val = (document.getElementById('step-44-text') || {}).value || '';
+      recordAnswer('step-44', val.trim() || 'None specified');
+      advance();
+    });
+  }
+
+  // Step 45: free-text medical conditions  
+  var cond45Next = document.getElementById('step-45-next');
+  if (cond45Next) {
+    cond45Next.addEventListener('click', function() {
+      var val = (document.getElementById('step-45-text') || {}).value || '';
+      recordAnswer('step-45', val.trim() || 'None specified');
+      advance();
+    });
+  }
+
+  // Step 47: doctor questions (with skip button)
+  var doc47Next = document.getElementById('step-47-next');
+  var doc47Skip = document.getElementById('step-47-skip');
+  if (doc47Next) {
+    doc47Next.addEventListener('click', function() {
+      var val = (document.getElementById('step-47-text') || {}).value || '';
+      recordAnswer('step-47', val.trim() || 'No additional information');
+      advance();
+    });
+  }
+  if (doc47Skip) {
+    doc47Skip.addEventListener('click', function() {
+      recordAnswer('step-47', 'No additional information');
       advance();
     });
   }
