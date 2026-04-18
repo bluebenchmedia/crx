@@ -244,6 +244,7 @@
     // Populate dynamic interstitials before showing
     if (n === 7) populateSymptomInterstitial();
     if (n === 27) populateReliefTimeline();
+    if (n === 26) populateStep26();
     if (n === 36) populateGreatCandidate();
 
     el.classList.add('active');
@@ -730,7 +731,70 @@
     }
   }
 
-  /* ── Contact field next buttons ──────────────────────────────────────── */
+  /* ── Step 26 dynamic recommendation (compound vs estrogen-only) ────── */
+  function populateStep26() {
+    var headEl = document.getElementById('step-26-headline');
+    var subEl  = document.getElementById('step-26-sub');
+    var cardCompound = document.getElementById('step-26-card-compound');
+    var cardFda      = document.getElementById('step-26-card-fda');
+    if (!headEl || !subEl || !cardCompound || !cardFda) return;
+
+    // Replicate the exact needsProgesterone logic from buildPayload
+    var hystAnswer = answers['step-21'] || 'no';
+    var hysterectomy = (hystAnswer !== 'no');
+    var needsProg = true;
+    if (hysterectomy) {
+      var sleepAns = answers['step-22'] || '';
+      var hasSleepTenderness = (sleepAns === 'sleep-issues' || sleepAns === 'breast-tenderness' || sleepAns === 'both');
+      if (!hasSleepTenderness) {
+        needsProg = false;
+      } else if (answers['step-23'] === 'yes') {
+        needsProg = false;
+      }
+    }
+
+    if (needsProg) {
+      // Default: recommend compound cream (E+P)
+      headEl.textContent = 'Based on your profile, we recommend our custom compound cream';
+      subEl.textContent  = 'You can also choose standard FDA-approved options if you prefer.';
+
+      cardCompound.style.display = '';
+      cardCompound.className = 'pref-card recommended';
+      cardCompound.querySelector('.pref-card-badge').style.display = '';
+      cardCompound.querySelector('.pref-card-title').textContent = 'Custom Compound Cream';
+      cardCompound.querySelector('.pref-card-body').textContent  = 'Estrogen + progesterone in one daily application. Compounded specifically for you by a licensed pharmacy.';
+
+      cardFda.className = 'pref-card';
+      cardFda.querySelector('.pref-card-title').textContent = 'Standard FDA-Approved Options';
+      cardFda.querySelector('.pref-card-body').textContent  = 'Patches, gels, or pills. Established, widely prescribed treatments.';
+      // Remove badge if it was added from the other path
+      var fdaBadge = cardFda.querySelector('.pref-card-badge');
+      if (fdaBadge) fdaBadge.style.display = 'none';
+    } else {
+      // No progesterone: recommend standard estrogen-only
+      headEl.textContent = 'Based on your profile, we recommend a standard estrogen treatment';
+      subEl.textContent  = 'Since you don’t need progesterone, FDA-approved estrogen therapy is the ideal choice.';
+
+      // Swap: FDA card becomes recommended (shown first visually)
+      cardFda.className = 'pref-card recommended';
+      // Ensure badge exists on FDA card
+      var fdaBadge = cardFda.querySelector('.pref-card-badge');
+      if (!fdaBadge) {
+        fdaBadge = document.createElement('div');
+        fdaBadge.className = 'pref-card-badge';
+        cardFda.insertBefore(fdaBadge, cardFda.firstChild);
+      }
+      fdaBadge.textContent = 'Recommended';
+      fdaBadge.style.display = '';
+      cardFda.querySelector('.pref-card-title').textContent = 'Standard Estrogen Therapy';
+      cardFda.querySelector('.pref-card-body').textContent  = 'Patches, gels, or pills. FDA-approved, widely prescribed estrogen-only treatments tailored to your needs.';
+
+      // Hide compound cream card entirely — it contains progesterone they don’t need
+      cardCompound.style.display = 'none';
+    }
+  }
+
+    /* ── Contact field next buttons ──────────────────────────────────────── */
   function bindContactNextButtons() {
     // State
     var stateBtn = document.getElementById('step-30-next-state');
