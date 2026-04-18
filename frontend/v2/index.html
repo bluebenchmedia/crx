@@ -1,0 +1,664 @@
+<\!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Your Treatment | ClearedRx</title>
+  <meta name="description" content="Take our 3-minute assessment to find the right HRT treatment for your menopause symptoms.">
+  <link rel="icon" href="../images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/quiz.css">
+  <link rel="stylesheet" href="css/v2.css">
+
+  <\!-- Meta Pixel Code -->
+  <script>
+  \!function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(\!f._fbq)f._fbq=n;n.push=n;n.loaded=\!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=\!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '3455971567888613');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=3455971567888613&ev=PageView&noscript=1"
+  /></noscript>
+
+  <\!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16906106213"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-16906106213');
+  </script>
+</head>
+<body>
+
+  <nav class="quiz-nav">
+    <a href="https://clearedrx.com" class="quiz-nav-logo">Cleared<span>Rx</span></a>
+  </nav>
+
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-track">
+      <div class="quiz-progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <button class="quiz-back-btn" id="quizBackBtn" aria-label="Go back">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back
+  </button>
+
+  <div class="quiz-container">
+
+    <\!-- ═══════════════════════════════════════════════════════════
+         STAGE 1 — SELF-LABEL (Steps 1-5)
+    ═══════════════════════════════════════════════════════════ -->
+
+    <\!-- STEP 1: Duration -->
+    <div class="quiz-step active" id="step-1">
+      <span class="step-eyebrow">Let&#x2019;s start here</span>
+      <h2 class="step-question">How long have you been dealing with menopause symptoms?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="less-than-6mo">Less than 6 months</button>
+        <button class="option-btn" data-value="6mo-to-2yr">6 months to 2 years</button>
+        <button class="option-btn" data-value="2-to-5yr">2&#x2013;5 years</button>
+        <button class="option-btn" data-value="more-than-5yr">More than 5 years</button>
+        <button class="option-btn" data-value="not-sure">I&#x2019;m not sure, but something feels off</button>
+      </div>
+    </div>
+
+    <\!-- STEP 2: INTERSTITIAL — Normalization -->
+    <div class="quiz-step" id="step-2">
+      <div class="interstitial">
+        <div class="interstitial-icon">&#x1F6E1;&#xFE0F;</div>
+        <p class="interstitial-eyebrow">You&#x2019;re not alone in this</p>
+        <h2 class="interstitial-headline">Over 85% of women experience symptoms during menopause &mdash; but fewer than 25% receive treatment.</h2>
+        <p class="interstitial-body">The symptoms you&#x2019;re dealing with are caused by declining hormone levels. They&#x2019;re medical, not something you should just &#x201C;push through.&#x201D; This assessment takes about 3 minutes.</p>
+        <button class="interstitial-cta" onclick="advanceStep()">Let&#x2019;s find your solution &#8594;</button>
+      </div>
+    </div>
+
+    <\!-- STEP 3: Age -->
+    <div class="quiz-step" id="step-3">
+      <span class="step-eyebrow">About you</span>
+      <h2 class="step-question">What is your age?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="35-44">35&#x2013;44</button>
+        <button class="option-btn" data-value="45-54">45&#x2013;54</button>
+        <button class="option-btn" data-value="55-64">55&#x2013;64</button>
+        <button class="option-btn" data-value="65-plus">65+</button>
+      </div>
+    </div>
+
+    <\!-- STEP 4: Menstrual Status -->
+    <div class="quiz-step" id="step-4">
+      <span class="step-eyebrow">About your cycle</span>
+      <h2 class="step-question">How would you describe your periods right now?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="regular">Still regular</button>
+        <button class="option-btn" data-value="irregular">Becoming irregular or unpredictable</button>
+        <button class="option-btn" data-value="stopped-recent">Stopped within the last 12 months</button>
+        <button class="option-btn" data-value="stopped-12plus">Stopped more than 12 months ago</button>
+        <button class="option-btn" data-value="hysterectomy">I&#x2019;ve had a hysterectomy</button>
+      </div>
+    </div>
+
+    <\!-- STEP 5: INTERSTITIAL — Educational #1 -->
+    <div class="quiz-step" id="step-5">
+      <div class="interstitial">
+        <div class="interstitial-icon">&#x1F9EC;</div>
+        <p class="interstitial-eyebrow">The science</p>
+        <h2 class="interstitial-headline">Your body produces over 50 hormones &mdash; and estrogen affects nearly all of them.</h2>
+        <p class="interstitial-body">When estrogen declines, it doesn&#x2019;t just cause hot flashes. It affects your brain, bones, skin, hair, metabolism, mood, sleep, and cardiovascular system. That&#x2019;s why symptoms feel like they&#x2019;re everywhere &mdash; because hormonally, they are.</p>
+        <button class="interstitial-cta" onclick="advanceStep()">Tell me more &#8594;</button>
+      </div>
+    </div>
+
+    <\!-- ═══════════════════════════════════════════════════════════
+         STAGE 2 — PAIN DEEPENING (Steps 6-12)
+    ═══════════════════════════════════════════════════════════ -->
+
+    <\!-- STEP 6: Symptom Checklist (multi-select, 2-col grid) -->
+    <div class="quiz-step" id="step-6">
+      <span class="step-eyebrow">Your symptoms</span>
+      <h2 class="step-question">Which of these are you currently experiencing?</h2>
+      <p class="step-sub">Select everything that applies &mdash; even things you weren&#x2019;t sure were related.</p>
+      <div class="options-grid multi" id="symptoms-list">
+        <button class="option-btn" data-value="hot-flashes">Hot flashes</button>
+        <button class="option-btn" data-value="night-sweats">Night sweats</button>
+        <button class="option-btn" data-value="sleep-problems">Sleep problems</button>
+        <button class="option-btn" data-value="mood-swings">Mood swings</button>
+        <button class="option-btn" data-value="anxiety-depression">Anxiety or depression</button>
+        <button class="option-btn" data-value="brain-fog">Brain fog</button>
+        <button class="option-btn" data-value="fatigue">Low energy / fatigue</button>
+        <button class="option-btn" data-value="low-libido">Low libido</button>
+        <button class="option-btn" data-value="vaginal-dryness">Vaginal dryness</button>
+        <button class="option-btn" data-value="weight-gain">Weight gain</button>
+        <button class="option-btn" data-value="thinning-hair">Thinning hair</button>
+        <button class="option-btn" data-value="dry-skin">Dry skin</button>
+        <button class="option-btn" data-value="joint-pain">Joint pain or stiffness</button>
+        <button class="option-btn" data-value="aging-skin">Aging skin / wrinkles</button>
+      </div>
+      <div class="symptom-count" id="symptom-count"></div>
+      <button class="quiz-next-btn" id="step-6-next">Continue &#8594;</button>
+    </div>
+
+    <\!-- STEP 7: INTERSTITIAL — Personalized Symptom Acknowledgment -->
+    <div class="quiz-step" id="step-7">
+      <div class="interstitial">
+        <p class="interstitial-eyebrow">Your hormones, your symptoms</p>
+        <h2 class="interstitial-headline" id="symptom-interstitial-headline"></h2>
+        <div class="interstitial-body" id="symptom-interstitial-body"></div>
+        <button class="interstitial-cta" onclick="advanceStep()">Continue &#8594;</button>
+      </div>
+    </div>
+
+    <\!-- STEP 8: Severity -->
+    <div class="quiz-step" id="step-8">
+      <span class="step-eyebrow">Impact on your life</span>
+      <h2 class="step-question">Overall, how much are these symptoms affecting your daily life?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="mild">Mildly &mdash; I notice them but manage</button>
+        <button class="option-btn" data-value="moderate">Moderately &mdash; they&#x2019;re getting harder to ignore</button>
+        <button class="option-btn" data-value="significant">Significantly &mdash; they&#x2019;re interfering with my routines</button>
+        <button class="option-btn" data-value="severe">Severely &mdash; I feel like I&#x2019;ve lost myself</button>
+      </div>
+    </div>
+
+    <\!-- STEP 9: Vaginal & Urinary (multi-select) -->
+    <div class="quiz-step" id="step-9">
+      <span class="step-eyebrow">Vaginal &amp; urinary health</span>
+      <h2 class="step-question">Do you experience any of the following?</h2>
+      <p class="step-sub">These symptoms respond especially well to targeted treatment.</p>
+      <div class="options-list multi">
+        <button class="option-btn" data-value="painful-intercourse">Painful intercourse</button>
+        <button class="option-btn" data-value="vaginal-dryness">Vaginal dryness</button>
+        <button class="option-btn" data-value="vaginal-irritation">Vaginal irritation or burning</button>
+        <button class="option-btn" data-value="urinary-urgency">Urinary urgency or frequency</button>
+        <button class="option-btn" data-value="recurrent-utis">Recurrent UTIs</button>
+        <button class="option-btn" data-value="none">None of the above</button>
+      </div>
+      <button class="quiz-next-btn" id="step-9-next">Continue &#8594;</button>
+    </div>
+
+    <\!-- STEP 10: INTERSTITIAL — Educational #2 -->
+    <div class="quiz-step" id="step-10">
+      <div class="interstitial">
+        <div class="interstitial-icon">&#11088;</div>
+        <p class="interstitial-eyebrow">What the research says</p>
+        <h2 class="interstitial-headline">HRT is the #1 physician-recommended treatment for menopause symptoms.</h2>
+        <p class="interstitial-body">The North American Menopause Society, the American College of OB-GYNs, and the Endocrine Society all recommend hormone therapy as the most effective treatment. It&#x2019;s not experimental &mdash; it&#x2019;s the gold standard.</p>
+        <button class="interstitial-cta" onclick="advanceStep()">See my options &#8594;</button>
+      </div>
+    </div>
+
+    <\!-- STEP 11: What Have You Tried -->
+    <div class="quiz-step" id="step-11">
+      <span class="step-eyebrow">Your journey so far</span>
+      <h2 class="step-question">What have you tried to manage your symptoms?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="nothing">Nothing yet &mdash; this is my first step</button>
+        <button class="option-btn" data-value="otc">Over-the-counter remedies or supplements</button>
+        <button class="option-btn" data-value="prescribed-hrt">I&#x2019;ve been prescribed HRT before</button>
+        <button class="option-btn" data-value="other-rx">Other prescription treatments</button>
+        <button class="option-btn" data-value="lifestyle">Lifestyle changes (diet, exercise, sleep)</button>
+      </div>
+    </div>
+
+    <\!-- STEP 12: What Held You Back -->
+    <div class="quiz-step" id="step-12">
+      <span class="step-eyebrow">One more thing</span>
+      <h2 class="step-question">What&#x2019;s the main thing that&#x2019;s held you back from getting the right treatment?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="safety-concerns">Concerns about safety or side effects</button>
+        <button class="option-btn" data-value="doctor-dismissal">My doctor dismissed my symptoms</button>
+        <button class="option-btn" data-value="cost">The cost or hassle of appointments</button>
+        <button class="option-btn" data-value="didnt-know">I didn&#x2019;t realize treatment was available like this</button>
+        <button class="option-btn" data-value="ready">Nothing &mdash; I&#x2019;m ready now</button>
+      </div>
+    </div>
+
+    <\!-- ═══════════════════════════════════════════════════════════
+         STAGE 3 — MEDICAL SCREENING (Steps 13-25)
+    ═══════════════════════════════════════════════════════════ -->
+
+    <\!-- STEP 13: INTERSTITIAL — Privacy -->
+    <div class="quiz-step" id="step-13">
+      <div class="interstitial">
+        <div class="interstitial-icon">&#x1F512;</div>
+        <p class="interstitial-eyebrow">Your privacy matters</p>
+        <h2 class="interstitial-headline">The next questions are medical &mdash; and completely confidential.</h2>
+        <div class="privacy-points">
+          <div class="privacy-point"><span class="privacy-icon">&#x1F6E1;&#xFE0F;</span> Your answers are protected by HIPAA-compliant encryption</div>
+          <div class="privacy-point"><span class="privacy-icon">&#x1F469;&#x200D;&#x2695;&#xFE0F;</span> Only your assigned physician will see your medical history</div>
+          <div class="privacy-point"><span class="privacy-icon">&#x1F6AB;</span> We never share or sell your personal information</div>
+        </div>
+        <button class="interstitial-cta" onclick="advanceStep()">Continue to medical questions &#8594;</button>
+      </div>
+    </div>
+
+    <\!-- STEP 14: Sex Assigned at Birth (DQ on male) -->
+    <div class="quiz-step" id="step-14">
+      <span class="step-eyebrow">Eligibility check</span>
+      <h2 class="step-question">What was your sex assigned at birth?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="female">Female</button>
+        <button class="option-btn" data-value="male">Male</button>
+      </div>
+    </div>
+
+    <\!-- STEP 15: Pregnancy / Breastfeeding (DQ) -->
+    <div class="quiz-step" id="step-15">
+      <span class="step-eyebrow">Quick check</span>
+      <h2 class="step-question">Are you currently pregnant or breastfeeding?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No</button>
+        <button class="option-btn" data-value="pregnant">Yes, I&#x2019;m pregnant</button>
+        <button class="option-btn" data-value="breastfeeding">Yes, I&#x2019;m breastfeeding</button>
+      </div>
+    </div>
+
+    <\!-- STEP 16: Medical Conditions (multi-select, DQ) -->
+    <div class="quiz-step" id="step-16">
+      <span class="step-eyebrow">Medical history</span>
+      <h2 class="step-question">Do you have a history of any of the following?</h2>
+      <p class="step-sub">Select all that apply.</p>
+      <div class="options-list multi">
+        <button class="option-btn" data-value="active-breast-cancer">Active breast cancer</button>
+        <button class="option-btn" data-value="family-cancer">Personal or family history of hormone-sensitive cancer</button>
+        <button class="option-btn" data-value="blood-clots">Blood clots or deep vein thrombosis</button>
+        <button class="option-btn" data-value="stroke-tia">Stroke or TIA</button>
+        <button class="option-btn" data-value="heart-disease">Heart disease</button>
+        <button class="option-btn" data-value="unexplained-bleeding">Unexplained vaginal bleeding</button>
+        <button class="option-btn" data-value="liver-disease">Active liver disease</button>
+        <button class="option-btn" data-value="none">None of the above</button>
+      </div>
+      <button class="quiz-next-btn" id="step-16-next">Continue &#8594;</button>
+    </div>
+
+    <\!-- STEP 17: Current Medications (multi-select, DQ) -->
+    <div class="quiz-step" id="step-17">
+      <span class="step-eyebrow">Current medications</span>
+      <h2 class="step-question">Are you currently taking any of the following?</h2>
+      <p class="step-sub">Select all that apply.</p>
+      <div class="options-list multi">
+        <button class="option-btn" data-value="carbamazepine">Carbamazepine</button>
+        <button class="option-btn" data-value="phenytoin">Phenytoin / Dilantin</button>
+        <button class="option-btn" data-value="rifampin">Rifampin</button>
+        <button class="option-btn" data-value="st-johns-wort">St. John&#x2019;s Wort</button>
+        <button class="option-btn" data-value="topiramate">Topiramate / Topamax</button>
+        <button class="option-btn" data-value="lamotrigine">Lamotrigine / Lamictal</button>
+        <button class="option-btn" data-value="barbiturates">Barbiturates</button>
+        <button class="option-btn" data-value="not-on-any-medications">None of the above</button>
+      </div>
+      <button class="quiz-next-btn" id="step-17-next">Continue &#8594;</button>
+    </div>
+
+    <\!-- STEP 18: Allergies -->
+    <div class="quiz-step" id="step-18">
+      <span class="step-eyebrow">Allergies</span>
+      <h2 class="step-question">Do you have any known medication allergies?</h2>
+      <div class="options-list">
+        <button class="option-btn" id="allergy-no-btn" data-value="no">No known allergies</button>
+        <button class="option-btn" id="allergy-yes-btn" data-value="yes">Yes</button>
+      </div>
+      <div id="allergy-text-wrap" class="allergy-text-wrap">
+        <label>Please list your allergies:</label>
+        <textarea class="quiz-input" id="allergy-input" rows="2" placeholder="e.g., Penicillin, Sulfa drugs..." style="font-size:16px"></textarea>
+        <button class="quiz-next-btn visible" id="step-18-allergy-next">Continue &#8594;</button>
+      </div>
+    </div>
+
+    <\!-- STEP 19: Blood Pressure (DQ on high-160-plus) -->
+    <div class="quiz-step" id="step-19">
+      <span class="step-eyebrow">Cardiovascular health</span>
+      <h2 class="step-question">How has your blood pressure been over the last 6 months?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="normal">Normal (below 120/80)</button>
+        <button class="option-btn" data-value="elevated">Slightly elevated (120&#x2013;139 / 80&#x2013;89)</button>
+        <button class="option-btn" data-value="managed">High but managed with medication</button>
+        <button class="option-btn" data-value="high-160-plus">Very high (160+ systolic)</button>
+        <button class="option-btn" data-value="not-sure">I&#x2019;m not sure</button>
+      </div>
+    </div>
+
+    <\!-- STEP 20: Nicotine -->
+    <div class="quiz-step" id="step-20">
+      <span class="step-eyebrow">Lifestyle factors</span>
+      <h2 class="step-question">Do you currently use nicotine products?</h2>
+      <p class="step-sub">Cigarettes, vaping, patches, or chewing tobacco</p>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No</button>
+        <button class="option-btn" data-value="yes">Yes</button>
+      </div>
+    </div>
+
+    <\!-- STEP 21: Hysterectomy -->
+    <div class="quiz-step" id="step-21">
+      <span class="step-eyebrow">Surgical history</span>
+      <h2 class="step-question">Have you had a hysterectomy (uterus removed)?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No</button>
+        <button class="option-btn" data-value="yes">Yes</button>
+      </div>
+    </div>
+
+    <\!-- STEP 22: Sleep / Breast Tenderness (conditional: hysterectomy=yes) -->
+    <div class="quiz-step" id="step-22">
+      <span class="step-eyebrow">A few more details</span>
+      <h2 class="step-question">Do you experience difficulty with your sleep or breast tenderness?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="sleep-issues">Yes, sleep issues</button>
+        <button class="option-btn" data-value="breast-tenderness">Yes, breast tenderness</button>
+        <button class="option-btn" data-value="both">Both</button>
+        <button class="option-btn" data-value="neither">Neither</button>
+      </div>
+    </div>
+
+    <\!-- STEP 23: Progesterone Intolerance (conditional: step-22 \!= neither) -->
+    <div class="quiz-step" id="step-23">
+      <span class="step-eyebrow">Treatment history</span>
+      <h2 class="step-question">Have you had intolerance to micronized progesterone in the past?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No</button>
+        <button class="option-btn" data-value="yes">Yes</button>
+      </div>
+    </div>
+
+    <\!-- STEP 24: HRT History -->
+    <div class="quiz-step" id="step-24">
+      <span class="step-eyebrow">Treatment history</span>
+      <h2 class="step-question">Have you tried hormone therapy before?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="never">Never tried it</button>
+        <button class="option-btn" data-value="yes-current">Yes, currently using</button>
+        <button class="option-btn" data-value="yes-past">Yes, in the past</button>
+      </div>
+    </div>
+
+    <\!-- STEP 25: Transdermal Side Effects (conditional: step-24 \!= never) -->
+    <div class="quiz-step" id="step-25">
+      <span class="step-eyebrow">Treatment history</span>
+      <h2 class="step-question">Have you ever had a skin reaction or side effects from a transdermal hormone product?</h2>
+      <p class="step-sub">Patches, gels, or creams</p>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No</button>
+        <button class="option-btn" data-value="yes">Yes</button>
+      </div>
+    </div>
+
+    <\!-- ═══════════════════════════════════════════════════════════
+         STAGE 4 — HOPE INJECTION (Steps 26-29)
+    ═══════════════════════════════════════════════════════════ -->
+
+    <\!-- STEP 26: Treatment Preference -->
+    <div class="quiz-step" id="step-26">
+      <span class="step-eyebrow">Your treatment preference</span>
+      <h2 class="step-question">Would you prefer our custom compound cream or standard treatment options?</h2>
+      <div class="pref-cards">
+        <button class="pref-card" data-value="compounded">
+          <div class="pref-card-title">Custom Compound Cream</div>
+          <div class="pref-card-body">Estrogen + progesterone in one daily application. Compounded specifically for you.</div>
+        </button>
+        <button class="pref-card" data-value="fda_approved">
+          <div class="pref-card-title">Standard FDA-Approved Options</div>
+          <div class="pref-card-body">Patches, gels, or pills. Established, widely prescribed treatments.</div>
+        </button>
+      </div>
+    </div>
+
+    <\!-- STEP 27: INTERSTITIAL — Personalized Relief Timeline -->
+    <div class="quiz-step" id="step-27">
+      <div class="interstitial">
+        <p class="interstitial-eyebrow">Your path to relief</p>
+        <h2 class="interstitial-headline">Here&#x2019;s what to expect with your personalized HRT plan</h2>
+        <div id="relief-timeline-content" class="relief-timeline"></div>
+        <p class="relief-duration-callback" id="relief-duration-callback"></p>
+        <button class="interstitial-cta" onclick="advanceStep()">I&#x2019;m ready &#8594;</button>
+      </div>
+    </div>
+
+    <\!-- STEP 28: INTERSTITIAL — Testimonial -->
+    <div class="quiz-step" id="step-28">
+      <div class="interstitial">
+        <p class="interstitial-eyebrow">Real patient story</p>
+        <div class="testimonial-card">
+          <img class="testimonial-img" src="../images/testimonial_3.jpg" alt="Patient photo">
+          <blockquote class="testimonial-quote">&#x201C;I was skeptical, but within 3 weeks my hot flashes were cut in half and I was sleeping through the night for the first time in years. I finally feel like myself again.&#x201D;</blockquote>
+          <cite class="testimonial-cite">&mdash; Sarah M., age 54</cite>
+        </div>
+        <button class="interstitial-cta" onclick="advanceStep()" style="margin-top:20px;">Almost there &#8594;</button>
+      </div>
+    </div>
+
+    <\!-- STEP 29: INTERSTITIAL — Social Proof Stat -->
+    <div class="quiz-step" id="step-29">
+      <div class="interstitial">
+        <div class="stat-card">
+          <div class="stat-card-number">87<span style="font-size:0.45em;vertical-align:super;">%</span></div>
+          <div class="stat-card-label">of women report significant symptom relief within 4 weeks of starting HRT</div>
+          <div class="stat-card-sub">Most women tell us they feel like themselves again &mdash; sleeping better, thinking clearly, and enjoying life &mdash; within just a few weeks.</div>
+        </div>
+        <button class="interstitial-cta" onclick="advanceStep()">Continue &#8594;</button>
+      </div>
+    </div>
+
+    <\!-- ═══════════════════════════════════════════════════════════
+         STAGE 5 — CAPTURE (Steps 30-37)
+    ═══════════════════════════════════════════════════════════ -->
+
+    <\!-- STEP 30: State -->
+    <div class="quiz-step" id="step-30">
+      <span class="step-eyebrow">Almost there</span>
+      <h2 class="step-question">Which state do you live in?</h2>
+      <div class="contact-field">
+        <select class="quiz-input quiz-select" id="state-select" style="font-size:16px">
+          <option value="">Select your state</option>
+        <option value="AL">Alabama</option>
+        <option value="AK">Alaska</option>
+        <option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option>
+        <option value="CA">California</option>
+        <option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option>
+        <option value="DE">Delaware</option>
+        <option value="DC">District of Columbia</option>
+        <option value="FL">Florida</option>
+        <option value="GA">Georgia</option>
+        <option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option>
+        <option value="IL">Illinois</option>
+        <option value="IN">Indiana</option>
+        <option value="IA">Iowa</option>
+        <option value="KS">Kansas</option>
+        <option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option>
+        <option value="ME">Maine</option>
+        <option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option>
+        <option value="MI">Michigan</option>
+        <option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option>
+        <option value="MO">Missouri</option>
+        <option value="MT">Montana</option>
+        <option value="NE">Nebraska</option>
+        <option value="NV">Nevada</option>
+        <option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option>
+        <option value="NM">New Mexico</option>
+        <option value="NY">New York</option>
+        <option value="NC">North Carolina</option>
+        <option value="ND">North Dakota</option>
+        <option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option>
+        <option value="OR">Oregon</option>
+        <option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option>
+        <option value="SC">South Carolina</option>
+        <option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option>
+        <option value="TX">Texas</option>
+        <option value="UT">Utah</option>
+        <option value="VT">Vermont</option>
+        <option value="VA">Virginia</option>
+        <option value="WA">Washington</option>
+        <option value="WV">West Virginia</option>
+        <option value="WI">Wisconsin</option>
+        <option value="WY">Wyoming</option>
+        </select>
+      </div>
+      <button class="quiz-next-btn visible" id="step-30-next-state">Continue &#8594;</button>
+    </div>
+
+    <\!-- STEP 31: Date of Birth -->
+    <div class="quiz-step" id="step-31">
+      <span class="step-eyebrow">Almost there</span>
+      <h2 class="step-question">What is your date of birth?</h2>
+      <div class="contact-field">
+        <label>Date of birth</label>
+        <input type="text" class="quiz-input" id="dob-input" placeholder="MM/DD/YYYY" inputmode="numeric" autocomplete="bday" style="font-size:16px">
+        <div class="contact-field-hint" id="dob-error" style="color:var(--rose);display:none;"></div>
+      </div>
+      <button class="quiz-next-btn visible" id="step-31-next-dob">Continue &#8594;</button>
+    </div>
+
+    <\!-- STEP 32: Name -->
+    <div class="quiz-step" id="step-32">
+      <span class="step-eyebrow">Almost there</span>
+      <h2 class="step-question">What&#x2019;s your name?</h2>
+      <div class="contact-field">
+        <label>First name</label>
+        <input type="text" class="quiz-input" id="first-name-input" placeholder="First name" autocomplete="given-name" style="font-size:16px">
+      </div>
+      <div class="contact-field" style="margin-top:12px">
+        <label>Last name</label>
+        <input type="text" class="quiz-input" id="last-name-input" placeholder="Last name" autocomplete="family-name" style="font-size:16px">
+      </div>
+      <button class="quiz-next-btn visible" id="step-32-next-name">Continue &#8594;</button>
+    </div>
+
+    <\!-- STEP 33: Email -->
+    <div class="quiz-step" id="step-33">
+      <span class="step-eyebrow">Almost there</span>
+      <h2 class="step-question">Where should we send your personalized plan?</h2>
+      <div class="contact-field">
+        <label>Email address</label>
+        <input type="email" class="quiz-input" id="email-input" placeholder="you@email.com" autocomplete="email" style="font-size:16px">
+        <div class="contact-field-hint">&#128274; We never share your email. No spam, ever.</div>
+      </div>
+      <button class="quiz-next-btn visible" id="step-33-next-email">Continue &#8594;</button>
+    </div>
+
+    <\!-- STEP 34: Phone -->
+    <div class="quiz-step" id="step-34">
+      <span class="step-eyebrow">Almost there</span>
+      <h2 class="step-question">What&#x2019;s your phone number?</h2>
+      <p class="step-sub">Your physician may need to reach you. We won&#x2019;t spam you.</p>
+      <div class="contact-field">
+        <label>Phone number</label>
+        <input type="tel" class="quiz-input" id="phone-input" placeholder="(555) 000-0000" autocomplete="tel" style="font-size:16px">
+        <div class="contact-field-hint">By providing your number, you consent to receive SMS updates about your order. Reply STOP to opt out at any time.</div>
+      </div>
+      <button class="quiz-next-btn visible" id="step-34-next-phone">Continue &#8594;</button>
+    </div>
+
+    <\!-- STEP 35: Informed Consent -->
+    <div class="quiz-step" id="step-35">
+      <span class="step-eyebrow">Final step</span>
+      <h2 class="step-question">Please review and agree to the following</h2>
+      <p class="step-sub">Your physician needs your acknowledgment before reviewing your case.</p>
+      <div class="consent-list">
+        <div class="consent-item" id="consent-1">
+          <div class="consent-header" onclick="toggleConsent(1)">
+            <span class="consent-title">Telehealth Consent</span>
+            <span class="consent-toggle" id="consent-toggle-1">+</span>
+          </div>
+          <div class="consent-body" id="consent-body-1">
+            <p class="consent-text">I understand that ClearedRx provides telehealth services through licensed physicians. I consent to receiving medical consultation via this platform and understand that the physician may not be physically present. I acknowledge that telehealth has limitations compared to in-person care, including the inability to perform a physical examination. I have been given the opportunity to ask questions about the telehealth process.</p>
+            <button class="consent-agree-btn" onclick="agreeConsent(1)">I Agree</button>
+            <div class="consent-agreed-badge" id="consent-agreed-1">&#10003; Agreed</div>
+          </div>
+        </div>
+        <div class="consent-item" id="consent-2">
+          <div class="consent-header" onclick="toggleConsent(2)">
+            <span class="consent-title">Treatment &amp; Prescription Acknowledgment</span>
+            <span class="consent-toggle" id="consent-toggle-2">+</span>
+          </div>
+          <div class="consent-body" id="consent-body-2">
+            <p class="consent-text">I understand that a prescription is not guaranteed and is at the sole discretion of the reviewing physician. I acknowledge that HRT carries potential risks, including blood clots, stroke, and certain cancers in some populations. I have been given the opportunity to ask questions and understand the risks and benefits of hormone therapy. I wish to proceed with the consultation.</p>
+            <button class="consent-agree-btn" onclick="agreeConsent(2)">I Agree</button>
+            <div class="consent-agreed-badge" id="consent-agreed-2">&#10003; Agreed</div>
+          </div>
+        </div>
+        <div class="consent-item" id="consent-3">
+          <div class="consent-header" onclick="toggleConsent(3)">
+            <span class="consent-title">Privacy &amp; Communications Consent</span>
+            <span class="consent-toggle" id="consent-toggle-3">+</span>
+          </div>
+          <div class="consent-body" id="consent-body-3">
+            <p class="consent-text">I consent to ClearedRx communicating with me via email and SMS regarding my treatment, order status, and health information. I understand I may opt out of marketing communications at any time by replying STOP. My health information will be handled in accordance with HIPAA and the ClearedRx Privacy Policy. I acknowledge that standard message and data rates may apply.</p>
+            <button class="consent-agree-btn" onclick="agreeConsent(3)">I Agree</button>
+            <div class="consent-agreed-badge" id="consent-agreed-3">&#10003; Agreed</div>
+          </div>
+        </div>
+      </div>
+      <button class="consent-agree-all-btn" id="consent-agree-all-btn" onclick="agreeAllConsents()">Agree &amp; Continue &#8594;</button>
+      <button class="quiz-next-btn" id="step-35-next" disabled>Continue &#8594;</button>
+    </div>
+
+    <\!-- STEP 36: Great Candidate -->
+    <div class="quiz-step" id="step-36">
+      <div class="interstitial">
+        <div class="interstitial-icon celebrate">&#x2728;</div>
+        <p class="interstitial-eyebrow">Great news</p>
+        <h2 class="interstitial-headline">You&#x2019;re a strong candidate for HRT.</h2>
+        <p class="interstitial-body">Based on your answers, our physicians can create a personalized treatment plan for you. Let&#x2019;s see your matched treatment.</p>
+        <button class="interstitial-cta" onclick="startLoading()">See My Treatment &#8594;</button>
+      </div>
+    </div>
+
+    <\!-- STEP 37: Loading Screen -->
+    <div class="quiz-step" id="step-37">
+      <div class="loading-screen">
+        <div class="loading-content" id="loading-content">
+          <div class="loading-spinner"></div>
+          <h2 class="loading-headline">Finding your treatment match&hellip;</h2>
+          <p class="loading-sub">Our system is matching your symptoms and preferences to the best treatment for you</p>
+          <div class="loading-bar-wrap">
+            <div class="loading-bar-fill" id="loading-bar"></div>
+          </div>
+          <p class="loading-status" id="loading-status">Reviewing your symptoms&hellip;</p>
+        </div>
+        <div class="loading-success" id="loading-success">
+          <div style="font-size:56px;margin-bottom:16px;">&#9989;</div>
+          <h2 class="loading-headline">Your profile is ready\!</h2>
+          <p class="loading-sub">Taking you to your personalized treatment&hellip;</p>
+        </div>
+      </div>
+    </div>
+
+  </div><\!-- /quiz-container -->
+
+  <\!-- DISQUALIFY SCREEN -->
+  <div id="disqualify-screen" class="disqualify-overlay" style="display:none;">
+    <div class="disqualify-box">
+      <span class="disqualify-icon">&#9888;&#65039;</span>
+      <h2 class="disqualify-headline" id="dqHeadline">We want to make sure you&#x2019;re safe.</h2>
+      <p class="disqualify-reason" id="dqReason" style="font-size:13px;font-weight:600;color:var(--rose);margin-bottom:8px;display:none;"></p>
+      <p class="disqualify-body" id="dqBody">Based on one of your answers, our physicians may not be able to prescribe HRT at this time. This is for your safety &mdash; hormone therapy is not appropriate for everyone. We recommend speaking with your primary care physician or OB-GYN who can review your full medical history.</p>
+      <button onclick="hideDisqualify()" style="display:block;width:100%;margin-top:24px;background:none;border:1.5px solid var(--taupe);cursor:pointer;font-size:14px;color:var(--charcoal-60);font-family:var(--font-sans);padding:12px;border-radius:var(--radius);transition:all 0.15s;">&larr; Go back &amp; change my answer</button>
+    </div>
+  </div>
+
+  <script src="js/quiz.js"></script>
+</body>
+</html>

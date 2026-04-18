@@ -76,6 +76,7 @@ const express  = require('express');
 const axios    = require('axios');
 const path     = require('path');
 const cors     = require('cors');
+const fs       = require('fs');
 
 // Load .env if present (local dev)
 try { require('dotenv').config(); } catch(e) {}
@@ -105,6 +106,29 @@ const TENANT_ID     = parseInt(process.env.DOSABLE_TENANT_ID || '32', 10);
 const API_KEY       = process.env.DOSABLE_API_KEY   || '169ded5e60f27843c1e110b34e6791ec3f0e8c9d619bb5cbffbfa1712ec03488';
 const CHECKOUT_BASE = process.env.CHECKOUT_BASE_URL || 'https://buy-hrt.clearedrx.com/checkout';
 const FRONTEND_DIR  = path.join(__dirname, '..', 'frontend');
+const LOG_DIR       = path.join(__dirname, 'logs');
+try { fs.mkdirSync(LOG_DIR, { recursive: true }); } catch(e) {}
+
+function logSubmission(version, data) {
+  try {
+    const entry = {
+      ts: new Date().toISOString(),
+      v: version,
+      email: data.email || '',
+      sessionId: data.sessionId || '',
+      clickId: data.clickId || '',
+      product: data.product || '',
+      checkoutUrl: data.checkoutUrl || '',
+      state: data.state || '',
+    };
+    const logFile = path.join(LOG_DIR, 'submissions.jsonl');
+    fs.appendFile(logFile, JSON.stringify(entry) + '\n', (err) => {
+      if (err) console.warn('Log write failed:', err.message);
+    });
+  } catch(e) {
+    console.warn('logSubmission error:', e.message);
+  }
+}
 
 if (!API_KEY) console.warn('WARNING: DOSABLE_API_KEY not set');
 
@@ -161,6 +185,8 @@ app.get('/',            (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'inde
 app.get('/treatments',  (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'treatments.html')));
 app.get('/v1',          (req, res) => res.redirect(301, '/v1/'));
 app.get('/v1/',         (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'v1', 'index.html')));
+app.get('/v2',          (req, res) => res.redirect(301, '/v2/'));
+app.get('/v2/',         (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'v2', 'index.html')));
 
 // ─── Dosable Question ID Map ──────────────────────────────────────────────────
 const Q = {
@@ -1308,6 +1334,357 @@ app.post('/api/v1/complete', async (req, res) => {
 
   console.log('v1: Checkout URL:', finalCheckoutUrl);
   console.log('v1: Product match:', productDisplay.name, '($' + productDisplay.totalPrice + ')');
+
+  logSubmission('v1', {
+    email: contactInfo.email || quizAnswers.email || '',
+    sessionId: resolvedSessionId,
+    clickId,
+    product: productDisplay.name,
+    checkoutUrl: finalCheckoutUrl,
+    state: contactInfo.state || quizAnswers.state || '',
+  });
+
+  return res.json({
+    ok: true,
+    checkoutUrl: finalCheckoutUrl,
+    product: productDisplay,
+    sessionId: resolvedSessionId,
+  });
+});
+
+// ─── V2 Answer Remapper ──────────────────────────────────────────────────────
+// V2 step mapping:
+//   step-1  = Duration           step-9  = Vaginal/Urinary symptoms
+//   step-3  = Age                step-11 = What have you tried
+//   step-4  = Menstrual status   step-12 = What held you back
+//   step-6  = Symptom checklist  step-14 = Sex (DQ)
+//   step-8  = Severity           step-15 = Pregnancy (DQ)
+//   step-16 = Medical conditions step-17 = Medications
+//   step-18 = Allergies (via 'allergies' key)
+//   step-19 = Blood pressure (DQ)
+//   step-20 = Nicotine           step-21 = Hysterectomy
+//   step-22 = Sleep/tenderness   step-23 = Prog intolerance
+//   step-24 = HRT history        step-25 = Transdermal SE
+//   step-26 = Treatment preference
+function remapAnswersV2(a) {
+  const apiAnswers = {};
+
+  // ── Medical conditions (free text) ────────────────────────────────────────
+  const conditions = [];
+  const step16 = a['step-16'] || '';
+  if (step16.indexOf('gallbladder') !== -1)  conditions.push('Gallbladder issues');
+  if (step16.indexOf('osteoporosis') !== -1) conditions.push('Osteoporosis');
+  apiAnswers[Q.medical_conditions] = { value: conditions.join(', ') || 'None', question: 'List all medical conditions' };
+
+  // ── Medications ───────────────────────────────────────────────────────────
+  const meds = [];
+  const step17 = a['step-17'] || '';
+  if (step17.indexOf('blood-thinners') !== -1)    meds.push('Blood thinners');
+  if (step17.indexOf('antidepressants') !== -1)    meds.push('Antidepressants');
+  if (step17.indexOf('thyroid-meds') !== -1)       meds.push('Thyroid medication');
+  if (step17.indexOf('blood-pressure-meds') !== -1) meds.push('Blood pressure medication');
+  apiAnswers[Q.medications] = { value: meds.join(', ') || 'None', question: 'List all current medications' };
+
+  // ── Allergies ─────────────────────────────────────────────────────────────
+  const allergyText = a['allergies'] || 'None';
+  const hasAllergies = (allergyText !== 'none' && allergyText !== 'None' && allergyText !== '');
+  apiAnswers[Q.allergies] = { value: hasAllergies ? allergyText : 'None', question: 'List your allergies' };
+
+  // ── Sex ───────────────────────────────────────────────────────────────────
+  apiAnswers[Q.sex] = { value: 'Female', question: 'Sex assigned at birth' };
+
+  // ── Pregnancy consents and checks ─────────────────────────────────────────
+  apiAnswers[Q.consent_pregnancy] = { value: 'I have read and understand the above information. I understand the risks and wish to proceed', question: 'Consent (Pregnancy)' };
+  apiAnswers[Q.pregnant]          = { value: 'No', question: 'Are you currently pregnant or planning to become pregnant?' };
+  apiAnswers[Q.possibility_pregnant] = { value: 'No', question: 'Is there a possibility that you may be pregnant?' };
+  apiAnswers[Q.breastfeeding]     = { value: 'No', question: 'Are you currently breastfeeding?' };
+
+  // ── Clinical safety (passed through honestly) ─────────────────────────────
+  const vaginalBleeding = (step16.indexOf('unexplained-bleeding') !== -1) ? 'Yes' : 'No';
+  apiAnswers[Q.vaginal_bleeding]  = { value: vaginalBleeding, question: 'Abnormal vaginal bleeding in the past 6 months?' };
+
+  const liverKidney = (step16.indexOf('liver-disease') !== -1) ? 'Yes' : 'No';
+  apiAnswers[Q.liver_kidney]      = { value: liverKidney, question: 'Liver cirrhosis, failure, or late-stage kidney disease?' };
+
+  // ── Symptom questions ─────────────────────────────────────────────────────
+  apiAnswers[Q.menopause_symptoms] = { value: 'Yes', question: 'Have you noticed any changes in your menstrual cycle or menopausal symptoms?' };
+
+  const symptomMap = {
+    'hot-flashes':        'Hot flashes',
+    'night-sweats':       'Night sweats',
+    'sleep-problems':     'Sleep disturbances',
+    'mood-swings':        'Mood swings',
+    'anxiety-depression': 'Mood swings',
+    'brain-fog':          'Dry skin',
+    'vaginal-dryness':    'Vaginal dryness',
+    'low-libido':         'Reduce libido',
+    'fatigue':            'Weight gain around the abdomen',
+    'weight-gain':        'Weight gain around the abdomen',
+    'thinning-hair':      'Dry skin',
+    'dry-skin':           'Dry skin',
+    'joint-pain':         'Joint pain',
+    'aging-skin':         'Dry skin',
+  };
+  const step6 = a['step-6'] || '';
+  const symptoms = (typeof step6 === 'string') ? step6.split(',') : (Array.isArray(step6) ? step6 : []);
+  const uniqueSymptoms = [...new Set(symptoms.map(s => symptomMap[s.trim()]).filter(Boolean))];
+  apiAnswers[Q.symptom_checklist] = { value: uniqueSymptoms.length > 0 ? uniqueSymptoms : ['Hot flashes'], question: 'Tell us more about the symptoms that you experience?' };
+  apiAnswers[Q.other_symptoms]    = { value: 'None', question: 'Tell us more about your other symptom(s)' };
+
+  // ── Conditions groups ─────────────────────────────────────────────────────
+  const conds1Parts = [];
+  if (step16.indexOf('active-breast-cancer') !== -1) conds1Parts.push('I have been diagnosed with breast cancer, uterine cancer, or ovarian cancer?');
+  if (step16.indexOf('family-cancer') !== -1)        conds1Parts.push('I have a strong FAMILY History of breast cancer, uterine cancer, or ovarian cancer?');
+  if (step16.indexOf('stroke-tia') !== -1)           conds1Parts.push('I have a known history of stroke, or "mini stroke" known as a transient ischemic attack (TIA)?');
+  if (step16.indexOf('heart-disease') !== -1)        conds1Parts.push('I have known coronary artery disease (CAD), congestive heart failure, or uncontrolled hypertension');
+  if (step16.indexOf('gallbladder') !== -1)          conds1Parts.push('I have a had current or recent gallbladder issues');
+  apiAnswers[Q.conditions_1] = { value: conds1Parts.length > 0 ? conds1Parts : ['I do NOT have any of these'], question: 'Do you have any of the following? (cancer/stroke/CAD/gallbladder)' };
+
+  const conds2Parts = [];
+  if (step16.indexOf('blood-clots') !== -1) conds2Parts.push('I have a known history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?');
+  apiAnswers[Q.conditions_2] = { value: conds2Parts.length > 0 ? conds2Parts : ['I do NOT have any of these'], question: 'Do you have any of the following? (DVT/lupus)' };
+
+  // ── Adhesive allergy (V2 doesn't have dedicated question — default No) ────
+  apiAnswers[Q.adhesive_allergy] = { value: 'No', question: 'Do you have an adhesive allergy?' };
+
+  // ── Symptom duration (V2: step-1) ─────────────────────────────────────────
+  const symptomDuration = a['step-1'] || '';
+  const durationLong = (symptomDuration === 'more-than-5yr');
+  apiAnswers[Q.symptom_duration] = { value: durationLong ? 'Greater than 5 years' : 'Less than 5 years', question: 'How long have you experienced symptoms of menopause?' };
+
+  // ── HRT history (HONEST — no fake transdermal SE chain) ───────────────────
+  const hrtHistory = a['step-24'] || 'never';
+  const everUsedHRT = (hrtHistory !== 'never');
+  const hrtHistoryValue = everUsedHRT
+    ? 'Yes, I have taken HRT in the past'
+    : 'No, I have never taken HRT';
+  apiAnswers[Q.hrt_history] = { value: hrtHistoryValue, question: 'Are you currently or have you ever been on hormone replacement therapy (HRT)?' };
+
+  if (everUsedHRT) {
+    apiAnswers[Q.hrt_formulation]         = { value: 'Other', question: 'What HRT formulation are you on or have you tried?' };
+    const transdermalSE = (a['transdermal-se'] === 'yes');
+    apiAnswers[Q.hrt_side_effects]        = { value: transdermalSE ? 'Yes' : 'No', question: 'Have you ever experienced side effects from your HRT?' };
+    apiAnswers[Q.hrt_side_effects_detail] = { value: transdermalSE ? 'Skin irritation from transdermal product' : 'No side effects', question: 'Please tell us which product you had side effects to' };
+    apiAnswers[Q.transdermal_side_effects]= { value: transdermalSE ? 'Yes' : 'No', question: 'Have you ever had side effects to TRANSDERMAL estrogen products?' };
+    apiAnswers[Q.transdermal_reaction]    = { value: transdermalSE ? 'Skin irritation' : 'No reaction', question: 'Please tell us about your reaction to TRANSDERMAL estrogen products' };
+  }
+
+  // ── Nicotine / clot (HONEST — sacred) ─────────────────────────────────────
+  const nicotineUse = (a['step-20'] === 'yes');
+  const bloodClotHistory = (step16.indexOf('blood-clots') !== -1);
+  const nicotineClotParts = [];
+  if (nicotineUse)       nicotineClotParts.push('Do you currently use nicotine products?');
+  if (bloodClotHistory)  nicotineClotParts.push('Do you have a family history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?');
+  apiAnswers[Q.nicotine_clot] = { value: nicotineClotParts.length > 0 ? nicotineClotParts : ['None of these apply to me'], question: 'Do you have any of the following? (nicotine/clot history)' };
+
+  // ── Hysterectomy (HONEST) ─────────────────────────────────────────────────
+  const hystMap = { 'no': 'No', 'yes': 'Yes', 'yes-uterus-removed': 'Yes', 'yes-full-removal': 'Yes' };
+  const hystAnswer = hystMap[a['step-21']] || 'No';
+  const hysterectomy = (hystAnswer === 'Yes');
+  apiAnswers[Q.hysterectomy] = { value: hystAnswer, question: 'Have you had a surgical resection of your uterus (hysterectomy)?' };
+
+  if (hysterectomy) {
+    apiAnswers[Q.hysterectomy_reason] = { value: a['step-21-reason'] || 'Medical necessity', question: 'Please provide further information about why you have had a hysterectomy' };
+  }
+
+  let needsProgesterone;
+  if (hysterectomy) {
+    const sleepTenderness = (a['step-22'] === 'sleep-issues' || a['step-22'] === 'breast-tenderness' || a['step-22'] === 'both');
+    apiAnswers[Q.sleep_tenderness] = { value: sleepTenderness ? 'Yes' : 'No', question: 'Do you experience difficulty with your sleep or breast tenderness?' };
+
+    if (sleepTenderness) {
+      const progIntolerance = (a['step-23'] === 'yes');
+      apiAnswers[Q.prog_intolerance] = { value: progIntolerance ? 'Yes' : 'No', question: 'Have you had intolerance to micronized progesterone in the past?' };
+      needsProgesterone = !progIntolerance;
+    } else {
+      needsProgesterone = false;
+    }
+  } else {
+    needsProgesterone = true;
+  }
+
+  // ── Vaginal symptoms (V2: step-9, not step-38) ────────────────────────────
+  const vaginalSymptomMap = {
+    'painful-intercourse': 'Painful intercourse',
+    'vaginal-dryness':     'Vaginal dryness',
+    'vaginal-irritation':  'Vaginal irritation',
+    'urinary-urgency':     'Urinary urgency',
+    'recurrent-utis':      'Recurrent UTIs',
+  };
+  const step9 = a['step-9'] || '';
+  const vagRaw = (typeof step9 === 'string') ? step9.split(',') : (Array.isArray(step9) ? step9 : []);
+  const vagList = vagRaw.map(s => vaginalSymptomMap[s.trim()]).filter(Boolean);
+
+  // Also check step-6 for vaginal-dryness
+  if (vagList.length === 0 && symptoms.some(s => s.trim() === 'vaginal-dryness')) {
+    vagList.push('Vaginal dryness');
+  }
+
+  if (vagList.length > 0) {
+    apiAnswers[Q.vaginal_symptoms] = { value: vagList, question: 'Do you experience any of the following? (vaginal symptoms)' };
+  } else {
+    apiAnswers[Q.vaginal_symptoms] = { value: ['I do not experience any of these'], question: 'Do you experience any of the following? (vaginal symptoms)' };
+  }
+
+  // ── Other clinical ────────────────────────────────────────────────────────
+  const osteoporosis = (step16.indexOf('osteoporosis') !== -1);
+  apiAnswers[Q.osteoporosis] = { value: osteoporosis ? 'Yes' : 'No', question: 'Do you have thinning of your bones such as osteopenia or osteoporosis?' };
+
+  // Enzyme-inducing meds
+  const enzymeMeds = [];
+  if (step17.indexOf('carbamazepine') !== -1) enzymeMeds.push('Carbamazepine');
+  if (step17.indexOf('phenytoin') !== -1)     enzymeMeds.push('Phenytoin');
+  if (step17.indexOf('rifampin') !== -1)      enzymeMeds.push('Rifampin');
+  if (step17.indexOf('st-johns-wort') !== -1) enzymeMeds.push("St. John's Wort");
+  if (step17.indexOf('topiramate') !== -1)    enzymeMeds.push('Topiramate (> 200mg/day)');
+  if (step17.indexOf('lamotrigine') !== -1)   enzymeMeds.push('Lamotrigine');
+  if (step17.indexOf('barbiturates') !== -1)  enzymeMeds.push('Barbiturates');
+  apiAnswers[Q.enzyme_meds] = { value: enzymeMeds.length > 0 ? enzymeMeds : ['None apply'], question: 'Are you currently taking any of the following medications?' };
+
+  // Blood pressure (V2: step-19)
+  const bpMap = {
+    'normal-always':      'My blood pressure has always been normal',
+    'normal-90-139':      '90-139/50-89',
+    'elevated-controlled':'140-159/90-99',
+    'low-under-90':       '<90/50',
+    'dont-know':          "I don't know my blood pressure",
+  };
+  apiAnswers[Q.blood_pressure] = { value: bpMap[a['step-19']] || 'My blood pressure has always been normal', question: 'What has your blood pressure been over the last six months?' };
+
+  // ── Consents ──────────────────────────────────────────────────────────────
+  apiAnswers[Q.consent_fibroid]       = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (Fibroid)' };
+  apiAnswers[Q.fibroids]              = { value: 'No', question: 'Do you have uterine fibroids?' };
+  apiAnswers[Q.pcos]                  = { value: 'No', question: 'Do you have polycystic ovary syndrome (PCOS)?' };
+  apiAnswers[Q.consent_pcos]          = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (PCOS)' };
+  apiAnswers[Q.endometriosis]         = { value: 'No', question: 'Do you have a diagnosis of endometriosis?' };
+  apiAnswers[Q.consent_endometriosis] = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (endometriosis)' };
+  apiAnswers[Q.consent_screening]     = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Acknowledgement of Continued Screening' };
+  apiAnswers[Q.other_info]            = { value: 'No additional information', question: 'What other information or questions do you have for the doctor?' };
+  apiAnswers[Q.consent_hrt]           = { value: 'I have read the above information, I understand the risks, and I would like to proceed.', question: 'Consent (Hormone Replacement Therapy (HRT))' };
+
+  // ── Q3242 Formulation preference (from user's actual choice) ──────────────
+  const step26 = a['step-26'] || 'standard';
+  const formulationPref = (step26 === 'compound')
+    ? 'Compounded estrogen/progesterone cream (combined formulation)'
+    : 'FDA-approved estrogen and progesterone products (standard of care)';
+  apiAnswers[Q.formulation_preference] = { value: formulationPref, question: 'Standard of care menopause treatment... which option would you prefer?' };
+
+  return apiAnswers;
+}
+
+
+// ─── ROUTE: POST /api/v2/complete ─────────────────────────────────────────────
+// V2 "Treatment Matching" endpoint. Same flow as V1, different step numbers.
+app.post('/api/v2/complete', async (req, res) => {
+  const sessionId        = req.body.sessionId;
+  const quizAnswers      = req.body.quizAnswers || {};
+  const clickId          = req.body.clickId || '';
+  const affId            = req.body.affId   || '';
+  const c1               = req.body.c1      || '';
+
+  // Resolve session
+  let resolvedSessionId = sessionId;
+  if (!resolvedSessionId) {
+    const contactInfo = req.body.contactInfo || {};
+    const { firstName, lastName, email, phone } = contactInfo;
+    if (email && firstName && lastName && phone) {
+      console.log('v2: No sessionId - creating session from contact info');
+      const leadPayload = {
+        tenant_id: TENANT_ID,
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        phone: phone.replace(/\D/g, ''),
+        gender: 'Female',
+      };
+      const leadRes = await dosable('post', '/leads/', leadPayload);
+      if (leadRes.ok && leadRes.data && leadRes.data.session_id) {
+        resolvedSessionId = leadRes.data.session_id;
+      } else if (leadRes.status === 409) {
+        const sessRes = await dosable('post', '/sessions/', { tenant_id: TENANT_ID, email });
+        if (sessRes.ok && sessRes.data) resolvedSessionId = sessRes.data.session_id;
+      }
+    }
+  }
+
+  if (!resolvedSessionId) {
+    return res.status(400).json({ error: 'No session available. Please retake the quiz.' });
+  }
+
+  // Map answers using V2 step numbers
+  const apiAnswers = remapAnswersV2(quizAnswers);
+
+  console.log('v2: Submitting answers for session', resolvedSessionId);
+
+  // Bulk save answers
+  const bulkAnswersV2 = Object.fromEntries(
+    Object.entries(apiAnswers).filter(([k]) => parseInt(k) !== Q.consent_truthfulness)
+  );
+
+  const bulkRes = await dosable('put', `/sessions/${resolvedSessionId}`, bulkAnswersV2);
+  if (!bulkRes.ok) {
+    const bulkErrDetail = bulkRes.data?.detail || bulkRes.data || {};
+    const bulkFieldErrors = bulkErrDetail.field_errors || [];
+    console.error('v2: Bulk save failed:', JSON.stringify(bulkRes.data).slice(0, 800));
+    if (bulkFieldErrors.length > 0) {
+      console.error('v2: Field errors:', bulkFieldErrors.map(f => f.field + ': ' + f.message).join('; '));
+    }
+    return res.status(502).json({ error: 'Answer submission failed', detail: bulkRes.data });
+  }
+
+  // Complete session
+  const contactInfo = req.body.contactInfo || {};
+  const completeLead = {
+    ...(contactInfo.firstName && { first_name: contactInfo.firstName }),
+    ...(contactInfo.lastName  && { last_name:  contactInfo.lastName }),
+    ...(contactInfo.dob       && { birthday:   formatDob(contactInfo.dob) }),
+    ...(contactInfo.state     && { lead_state: normalizeState(contactInfo.state) }),
+    gender: 'Female',
+  };
+
+  const completePayload = {
+    ...completeLead,
+    schedule: 'monthly',
+    final_answers: {
+      [Q.consent_truthfulness]: {
+        value:    'I have read the above information and I do consent and wish to move forward',
+        question: 'Consent (Truthfulness)',
+      },
+    },
+  };
+
+  if (clickId) completePayload.cc_custom_cid = clickId;
+  if (affId)   completePayload.aff_id        = affId;
+  if (c1)      completePayload.c1            = c1;
+
+  const completeRes = await dosable('post', `/sessions/${resolvedSessionId}/complete`, completePayload);
+  if (!completeRes.ok) {
+    const completeErrDetail = completeRes.data?.detail || completeRes.data || {};
+    const completeFieldErrors = completeErrDetail.field_errors || [];
+    console.error('v2: Session complete failed:', JSON.stringify(completeRes.data).slice(0, 800));
+    if (completeFieldErrors.length > 0) {
+      console.error('v2: Complete field errors:', completeFieldErrors.map(f => f.field + ': ' + f.message).join('; '));
+    }
+    return res.status(502).json({ error: 'Session completion failed', detail: completeRes.data });
+  }
+
+  const rawCheckoutUrl = completeRes.data.checkout_url || CHECKOUT_BASE;
+  const finalCheckoutUrl = appendCheckoutParams(rawCheckoutUrl, clickId, affId, c1);
+
+  const products = parseCheckoutProducts(finalCheckoutUrl);
+  const productDisplay = buildProductDisplay(products);
+
+  console.log('v2: Checkout URL:', finalCheckoutUrl);
+  console.log('v2: Product match:', productDisplay.name, '($' + productDisplay.totalPrice + ')');
+
+  logSubmission('v2', {
+    email: contactInfo.email || quizAnswers.email || '',
+    sessionId: resolvedSessionId,
+    clickId,
+    product: productDisplay.name,
+    checkoutUrl: finalCheckoutUrl,
+    state: contactInfo.state || quizAnswers.state || '',
+  });
 
   return res.json({
     ok: true,
