@@ -150,7 +150,7 @@ function logToSheet(version, { quizAnswers, contactInfo, apiAnswers, sessionId, 
       27: 'S27', 28: 'S28', 29: 'S29', 30: 'S30', 31: 'S31', 32: 'S32',
       33: 'S33', 34: 'S34', 35: 'S35', 36: 'S36', 37: 'S37',
       38: 'S12A', 39: 'S21A', 40: 'S24A', 41: 'S24B', 42: 'S24C',
-      43: 'S20A', 44: 'S20B', 45: 'S20C', 46: 'S18B',
+      43: 'S20A', 46: 'S18B',
     };
 
     const safe = (v) => (v === undefined || v === null) ? '' : String(v);
@@ -221,9 +221,10 @@ function logToSheet(version, { quizAnswers, contactInfo, apiAnswers, sessionId, 
       S18B_adhesive_allergy: safe(a['adhesive-allergy'] || a['step-46']),
       S19_blood_pressure: safe(a['step-19']),
       S20_nicotine: safe(a['step-20']),
-      S20A_endometriosis: safe(a['step-43']),
-      S20B_fibroids: safe(a['step-44']),
-      S20C_pcos: safe(a['step-45']),
+      S20A_gyn_conditions: safe(a['step-43']),
+      S20A_endometriosis: safe(a['has-endometriosis']),
+      S20A_fibroids: safe(a['has-fibroids']),
+      S20A_pcos: safe(a['has-pcos']),
       S21_hysterectomy: safe(a['step-21']),
       S21A_hysterectomy_reason: safe(a['step-39']),
       S22_sleep_breast: safe(a['step-22']),
@@ -1401,11 +1402,18 @@ function remapAnswersV1(a) {
 
   // ── Consents ──────────────────────────────────────────────────────────────
   apiAnswers[Q.consent_fibroid]       = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (Fibroid)' };
-  apiAnswers[Q.fibroids]              = { value: 'No', question: 'Do you have uterine fibroids?' };
-  apiAnswers[Q.pcos]                  = { value: 'No', question: 'Do you have polycystic ovary syndrome (PCOS)?' };
-  apiAnswers[Q.consent_pcos]          = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (PCOS)' };
-  apiAnswers[Q.endometriosis]         = { value: 'No', question: 'Do you have a diagnosis of endometriosis?' };
+  // ── Gynecological conditions (V2: combined step 43 multi-select) ────
+  const step43 = (a['step-43'] || '').toLowerCase();
+  const hasEndo = (a['has-endometriosis'] === 'yes') || step43.indexOf('endometriosis') !== -1;
+  const hasFibroids = (a['has-fibroids'] === 'yes') || step43.indexOf('fibroids') !== -1;
+  const hasPcos = (a['has-pcos'] === 'yes') || step43.indexOf('pcos') !== -1;
+
+  apiAnswers[Q.endometriosis]         = { value: hasEndo ? 'Yes' : 'No', question: 'Do you have a diagnosis of endometriosis?' };
   apiAnswers[Q.consent_endometriosis] = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (endometriosis)' };
+  apiAnswers[Q.fibroids]              = { value: hasFibroids ? 'Yes' : 'No', question: 'Do you have uterine fibroids?' };
+  apiAnswers[Q.consent_fibroid]       = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (fibroids)' };
+  apiAnswers[Q.pcos]                  = { value: hasPcos ? 'Yes' : 'No', question: 'Do you have polycystic ovary syndrome (PCOS)?' };
+  apiAnswers[Q.consent_pcos]          = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (PCOS)' };
   apiAnswers[Q.consent_screening]     = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Acknowledgement of Continued Screening' };
   apiAnswers[Q.other_info]            = { value: 'No additional information', question: 'What other information or questions do you have for the doctor?' };
   apiAnswers[Q.consent_hrt]           = { value: 'I have read the above information, I understand the risks, and I would like to proceed.', question: 'Consent (Hormone Replacement Therapy (HRT))' };
@@ -1752,11 +1760,18 @@ function remapAnswersV2(a) {
 
   // ── Consents ──────────────────────────────────────────────────────────────
   apiAnswers[Q.consent_fibroid]       = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (Fibroid)' };
-  apiAnswers[Q.fibroids]              = { value: 'No', question: 'Do you have uterine fibroids?' };
-  apiAnswers[Q.pcos]                  = { value: 'No', question: 'Do you have polycystic ovary syndrome (PCOS)?' };
-  apiAnswers[Q.consent_pcos]          = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (PCOS)' };
-  apiAnswers[Q.endometriosis]         = { value: 'No', question: 'Do you have a diagnosis of endometriosis?' };
+  // ── Gynecological conditions (V2: combined step 43 multi-select) ────
+  const step43 = (a['step-43'] || '').toLowerCase();
+  const hasEndo = (a['has-endometriosis'] === 'yes') || step43.indexOf('endometriosis') !== -1;
+  const hasFibroids = (a['has-fibroids'] === 'yes') || step43.indexOf('fibroids') !== -1;
+  const hasPcos = (a['has-pcos'] === 'yes') || step43.indexOf('pcos') !== -1;
+
+  apiAnswers[Q.endometriosis]         = { value: hasEndo ? 'Yes' : 'No', question: 'Do you have a diagnosis of endometriosis?' };
   apiAnswers[Q.consent_endometriosis] = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (endometriosis)' };
+  apiAnswers[Q.fibroids]              = { value: hasFibroids ? 'Yes' : 'No', question: 'Do you have uterine fibroids?' };
+  apiAnswers[Q.consent_fibroid]       = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (fibroids)' };
+  apiAnswers[Q.pcos]                  = { value: hasPcos ? 'Yes' : 'No', question: 'Do you have polycystic ovary syndrome (PCOS)?' };
+  apiAnswers[Q.consent_pcos]          = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Consent (PCOS)' };
   apiAnswers[Q.consent_screening]     = { value: 'I have read and understand the above information and I wish to proceed with therapy', question: 'Acknowledgement of Continued Screening' };
   apiAnswers[Q.other_info]            = { value: 'No additional information', question: 'What other information or questions do you have for the doctor?' };
   apiAnswers[Q.consent_hrt]           = { value: 'I have read the above information, I understand the risks, and I would like to proceed.', question: 'Consent (Hormone Replacement Therapy (HRT))' };

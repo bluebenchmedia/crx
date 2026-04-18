@@ -536,3 +536,39 @@
 }
 .chip-btn:hover { border-color: var(--rose); }
 .chip-btn.selected { background: var(--rose); border-color: var(--rose); color: #fff; }
+
+/* ── Gynecological Consent Notices (Step 43 combined) ────────────────── */
+.gyn-consents {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeUp 0.25s ease forwards;
+}
+.gyn-consent-item {
+  background: var(--cream-dark);
+  border: 1px solid var(--taupe);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.gyn-consent-text {
+  font-size: 13px;
+  color: var(--charcoal);
+  line-height: 1.6;
+  margin: 0;
+}
+.gyn-consent-text strong {
+  color: var(--rose);
+  font-weight: 600;
+}
+
+/* ── Relief Timeline padding fix ─────────────────────────────────────── */
+#step-27 .interstitial {
+  padding: 0 0 16px;
+}
+#step-27 .interstitial-headline {
+  margin-bottom: 20px;
+}
+#step-27 .interstitial-cta {
+  margin-top: 24px;
+}

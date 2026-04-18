@@ -229,7 +229,7 @@
 
     // Back button visibility
     var backBtn = document.getElementById('quizBackBtn');
-    if (backBtn) backBtn.style.display = (n <= 2) ? 'none' : '';
+    if (backBtn) { if (n <= 2) backBtn.classList.remove('visible'); else backBtn.classList.add('visible'); }
 
     // Remove active from ALL steps first (prevents stale steps on session restore)
     var allSteps = document.querySelectorAll('.quiz-step.active');
@@ -269,14 +269,10 @@
     if (from === 18) return 46;
     // Step 46 (adhesive allergy) -> 19 (blood pressure)
     if (from === 46) return 19;
-    // Step 20 (nicotine) -> 43 (endometriosis) — gynecological history block
+    // Step 20 (nicotine) -> 43 (gynecological history: combined endo/fibroids/PCOS)
     if (from === 20) return 43;
-    // Step 43 (endometriosis) -> 44 (fibroids)
-    if (from === 43) return 44;
-    // Step 44 (fibroids) -> 45 (PCOS)
-    if (from === 44) return 45;
-    // Step 45 (PCOS) -> 21 (hysterectomy)
-    if (from === 45) return 21;
+    // Step 43 (gynecological history) -> 21 (hysterectomy)
+    if (from === 43) return 21;
 
     // Step 21 = hysterectomy: YES -> 39 (hyst reason), NO -> 24 (skip sleep/breast)
     if (from === 21) {
@@ -325,9 +321,7 @@
     if (from === 19) return 46;
     // Gynecological block back nav
     if (from === 43) return 20;
-    if (from === 44) return 43;
-    if (from === 45) return 44;
-    if (from === 21) return 45;
+    if (from === 21) return 43;
     // Step 39 (hyst reason) <- 21
     if (from === 39) return 21;
     // Step 22 <- 39 (if hysterectomy=yes) or 21
@@ -462,7 +456,7 @@
   function bindNextButtons() {
     var skipIds = ['step-30-next-state','step-31-next-dob','step-32-next-name',
                    'step-33-next-email','step-34-next-phone',
-                   'step-18-allergy-next','step-35-next'];
+                   'step-18-allergy-next','step-35-next','step-43-next'];
     document.querySelectorAll('.quiz-next-btn').forEach(function(btn) {
       if (skipIds.indexOf(btn.id) !== -1) return;
       btn.addEventListener('click', function() {
@@ -484,6 +478,72 @@
       });
     });
   }
+
+
+  /* ── Gynecological conditions (step 43) consent logic ────────────── */
+  function bindGynStep() {
+    var gynStep = document.getElementById('step-43');
+    if (!gynStep) return;
+    var consentWrap = document.getElementById('gyn-consents');
+    var consentEndo = document.getElementById('consent-endo');
+    var consentFib = document.getElementById('consent-fibroids');
+    var consentPcos = document.getElementById('consent-pcos');
+    var nextBtn = document.getElementById('step-43-next');
+
+    // Update consent visibility based on selections
+    function updateGynConsents() {
+      var selected = gynStep.querySelectorAll('.option-btn.selected');
+      var vals = [];
+      for (var i = 0; i < selected.length; i++) vals.push(selected[i].dataset.value);
+      var hasEndo = vals.indexOf('endometriosis') !== -1;
+      var hasFib = vals.indexOf('fibroids') !== -1;
+      var hasPcos = vals.indexOf('pcos') !== -1;
+      var anyCondition = hasEndo || hasFib || hasPcos;
+
+      if (consentWrap) consentWrap.style.display = anyCondition ? 'flex' : 'none';
+      if (consentEndo) consentEndo.style.display = hasEndo ? 'block' : 'none';
+      if (consentFib) consentFib.style.display = hasFib ? 'block' : 'none';
+      if (consentPcos) consentPcos.style.display = hasPcos ? 'block' : 'none';
+
+      // Show next button if any selection made
+      if (nextBtn) {
+        if (vals.length > 0) nextBtn.classList.add('visible');
+        else nextBtn.classList.remove('visible');
+      }
+    }
+
+    // Listen for clicks on step 43 option buttons
+    gynStep.querySelectorAll('.option-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        // "None" is exclusive — deselect everything else
+        if (btn.dataset.value === 'none') {
+          gynStep.querySelectorAll('.option-btn').forEach(function(b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+        } else {
+          // Deselect "none" if picking a condition
+          var noneBtn = gynStep.querySelector('[data-value="none"]');
+          if (noneBtn) noneBtn.classList.remove('selected');
+        }
+        updateGynConsents();
+      });
+    });
+
+    // Next button records answer and advances
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function() {
+        var selected = gynStep.querySelectorAll('.option-btn.selected');
+        var vals = [];
+        for (var i = 0; i < selected.length; i++) vals.push(selected[i].dataset.value);
+        recordAnswer('step-43', vals.join(','));
+        // Also record individual keys for server mapping
+        recordAnswer('has-endometriosis', vals.indexOf('endometriosis') !== -1 ? 'yes' : 'no');
+        recordAnswer('has-fibroids', vals.indexOf('fibroids') !== -1 ? 'yes' : 'no');
+        recordAnswer('has-pcos', vals.indexOf('pcos') !== -1 ? 'yes' : 'no');
+        advance();
+      });
+    }
+  }
+  bindGynStep();
 
   /* ── Allergy flow ────────────────────────────────────────────────────── */
   function bindAllergyFlow() {
