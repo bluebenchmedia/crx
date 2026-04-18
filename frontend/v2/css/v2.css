@@ -312,3 +312,66 @@
   text-align: center;
   font-style: italic;
 }
+
+/* ── Quiz Icon Sprite System ──────────────────────────────────────── */
+.qi {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background: url('../../images/quiz-icons.png') no-repeat;
+  background-size: 300px 250px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* Symptom icons (row 0-1) */
+.qi-hot-flashes        { background-position: 0 0; }
+.qi-night-sweats       { background-position: -50px 0; }
+.qi-sleep-problems     { background-position: -100px 0; }
+.qi-mood-swings        { background-position: -150px 0; }
+.qi-anxiety-depression { background-position: -200px 0; }
+.qi-brain-fog          { background-position: -250px 0; }
+.qi-fatigue            { background-position: 0 -50px; }
+.qi-low-libido         { background-position: -50px -50px; }
+.qi-vaginal-dryness    { background-position: -100px -50px; }
+.qi-weight-gain        { background-position: -150px -50px; }
+.qi-thinning-hair      { background-position: -200px -50px; }
+.qi-dry-skin           { background-position: -250px -50px; }
+.qi-joint-pain         { background-position: 0 -100px; }
+.qi-aging-skin         { background-position: -50px -100px; }
+
+/* Intensity bar icons (row 2) */
+.qi-intensity-mild          { background-position: -100px -100px; }
+.qi-intensity-moderate      { background-position: -150px -100px; }
+.qi-intensity-significant   { background-position: -200px -100px; }
+.qi-intensity-severe        { background-position: -250px -100px; }
+
+/* General icons (rows 3-4) */
+.qi-checkmark { background-position: 0 -150px; }
+.qi-lock      { background-position: -50px -150px; }
+.qi-science   { background-position: -100px -150px; }
+.qi-star      { background-position: -150px -150px; }
+.qi-heart     { background-position: -200px -150px; }
+.qi-clock     { background-position: -250px -150px; }
+.qi-pill      { background-position: 0 -200px; }
+.qi-doctor    { background-position: -50px -200px; }
+
+/* Icon sizing inside buttons */
+.option-btn .qi {
+  width: 20px;
+  height: 20px;
+  background-size: 240px 200px;
+}
+
+/* Symptom grid: icons above text */
+.options-grid .option-btn .qi {
+  width: 24px;
+  height: 24px;
+  background-size: 300px 250px;
+  margin-bottom: 2px;
+}
+
+/* Icons invert to white when button is selected in grid */
+.options-grid .option-btn.selected .qi {
+  filter: brightness(0) invert(1);
+}
