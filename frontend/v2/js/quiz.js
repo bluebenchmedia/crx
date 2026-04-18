@@ -1024,6 +1024,22 @@ function startLoading() {
   }
 }
 
+function agreeAllConsents() {
+  // Mark all 3 consent items as agreed visually
+  for (var i = 1; i <= 3; i++) {
+    var item = document.getElementById("consent-" + i);
+    var badge = document.getElementById("consent-agreed-" + i);
+    var agreeBtn = item ? item.querySelector(".consent-agree-btn") : null;
+    if (badge) badge.style.display = "flex";
+    if (agreeBtn) agreeBtn.style.display = "none";
+    if (item) { item.classList.add("agreed"); item.classList.remove("open"); }
+  }
+  // Record consent answers and advance
+  if (window.CRX && window.CRX.recordAndAdvance) {
+    window.CRX.recordAndAdvance("consent_hrt", "yes");
+  }
+}
+
 function submitDqGuide() {
   var emailInput = document.getElementById('dq-email-input');
   var btn = document.getElementById('dq-guide-btn');
