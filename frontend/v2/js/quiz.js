@@ -603,7 +603,7 @@
   function populateGreatCandidate() {
     var headEl = document.getElementById('great-candidate-headline');
     var bodyEl = document.getElementById('great-candidate-body');
-    if (\!headEl || \!bodyEl) return;
+    if (!headEl || !bodyEl) return;
     var name = answers['firstName'] || '';
     if (name) {
       headEl.textContent = name + ', you\u2019re a strong candidate for HRT.';
@@ -952,9 +952,9 @@ function submitDqGuide() {
   var emailInput = document.getElementById('dq-email-input');
   var btn = document.getElementById('dq-guide-btn');
   var sent = document.getElementById('dq-guide-sent');
-  if (\!emailInput) return;
+  if (!emailInput) return;
   var email = emailInput.value.trim();
-  if (\!email || email.indexOf('@') === -1) { emailInput.focus(); return; }
+  if (!email || email.indexOf('@') === -1) { emailInput.focus(); return; }
   if (btn) { btn.disabled = true; btn.textContent = 'Sending\u2026'; }
   // Fire lead capture with DQ flag for the guide
   var PROXY_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
@@ -966,7 +966,7 @@ function submitDqGuide() {
     body: JSON.stringify({ email: email, source: 'dq-guide', firstName: '', lastName: '', phone: '', state: '', zip: '00000', dob: '' }),
   }).then(function() {
     if (sent) sent.style.display = 'block';
-    if (btn) { btn.textContent = 'Sent\!'; }
+    if (btn) { btn.textContent = 'Sent!'; }
     emailInput.style.display = 'none';
   }).catch(function() {
     if (sent) { sent.textContent = 'Something went wrong. Please try again.'; sent.style.display = 'block'; }
