@@ -258,6 +258,10 @@
 
   /* ── Navigation: getNextStep ─────────────────────────────────────────── */
   function getNextStep(from) {
+    // Step 2 (normalization interstitial) -> 1 (duration) -> 3 (age)
+    if (from === 2) return 1;
+    if (from === 1) return 3;
+
     // Step 12 = barriers: safety-concerns -> 38 (reassurance), else -> 13
     if (from === 12) {
       return (answers['step-12'] === 'safety-concerns') ? 38 : 13;
@@ -309,6 +313,10 @@
 
   /* ── Navigation: getPrevStep ─────────────────────────────────────────── */
   function getPrevStep(from) {
+    // Step 1 (duration) -> 2 (normalization)
+    if (from === 1) return 2;
+    // Step 3 (age) -> 1 (duration)
+    if (from === 3) return 1;
     // Step 38 -> 12
     if (from === 38) return 12;
     // Step 13 -> 38 (if safety-concerns) or 12
