@@ -924,10 +924,10 @@
     var emailBtn = document.getElementById('step-33-next-email');
     var emailInput = document.getElementById('email-input');
     if (emailBtn && emailInput) {
-      emailBtn.addEventListener('click', function() {
       emailInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') { e.preventDefault(); emailBtn.click(); }
       });
+      emailBtn.addEventListener('click', function() {
         var val = emailInput.value.trim();
         if (!val || val.indexOf('@') === -1 || val.indexOf('.') === -1) { emailInput.focus(); return; }
         recordAnswer('email', val);
