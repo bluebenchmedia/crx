@@ -45,7 +45,7 @@
   'use strict';
 
   var TOTAL_STEPS = 47;
-  var STEP_ORDER = [2,1,3,4,6,7,8,9,10,11,12,38,13,14,15,16,45,17,44,18,46,19,20,43,21,39,22,23,24,40,41,42,25,26,27,28,29,30,31,32,33,34,47,35,36,37];
+  var STEP_ORDER = [2,1,3,4,6,7,8,9,10,11,12,38,13,14,15,16,45,17,44,18,46,19,20,43,21,39,22,23,24,40,41,42,25,26,27,47,28,29,30,31,32,33,34,35,36,37];
   var currentStep = 2;
   var answers     = {};
 
@@ -324,10 +324,12 @@
     if (from === 25) return 26;
     // Step 26 (treatment pref) -> 27 (relief timeline)
     if (from === 26) return 27;
-    // Step 34 (phone) -> 47 (doctor questions)
-    if (from === 34) return 47;
-    // Step 47 (doctor questions) -> 35 (consent)
-    if (from === 47) return 35;
+    // Step 27 (relief timeline) -> 47 (doctor questions)
+    if (from === 27) return 47;
+    // Step 47 (doctor questions) -> 28
+    if (from === 47) return 28;
+    // Step 34 (phone) -> 35 (consent)
+    if (from === 34) return 35;
 
     // Default: next step
     return from + 1;
@@ -381,10 +383,8 @@
       }
       return 21;
     }
-    // Step 47 (doctor questions) <- 34
-    if (from === 47) return 34;
-    // Step 35 <- 47
-    if (from === 35) return 47;
+    // Step 35 <- 34
+    if (from === 35) return 34;
     // HRT conditional loop back nav
     if (from === 40) return 24;
     if (from === 41) return 40;
@@ -396,6 +396,10 @@
     if (from === 26) {
       return (answers['step-24'] !== 'never') ? 25 : 24;
     }
+    // Step 47 (doctor questions) <- 27
+    if (from === 47) return 27;
+    // Step 28 <- 47
+    if (from === 28) return 47;
     // Default: previous step
     return from - 1;
   }
@@ -870,6 +874,9 @@
         if (v.length > 10) v = v.slice(0,10);
         dobInput.value = v;
       });
+      dobInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); dobBtn.click(); }
+      });
       dobBtn.addEventListener('click', function() {
         var val = dobInput.value.trim();
         var parts = val.split('/');
@@ -895,6 +902,12 @@
     var firstInput = document.getElementById('first-name-input');
     var lastInput = document.getElementById('last-name-input');
     if (nameBtn && firstInput && lastInput) {
+      firstInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); lastInput.focus(); }
+      });
+      lastInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); nameBtn.click(); }
+      });
       nameBtn.addEventListener('click', function() {
         var first = firstInput.value.trim();
         var last = lastInput.value.trim();
@@ -912,6 +925,9 @@
     var emailInput = document.getElementById('email-input');
     if (emailBtn && emailInput) {
       emailBtn.addEventListener('click', function() {
+      emailInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); emailBtn.click(); }
+      });
         var val = emailInput.value.trim();
         if (!val || val.indexOf('@') === -1 || val.indexOf('.') === -1) { emailInput.focus(); return; }
         recordAnswer('email', val);
@@ -930,6 +946,9 @@
         if (v.length > 9) v = v.slice(0,9) + '-' + v.slice(9);
         if (v.length > 14) v = v.slice(0,14);
         phoneInput.value = v;
+      });
+      phoneInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); phoneBtn.click(); }
       });
       phoneBtn.addEventListener('click', function() {
         var val = phoneInput.value.replace(/[^\d]/g, '');
@@ -1217,22 +1236,35 @@
     });
   }
 
-  // Step 47: doctor questions (with skip button)
-  var doc47Next = document.getElementById('step-47-next');
-  var doc47Skip = document.getElementById('step-47-skip');
-  if (doc47Next) {
-    doc47Next.addEventListener('click', function() {
-      var val = (document.getElementById('step-47-text') || {}).value || '';
-      recordAnswer('step-47', val.trim() || 'No additional information');
-      advance();
-    });
-  }
-  if (doc47Skip) {
-    doc47Skip.addEventListener('click', function() {
-      recordAnswer('step-47', 'No additional information');
-      advance();
-    });
-  }
+  // Step 47: doctor questions — yes/no then conditional free text
+  (function() {
+    var noBtn = document.getElementById('step-47-no');
+    var yesBtn = document.getElementById('step-47-yes');
+    var textWrap = document.getElementById('step-47-text-wrap');
+    var textArea = document.getElementById('step-47-text');
+    var submitBtn = document.getElementById('step-47-submit');
+    if (noBtn) {
+      noBtn.addEventListener('click', function() {
+        recordAnswer('step-47', 'No additional information');
+        advance();
+      });
+    }
+    if (yesBtn && textWrap) {
+      yesBtn.addEventListener('click', function() {
+        noBtn.style.display = 'none';
+        yesBtn.style.display = 'none';
+        textWrap.style.display = 'block';
+        if (textArea) textArea.focus();
+      });
+    }
+    if (submitBtn) {
+      submitBtn.addEventListener('click', function() {
+        var val = textArea ? textArea.value.trim() : '';
+        recordAnswer('step-47', val || 'No additional information');
+        advance();
+      });
+    }
+  })();
 
   window.CRX = {
     advance: advance,

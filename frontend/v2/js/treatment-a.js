@@ -167,6 +167,7 @@
     } catch(e) {}
 
     var firstName = result.firstName || sessionStorage.getItem('crx_first_name') || '';
+    if (firstName) firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
 
     renderPreapprovalBar(firstName);
     renderHero(firstName);

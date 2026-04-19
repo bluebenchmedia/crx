@@ -683,7 +683,7 @@
       <div class="freetext-wrap">
         <textarea class="quiz-textarea" id="step-45-text" rows="3" placeholder="e.g., Hypothyroid, ADHD, arthritis..." style="font-size:16px"></textarea>
       </div>
-      <button class="quiz-next-btn visible" id="step-45-next">Continue 2192</button>
+      <button class="quiz-next-btn visible" id="step-45-next">Continue &#8594;</button>
     </div>
 
     <!-- STEP 44: Free-text medications (conditional: step-17 != none) -->
@@ -694,20 +694,21 @@
       <div class="freetext-wrap">
         <textarea class="quiz-textarea" id="step-44-text" rows="3" placeholder="e.g., Levothyroxine 50mcg, Vitamin D 2000IU..." style="font-size:16px"></textarea>
       </div>
-      <button class="quiz-next-btn visible" id="step-44-next">Continue 2192</button>
+      <button class="quiz-next-btn visible" id="step-44-next">Continue &#8594;</button>
     </div>
 
-    <!-- STEP 47: Doctor questions (optional, before consent) -->
+    <!-- STEP 47: Doctor questions (optional, two-step: yes/no then textarea) -->
     <div class="quiz-step" id="step-47">
-      <span class="step-eyebrow">Almost done</span>
-      <h2 class="step-question">Any questions or information for your doctor?</h2>
-      <p class="step-sub">This is optional 2014 skip if you don2019t have anything right now.</p>
-      <div class="freetext-wrap">
-        <textarea class="quiz-textarea" id="step-47-text" rows="3" placeholder="e.g., Can I also get testosterone tested? Do you check hormone levels via blood work?" style="font-size:16px"></textarea>
+      <span class="step-eyebrow">One more thing</span>
+      <h2 class="step-question">Do you have any questions for the doctor?</h2>
+      <p class="step-sub">Your physician will review your full profile &mdash; this is just an optional chance to add anything extra.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+        <button class="option-btn" id="step-47-no" style="width:100%;">No, I&#x2019;m all set &#8594;</button>
+        <button class="option-btn" id="step-47-yes" style="width:100%;background:transparent;border:2px solid var(--sage);color:var(--charcoal);">Yes, I have a question</button>
       </div>
-      <div style="display:flex;gap:12px;margin-top:8px;">
-        <button class="quiz-next-btn visible" id="step-47-skip" style="background:var(--taupe);color:var(--charcoal);">Skip 2192</button>
-        <button class="quiz-next-btn visible" id="step-47-next">Continue 2192</button>
+      <div id="step-47-text-wrap" class="freetext-wrap" style="display:none;margin-top:12px;">
+        <textarea class="quiz-textarea" id="step-47-text" rows="3" placeholder="e.g., Can I also get testosterone tested? Do you check hormone levels via blood work?" style="font-size:16px"></textarea>
+        <button class="quiz-next-btn visible" id="step-47-submit" style="margin-top:8px;">Continue &#8594;</button>
       </div>
     </div>
     <div class="quiz-step" id="step-39">
