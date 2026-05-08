@@ -229,6 +229,22 @@
 
     /* Mobile input zoom fix */
     input[type="text"],input[type="email"],input[type="tel"],input[type="number"],select,textarea{font-size:16px!important;}
+
+    /* CRO checkout loading overlay (treatment page → checkout transition) */
+    .crx-checkout-overlay{position:fixed;inset:0;background:rgba(250,247,242,.96);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;pointer-events:none;transition:opacity .25s ease;}
+    .crx-checkout-overlay--show{opacity:1;pointer-events:auto;}
+    .crx-checkout-overlay__inner{max-width:440px;width:calc(100% - 2rem);text-align:center;padding:2rem 1.5rem;background:white;border:1px solid var(--taupe);border-radius:1rem;box-shadow:0 16px 56px rgba(26,26,26,.16);}
+    .crx-checkout-overlay__spinner{width:48px;height:48px;margin:0 auto 1.25rem;border-radius:50%;border:3px solid var(--taupe);border-top-color:var(--rose);animation:crxSpin .85s linear infinite;}
+    @keyframes crxSpin{to{transform:rotate(360deg);}}
+    .crx-checkout-overlay__head{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.5rem;font-weight:600;color:var(--forest);margin-bottom:.5rem;line-height:1.25;}
+    .crx-checkout-overlay__sub{font-size:.9375rem;color:var(--mid);margin-bottom:1.5rem;}
+    .crx-checkout-overlay__bar-wrap{width:100%;height:8px;background:var(--taupe);border-radius:4px;overflow:hidden;margin-bottom:.875rem;}
+    .crx-checkout-overlay__bar-fill{height:100%;width:0;border-radius:4px;background:linear-gradient(90deg,var(--rose),var(--rose-dk));transition:width .55s ease;}
+    .crx-checkout-overlay__status{font-size:.875rem;color:var(--mid);min-height:1.25rem;margin-bottom:1.25rem;font-weight:500;}
+    .crx-checkout-overlay__trust{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;font-size:.75rem;color:var(--light);font-weight:500;}
+    .crx-checkout-overlay__trust span{display:inline-flex;align-items:center;gap:.3rem;}
+    .crx-checkout-overlay__trust svg{color:var(--emerald);}
+    @media(max-width:480px){.crx-checkout-overlay__head{font-size:1.25rem;}.crx-checkout-overlay__inner{padding:1.5rem 1.25rem;}}
   </style>
 
   <!-- Meta Pixel Code -->

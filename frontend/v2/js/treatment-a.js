@@ -381,36 +381,84 @@
     if (checkoutBusy) return;
     checkoutBusy = true;
 
+    // Disable buttons (overlay covers them, belt-and-suspenders)
     var btns = document.querySelectorAll('.cta-btn');
-    btns.forEach(function(btn) { btn.disabled = true; btn.textContent = 'Preparing your checkout\u2026'; });
+    btns.forEach(function(btn) { btn.disabled = true; });
 
     // Fire conversion pixels
     if (typeof fbq === 'function') fbq('track', 'InitiateCheckout');
     if (typeof gtag === 'function') gtag('event', 'begin_checkout');
 
-    // Build checkout URL with CPIDs — always monthly
-    var p = getProduct(selectedId);
-    var priceData = getMonthlyPrice(p);
-    var cpids = [priceData.cpid + ':1'];
-
-    // Progesterone for non-compounded
-    if (flags.needsProgesterone && !p.isCompoundedEP) {
-      cpids.push(getProgData().cpid + ':1');
-    }
-
-    // Vaginal add-on if symptoms flagged and not vaginal product
-    if (flags.vaginalSymptoms && !p.isVaginalFocused) {
-      cpids.push(VAGINAL_ADDON.monthly.cpid + ':1');
-    }
-
-    try {
-      var url = new URL(checkoutBaseUrl);
-      url.searchParams.set('products', cpids.join(';'));
-      window.location.href = url.toString();
-    } catch(e) {
-      console.error('URL parse error, using original checkout URL:', e);
+    // STRICT RULE: NEVER touch the products= parameter on the Dosable checkout URL.
+    // The server (/api/v2/complete) returns the URL exactly as Dosable produced it.
+    // The quiz intake is responsible for sending product info upstream — if products=
+    // isn't there, fix the intake, not this redirect. Tracking + coupon params are
+    // OK to add; product IDs are not.
+    showCheckoutLoadingOverlay(function() {
       window.location.href = checkoutBaseUrl;
-    }
+    });
+  }
+
+  /* ── CRO loading overlay shown between treatment page and checkout ── */
+  function showCheckoutLoadingOverlay(onComplete) {
+    var firstName = (sessionStorage.getItem('crx_first_name') || '').trim();
+    var capName   = firstName ? firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase() : '';
+    var p         = getProduct(selectedId);
+    var prodLabel = p && p.shortName ? p.shortName : 'your treatment';
+
+    var messages = [
+      'Securing your physician slot\u2026',
+      'Verifying your eligibility for ' + prodLabel + '\u2026',
+      'Encrypting your health profile\u2026',
+      'Reserving your medication with our US compounding pharmacy\u2026',
+      capName ? 'Preparing ' + capName + '\u2019s personalized checkout\u2026'
+              : 'Preparing your personalized checkout\u2026'
+    ];
+
+    var overlay = document.createElement('div');
+    overlay.className = 'crx-checkout-overlay';
+    overlay.setAttribute('role', 'status');
+    overlay.setAttribute('aria-live', 'polite');
+    overlay.innerHTML =
+      '<div class="crx-checkout-overlay__inner">' +
+        '<div class="crx-checkout-overlay__spinner" aria-hidden="true"></div>' +
+        '<h2 class="crx-checkout-overlay__head">' +
+          (capName ? capName + ', preparing your secure checkout' : 'Preparing your secure checkout') +
+        '</h2>' +
+        '<p class="crx-checkout-overlay__sub">This will only take a few seconds.</p>' +
+        '<div class="crx-checkout-overlay__bar-wrap"><div class="crx-checkout-overlay__bar-fill" id="crx-checkout-bar"></div></div>' +
+        '<p class="crx-checkout-overlay__status" id="crx-checkout-status">' + messages[0] + '</p>' +
+        '<div class="crx-checkout-overlay__trust">' +
+          '<span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> 256-bit SSL</span>' +
+          '<span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> HIPAA compliant</span>' +
+          '<span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> No charge until physician approves</span>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+
+    overlay.offsetHeight;
+    overlay.classList.add('crx-checkout-overlay--show');
+
+    var bar    = document.getElementById('crx-checkout-bar');
+    var status = document.getElementById('crx-checkout-status');
+    if (bar) bar.style.width = '8%';
+
+    var msgIdx = 0;
+    var msgInterval = setInterval(function() {
+      msgIdx++;
+      if (msgIdx >= messages.length) { clearInterval(msgInterval); return; }
+      if (status) status.textContent = messages[msgIdx];
+      if (bar)    bar.style.width = Math.min(8 + msgIdx * 21, 90) + '%';
+    }, 700);
+
+    setTimeout(function() {
+      clearInterval(msgInterval);
+      if (bar)    bar.style.width = '100%';
+      if (status) status.textContent = 'Opening secure checkout\u2026';
+      setTimeout(function() {
+        if (typeof onComplete === 'function') onComplete();
+      }, 450);
+    }, 3300);
   }
 
   /* ── Discover accordion (kept) ─────────────────────────────────────────── */
