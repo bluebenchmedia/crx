@@ -1,0 +1,574 @@
+/* ============================================================
+   ClearedRx V2 Quiz — Override & Extension CSS
+   Loaded AFTER ../css/quiz.css
+   ============================================================ */
+
+/* ── 2-Column Symptom Grid (Step 6) ─────────────────────────────────── */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.options-grid .option-btn {
+  font-size: 0.875rem;
+  padding: 12px 10px;
+  text-align: center;
+  min-height: 48px;
+  line-height: 1.25;
+}
+
+.options-grid .option-btn.selected {
+  background: var(--rose);
+  color: var(--white);
+  border-color: var(--rose);
+}
+
+.options-grid .option-btn.selected::after {
+  content: none;
+}
+
+/* ── Symptom Count (animated line below checklist) ──────────────────── */
+.symptom-count {
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sage);
+  margin-top: 8px;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.symptom-count.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Privacy Points (Step 13 interstitial) ──────────────────────────── */
+.privacy-points {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.privacy-points .privacy-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.9375rem;
+  color: var(--charcoal);
+  line-height: 1.5;
+}
+
+.privacy-points .privacy-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  color: var(--sage);
+}
+
+/* ── Preference Cards (Step 26: compound vs standard) ───────────────── */
+.pref-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.pref-card {
+  background: var(--white);
+  border: 2px solid var(--taupe);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pref-card:hover {
+  border-color: var(--rose-light);
+}
+
+.pref-card.selected {
+  border-color: var(--rose);
+  box-shadow: 0 0 0 3px var(--rose-light);
+}
+
+.pref-card-title {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--charcoal);
+  margin-bottom: 6px;
+}
+
+.pref-card-body {
+  font-size: 0.875rem;
+  color: var(--charcoal-60);
+  line-height: 1.5;
+}
+
+/* ── Relief Timeline (Step 27 dynamic interstitial) ─────────────────── */
+.relief-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.relief-phase {
+  padding-left: 20px;
+  border-left: 3px solid var(--sage);
+}
+
+.relief-phase-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sage);
+  margin-bottom: 6px;
+}
+
+.relief-phase-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.relief-phase-item {
+  font-size: 0.9375rem;
+  color: var(--charcoal);
+  line-height: 1.45;
+}
+
+.relief-phase-item::before {
+  content: none;
+  color: var(--sage);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.relief-duration-callback {
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--charcoal-60);
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--taupe);
+}
+
+/* ── Stat Card (Step 29: 87% interstitial) ──────────────────────────── */
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--taupe);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+  margin: 16px 0;
+}
+
+.stat-card-number {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: 500;
+  color: var(--sage);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-card-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--charcoal-60);
+  margin-bottom: 8px;
+}
+
+.stat-card-sub {
+  font-size: 0.9375rem;
+  color: var(--charcoal);
+  line-height: 1.5;
+}
+
+/* ── Testimonial Card (Step 28) ─────────────────────────────────────── */
+.testimonial-card {
+  background: var(--white);
+  border: 1px solid var(--taupe);
+  border-radius: var(--radius);
+  padding: 24px 20px;
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.testimonial-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--taupe);
+  margin-bottom: 12px;
+  object-fit: cover;
+}
+
+.testimonial-quote {
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--charcoal);
+  line-height: 1.6;
+  margin-bottom: 10px;
+  max-width: 420px;
+}
+
+.testimonial-cite {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--charcoal-60);
+}
+
+/* ── Sticky Next Button (for multi-select steps) ───────────────────── */
+.options-grid + .quiz-next-btn,
+.multi + .quiz-next-btn {
+  position: sticky;
+  bottom: 16px;
+  z-index: 5;
+}
+
+/* ── Celebrate Animation (Step 36) ──────────────────────────────────── */
+.celebrate {
+  animation: celebratePulse 0.6s ease;
+}
+
+@keyframes celebratePulse {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Mobile refinements ─────────────────────────────────────────────── */
+@media (max-width: 374px) {
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Safety Reassurance Cards (Step 38: conditional HRT safety) ────── */
+.safety-reassurance {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.safety-card {
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: var(--cream-dark);
+  border: 1px solid var(--taupe);
+}
+
+.safety-card.safety-card-good {
+  background: var(--sage-light);
+  border-color: var(--sage);
+}
+
+.safety-card-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--charcoal-60);
+  margin-bottom: 6px;
+}
+
+.safety-card.safety-card-good .safety-card-label {
+  color: var(--sage);
+}
+
+.safety-card-body {
+  font-size: 14px;
+  color: var(--charcoal);
+  line-height: 1.6;
+}
+
+.safety-card-body strong {
+  color: var(--sage);
+}
+
+.safety-footnote {
+  font-size: 12px;
+  color: var(--charcoal-60);
+  line-height: 1.5;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── Quiz Icon Sprite System ──────────────────────────────────────── */
+.qi {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background: url('../../images/quiz-icons.png') no-repeat;
+  background-size: 300px 250px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* Symptom icons (row 0-1) */
+.qi-hot-flashes        { background-position: 0 0; }
+.qi-night-sweats       { background-position: -50px 0; }
+.qi-sleep-problems     { background-position: -100px 0; }
+.qi-mood-swings        { background-position: -150px 0; }
+.qi-anxiety-depression { background-position: -200px 0; }
+.qi-brain-fog          { background-position: -250px 0; }
+.qi-fatigue            { background-position: 0 -50px; }
+.qi-low-libido         { background-position: -50px -50px; }
+.qi-vaginal-dryness    { background-position: -100px -50px; }
+.qi-weight-gain        { background-position: -150px -50px; }
+.qi-thinning-hair      { background-position: -200px -50px; }
+.qi-dry-skin           { background-position: -250px -50px; }
+.qi-joint-pain         { background-position: 0 -100px; }
+.qi-aging-skin         { background-position: -50px -100px; }
+
+/* Intensity bar icons — CSS data URI for crispness at small sizes */
+.qi-intensity-mild {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect x='2' y='14' width='3' height='4' rx='1' fill='%237A9E7E'/%3E%3Crect x='7' y='14' width='3' height='4' rx='1' fill='%23d5d0c8'/%3E%3Crect x='12' y='14' width='3' height='4' rx='1' fill='%23d5d0c8'/%3E%3Crect x='17' y='14' width='3' height='4' rx='1' fill='%23d5d0c8'/%3E%3C/svg%3E") \!important;
+  background-position: 0 0 \!important;
+  background-size: 20px 20px \!important;
+}
+.qi-intensity-moderate {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect x='2' y='14' width='3' height='4' rx='1' fill='%237A9E7E'/%3E%3Crect x='7' y='11' width='3' height='7' rx='1' fill='%237A9E7E'/%3E%3Crect x='12' y='14' width='3' height='4' rx='1' fill='%23d5d0c8'/%3E%3Crect x='17' y='14' width='3' height='4' rx='1' fill='%23d5d0c8'/%3E%3C/svg%3E") \!important;
+  background-position: 0 0 \!important;
+  background-size: 20px 20px \!important;
+}
+.qi-intensity-significant {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect x='2' y='14' width='3' height='4' rx='1' fill='%237A9E7E'/%3E%3Crect x='7' y='11' width='3' height='7' rx='1' fill='%237A9E7E'/%3E%3Crect x='12' y='7' width='3' height='11' rx='1' fill='%237A9E7E'/%3E%3Crect x='17' y='14' width='3' height='4' rx='1' fill='%23d5d0c8'/%3E%3C/svg%3E") \!important;
+  background-position: 0 0 \!important;
+  background-size: 20px 20px \!important;
+}
+.qi-intensity-severe {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect x='2' y='14' width='3' height='4' rx='1' fill='%237A9E7E'/%3E%3Crect x='7' y='11' width='3' height='7' rx='1' fill='%237A9E7E'/%3E%3Crect x='12' y='7' width='3' height='11' rx='1' fill='%237A9E7E'/%3E%3Crect x='17' y='3' width='3' height='15' rx='1' fill='%237A9E7E'/%3E%3C/svg%3E") \!important;
+  background-position: 0 0 \!important;
+  background-size: 20px 20px \!important;
+}
+
+/* General icons (rows 3-4) */
+.qi-checkmark { background-position: 0 -150px; }
+.qi-lock      { background-position: -50px -150px; }
+.qi-science   { background-position: -100px -150px; }
+.qi-star      { background-position: -150px -150px; }
+.qi-heart     { background-position: -200px -150px; }
+.qi-clock     { background-position: -250px -150px; }
+.qi-pill      { background-position: 0 -200px; }
+.qi-doctor    { background-position: -50px -200px; }
+
+/* Icon sizing inside buttons */
+.option-btn .qi {
+  width: 24px;
+  height: 24px;
+  background-size: 300px 250px;
+}
+
+/* Symptom grid: icons above text */
+.options-grid .option-btn .qi {
+  width: 24px;
+  height: 24px;
+  background-size: 300px 250px;
+  margin-bottom: 2px;
+}
+
+/* Icons invert to white when button is selected in grid */
+.options-grid .option-btn.selected .qi {
+  filter: brightness(0) invert(1);
+}
+
+
+/* ============================================================
+   CRO OPTIMIZATIONS
+   ============================================================ */
+
+/* Severity validation message */
+.severity-validation {
+  font-size: 13px;
+  color: var(--rose);
+  text-align: center;
+  margin-top: 12px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.3s ease;
+  font-style: italic;
+  line-height: 1.5;
+}
+.severity-validation.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Recommended badge on pref card */
+.pref-card.recommended {
+  border-color: var(--rose);
+  position: relative;
+}
+.pref-card-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--rose);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.pref-card.recommended .pref-card-badge {
+  color: var(--rose);
+}
+.pref-card.recommended.selected .pref-card-badge {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Consolidated consent summary */
+.consent-summary {
+  background: var(--white);
+  border: 1px solid var(--taupe);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+.consent-summary-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 12px;
+}
+.consent-summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.consent-summary-list li {
+  font-size: 13px;
+  color: var(--charcoal-60);
+  line-height: 1.6;
+  padding-left: 20px;
+  position: relative;
+}
+.consent-summary-list li::before {
+  content: '\2713';
+  position: absolute;
+  left: 0;
+  color: var(--rose);
+  font-weight: 600;
+}
+.consent-summary-list li strong {
+  color: var(--charcoal);
+}
+
+/* DQ guide offer */
+.dq-guide-offer {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--taupe);
+}
+.dq-guide-text {
+  font-size: 13px;
+  color: var(--charcoal);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.dq-guide-form {
+  display: flex;
+  gap: 8px;
+}
+.dq-guide-btn {
+  background: var(--rose);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  transition: background 0.15s;
+}
+.dq-guide-btn:hover {
+  background: var(--rose-dark, #b5745c);
+}
+
+@media (max-width: 600px) {
+  .consent-summary {
+    padding: 16px;
+  }
+  .dq-guide-form {
+    flex-direction: column;
+  }
+}
+
+/* ── Conditional step: free text + chips ────────────────────────────── */
+.freetext-wrap { max-width: 480px; margin: 0 auto; }
+.quiz-textarea {
+  width: 100%; box-sizing: border-box;
+  padding: 12px 14px; font-size: 15px; font-family: var(--font-sans);
+  border: 1.5px solid var(--taupe); border-radius: var(--radius);
+  background: #fff; color: var(--charcoal); resize: vertical;
+  margin-top: 10px;
+}
+.quiz-textarea:focus { outline: none; border-color: var(--rose); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 6px; }
+.chip-btn {
+  padding: 8px 16px; font-size: 13px; font-family: var(--font-sans);
+  border: 1.5px solid var(--taupe); border-radius: 20px;
+  background: #fff; color: var(--charcoal); cursor: pointer;
+  transition: all 0.15s;
+}
+.chip-btn:hover { border-color: var(--rose); }
+.chip-btn.selected { background: var(--rose); border-color: var(--rose); color: #fff; }
+
+/* ── Gynecological Consent Notices (Step 43 combined) ────────────────── */
+.gyn-consents {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeUp 0.25s ease forwards;
+}
+.gyn-consent-item {
+  background: var(--cream-dark);
+  border: 1px solid var(--taupe);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.gyn-consent-text {
+  font-size: 13px;
+  color: var(--charcoal);
+  line-height: 1.6;
+  margin: 0;
+}
+.gyn-consent-text strong {
+  color: var(--rose);
+  font-weight: 600;
+}
+
+/* ── Relief Timeline padding fix ─────────────────────────────────────── */
+#step-27 .interstitial {
+  padding: 0 0 16px;
+}
+#step-27 .interstitial-headline {
+  margin-bottom: 20px;
+}
+#step-27 .interstitial-cta {
+  margin-top: 24px;
+}

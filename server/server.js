@@ -366,6 +366,8 @@ app.get('/v1',          (req, res) => res.redirect(301, '/v1/'));
 app.get('/v1/',         (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'v1', 'index.html')));
 app.get('/v2',          (req, res) => res.redirect(301, '/v2/'));
 app.get('/v2/',         (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'v2', 'index.html')));
+app.get('/v3',          (req, res) => res.redirect(301, '/v3/'));
+app.get('/v3/',         (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'v3', 'index.html')));
 
 // ─── Dosable Question ID Map ──────────────────────────────────────────────────
 const Q = {
@@ -1946,6 +1948,123 @@ app.post('/api/v2/complete', async (req, res) => {
     sessionId: resolvedSessionId, clickId, affId, c1,
     checkoutUrl: finalCheckoutUrl, productName: productDisplay.name,
     lastStep: 37, submissionStatus: 'complete',
+  });
+
+  return res.json({
+    ok: true,
+    checkoutUrl: finalCheckoutUrl,
+    product: productDisplay,
+    sessionId: resolvedSessionId,
+  });
+});
+
+// ─── V3 Short Funnel Answer Remapper ─────────────────────────────────────────
+// V3 collects a strict subset of V2 step IDs (14, 6, 15, 16, 17, 19, 29-35, 37).
+// Every V3 step ID is also a valid V2 step ID, and remapAnswersV2 already defaults
+// missing fields to safe values, so V3 simply delegates.
+function remapAnswersV3(a) {
+  return remapAnswersV2(a);
+}
+
+// ─── ROUTE: POST /api/v3/complete ────────────────────────────────────────────
+// V3 short-funnel completion. Mirrors /api/v2/complete logic.
+// CRITICAL: never mutates the products= param on the Dosable checkout URL.
+app.post('/api/v3/complete', async (req, res) => {
+  const sessionId   = req.body.sessionId;
+  const quizAnswers = req.body.quizAnswers || {};
+  const clickId     = req.body.clickId || '';
+  const affId       = req.body.affId   || '';
+  const c1          = req.body.c1      || '';
+
+  let resolvedSessionId = sessionId;
+  if (!resolvedSessionId) {
+    const ci = req.body.contactInfo || {};
+    if (ci.email && ci.firstName && ci.lastName && ci.phone) {
+      console.log('v3: No sessionId - creating session from contact info');
+      const leadPayload = {
+        tenant_id: TENANT_ID,
+        first_name: ci.firstName,
+        last_name:  ci.lastName,
+        email:      ci.email,
+        phone:      ci.phone.replace(/\D/g, ''),
+        gender:     'Female',
+      };
+      const leadRes = await dosable('post', '/leads/', leadPayload);
+      if (leadRes.ok && leadRes.data && leadRes.data.session_id) {
+        resolvedSessionId = leadRes.data.session_id;
+      } else if (leadRes.status === 409) {
+        const sessRes = await dosable('post', '/sessions/', { tenant_id: TENANT_ID, email: ci.email });
+        if (sessRes.ok && sessRes.data) resolvedSessionId = sessRes.data.session_id;
+      }
+    }
+  }
+  if (!resolvedSessionId) {
+    return res.status(400).json({ error: 'No session available. Please retake the quiz.' });
+  }
+
+  const apiAnswers = remapAnswersV3(quizAnswers);
+  console.log('v3: Submitting answers for session', resolvedSessionId);
+
+  const bulkAnswersV3 = Object.fromEntries(
+    Object.entries(apiAnswers).filter(([k]) => parseInt(k) !== Q.consent_truthfulness)
+  );
+  const bulkRes = await dosable('put', `/sessions/${resolvedSessionId}`, bulkAnswersV3);
+  if (!bulkRes.ok) {
+    console.error('v3: Bulk save failed:', JSON.stringify(bulkRes.data).slice(0, 800));
+    return res.status(502).json({ error: 'Answer submission failed', detail: bulkRes.data });
+  }
+
+  const contactInfo = req.body.contactInfo || {};
+  const completeLead = {
+    ...(contactInfo.firstName && { first_name: contactInfo.firstName }),
+    ...(contactInfo.lastName  && { last_name:  contactInfo.lastName }),
+    ...(contactInfo.dob       && { birthday:   formatDob(contactInfo.dob) }),
+    ...(contactInfo.state     && { lead_state: normalizeState(contactInfo.state) }),
+    gender: 'Female',
+  };
+  const completePayload = {
+    ...completeLead,
+    schedule: 'monthly',
+    final_answers: {
+      [Q.consent_truthfulness]: {
+        value:    'I have read the above information and I do consent and wish to move forward',
+        question: 'Consent (Truthfulness)',
+      },
+    },
+  };
+  if (clickId) completePayload.cc_custom_cid = clickId;
+  if (affId)   completePayload.aff_id        = affId;
+  if (c1)      completePayload.c1            = c1;
+
+  const completeRes = await dosable('post', `/sessions/${resolvedSessionId}/complete`, completePayload);
+  if (!completeRes.ok) {
+    console.error('v3: Session complete failed:', JSON.stringify(completeRes.data).slice(0, 800));
+    return res.status(502).json({ error: 'Session completion failed', detail: completeRes.data });
+  }
+
+  // CRITICAL: pass through Dosable's checkout URL unchanged on products= param
+  const rawCheckoutUrl = completeRes.data.checkout_url || CHECKOUT_BASE;
+  const finalCheckoutUrl = appendCheckoutParams(rawCheckoutUrl, clickId, affId, c1);
+
+  const products = parseCheckoutProducts(finalCheckoutUrl);
+  const productDisplay = buildProductDisplay(products);
+
+  console.log('v3: Checkout URL:', finalCheckoutUrl);
+  console.log('v3: Product match:', productDisplay.name, '($' + productDisplay.totalPrice + ')');
+
+  logSubmission('v3', {
+    email: contactInfo.email || quizAnswers.email || '',
+    sessionId: resolvedSessionId,
+    clickId,
+    product: productDisplay.name,
+    checkoutUrl: finalCheckoutUrl,
+    state: contactInfo.state || quizAnswers.state || '',
+  });
+  logToSheet('v3', {
+    quizAnswers, contactInfo, apiAnswers,
+    sessionId: resolvedSessionId, clickId, affId, c1,
+    checkoutUrl: finalCheckoutUrl, productName: productDisplay.name,
+    lastStep: 14, submissionStatus: 'complete',
   });
 
   return res.json({
