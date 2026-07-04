@@ -318,7 +318,7 @@
       items.push({
         name: 'Progesterone Pills',
         desc: 'Taken at bedtime to protect the uterine lining and support better sleep and mood. Included in your plan.',
-        image: '../images/progesterone-pill.jpg',
+        image: '../images/estradiol-pill-solo.jpg',
         price: getProgData().price,
       });
     }

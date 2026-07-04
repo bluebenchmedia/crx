@@ -110,6 +110,9 @@
     if (el) el.classList.add('active');
     currentStep = step;
 
+    // Consent list depends on diagnoses answered mid-quiz — rebuild on entry
+    if (step === 'consents' && typeof renderConsents === 'function') renderConsents();
+
     var order = computeOrder();
     var idx = order.indexOf(step);
     var fill = document.getElementById('progressFill');
@@ -281,7 +284,16 @@
   var medsDqSelected = false;
   wireSingle('meds', function(v) {
     answers.takingMeds = v;
-    if (v === 'no') { answers.medsText = ''; setTimeout(advance, 150); return; }
+    if (v === 'no') {
+      answers.medsText = '';
+      // reset any prior "yes" state so it can't linger after a change of mind
+      showIf('meds-detail-wrap', false);
+      var chips = document.querySelectorAll('#meds-dq-list .chip-btn.selected');
+      for (var i = 0; i < chips.length; i++) chips[i].classList.remove('selected');
+      medsDqSelected = false;
+      setTimeout(advance, 150);
+      return;
+    }
     showIf('meds-detail-wrap', true);
   });
   (function wireMedsChips() {
@@ -577,6 +589,8 @@
       var item = document.createElement('div');
       item.className = 'consent-item';
       var body = (consentBodies[c.qid] && consentBodies[c.qid].title) || '<p>Full text available on request — a copy is included with your treatment plan.</p>';
+      // The accordion header already names the consent — drop the duplicate <h2>
+      body = body.replace(/<h2>[\s\S]*?<\/h2>/, '');
       item.innerHTML =
         '<div class="consent-header" data-i="' + i + '">' +
           '<span class="consent-title">' + c.title + '</span>' +
@@ -689,7 +703,35 @@
   });
 
   /* ── Rehydrate UI from restored session ───────────────────────────────── */
+  function rehydrateSingle(stepId, value) {
+    if (!value) return;
+    var root = document.getElementById('step-' + stepId);
+    if (!root) return;
+    var btn = root.querySelector('.options-list:not(.multi) .option-btn[data-value="' + value + '"]');
+    if (btn) btn.classList.add('selected');
+  }
   function rehydrateUI() {
+    rehydrateSingle('sex', answers.sex);
+    rehydrateSingle('duration', answers.duration);
+    rehydrateSingle('meds', answers.takingMeds);
+    rehydrateSingle('hrt', answers.hrtHistory);
+    rehydrateSingle('hrt-se', answers.hrtSideEffects);
+    rehydrateSingle('hysterectomy', answers.hysterectomy);
+    rehydrateSingle('bp', answers.bloodPressure);
+    rehydrateSingle('allergies', answers.allergies);
+    if (answers.preference) {
+      var card = document.querySelector('#step-preference .pref-card[data-value="' + answers.preference + '"]');
+      if (card) card.classList.add('selected');
+    }
+    if (answers.hrtProduct) document.getElementById('hrt-product-text').value = answers.hrtProduct;
+    if (answers.hrtSideEffectDetail) document.getElementById('hrt-se-detail-text').value = answers.hrtSideEffectDetail;
+    if (answers.transdermalSE) {
+      var tBtn = document.querySelector('#transdermal-se-list .option-btn[data-value="' + answers.transdermalSE + '"]');
+      if (tBtn) tBtn.classList.add('selected');
+      showIf('transdermal-detail-wrap', answers.transdermalSE === 'yes');
+      nextBtnVisible('step-hrt-se-detail-next', true);
+    }
+    if (answers.transdermalDetail) document.getElementById('transdermal-detail-text').value = answers.transdermalDetail;
     setSelected('symptoms-list', answers.symptoms);
     if (answers.symptoms.length) nextBtnVisible('step-symptoms-next', true);
     showIf('other-symptom-wrap', answers.symptoms.indexOf('other') !== -1);
