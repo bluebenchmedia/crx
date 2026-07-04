@@ -77,6 +77,7 @@ const axios    = require('axios');
 const path     = require('path');
 const cors     = require('cors');
 const fs       = require('fs');
+const { scheduleAbandonCheck, cancelAbandonCheck, stats: abandonStats } = require('./abandon-scheduler');
 
 // Load .env if present (local dev)
 try { require('dotenv').config(); } catch(e) {}
@@ -358,6 +359,38 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', version: 'v1.1', timestamp: new Date().toISOString() });
 });
 
+// Abandon-recovery scheduler diagnostics
+app.get('/abandon-stats', (_req, res) => res.json(abandonStats()));
+
+// ─── V4: Consent text proxy ───────────────────────────────────────────────────
+// Returns the live consent-question bodies (HTML) from Dosable so the v4
+// frontend renders the exact, always-in-sync legal text without hardcoding it.
+// Cached in-process for 12h.
+let _consentCache = { at: 0, data: null };
+app.get('/api/v4/consents', async (_req, res) => {
+  try {
+    if (_consentCache.data && (Date.now() - _consentCache.at) < 12 * 3600 * 1000) {
+      return res.json(_consentCache.data);
+    }
+    const qRes = await dosable('get', '/questions/');
+    if (!qRes.ok || !Array.isArray(qRes.data)) {
+      return res.status(502).json({ error: 'Unable to load consent text' });
+    }
+    const CONSENT_QIDS = [3204, 3232, 3235, 3237, 3238, 3240, 3241];
+    const out = {};
+    for (const q of qRes.data) {
+      if (CONSENT_QIDS.includes(q.id)) {
+        out[q.id] = { title: q.title, type: q.type };
+      }
+    }
+    _consentCache = { at: Date.now(), data: out };
+    return res.json(out);
+  } catch (e) {
+    console.error('v4 consents proxy error:', e.message);
+    return res.status(500).json({ error: 'Consent load failed' });
+  }
+});
+
 // Serve frontend static files
 app.use(express.static(FRONTEND_DIR));
 app.get('/',            (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'index.html')));
@@ -368,6 +401,8 @@ app.get('/v2',          (req, res) => res.redirect(301, '/v2/'));
 app.get('/v2/',         (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'v2', 'index.html')));
 app.get('/v3',          (req, res) => res.redirect(301, '/v3/'));
 app.get('/v3/',         (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'v3', 'index.html')));
+app.get('/v4',          (req, res) => res.redirect(301, '/v4/'));
+app.get('/v4/',         (req, res) => res.sendFile(path.join(FRONTEND_DIR, 'v4', 'index.html')));
 
 // ─── Dosable Question ID Map ──────────────────────────────────────────────────
 const Q = {
@@ -979,6 +1014,17 @@ app.post('/api/lead', async (req, res) => {
   const sessionId = leadRes.data.session_id;
   const userId    = leadRes.data.id || leadRes.data.user_id;
 
+  // Schedule abandon-recovery check. Cancelled if /api/(v3/)complete fires
+  // for this email within ABANDON_DELAY_MS (default 5 min).
+  scheduleAbandonCheck({
+    email,
+    firstName,
+    lastName,
+    phone,
+    leadId: userId,
+    quizUrl: 'https://quiz.clearedrx.com/v3/',
+  });
+
   return res.json({ ok: true, sessionId, userId });
 });
 
@@ -996,6 +1042,10 @@ app.post('/api/complete', async (req, res) => {
   const clickId          = req.body.clickId || '';
   const affId            = req.body.affId   || '';
   const c1               = req.body.c1      || '';
+
+  // Cancel any pending abandon-recovery check for this email — checkout fired.
+  const _ciCancel = req.body.contactInfo || {};
+  if (_ciCancel.email) cancelAbandonCheck({ email: _ciCancel.email });
 
   // Build productSelection from new treatment page payload fields
   const productSelection = req.body.productSelection || {
@@ -1836,6 +1886,10 @@ app.post('/api/v2/complete', async (req, res) => {
   const sessionId        = req.body.sessionId;
   const quizAnswers      = req.body.quizAnswers || {};
   const clickId          = req.body.clickId || '';
+
+  // Cancel any pending abandon-recovery check for this email — checkout fired.
+  const _ciCancelV2 = req.body.contactInfo || {};
+  if (_ciCancelV2.email) cancelAbandonCheck({ email: _ciCancelV2.email });
   const affId            = req.body.affId   || '';
   const c1               = req.body.c1      || '';
 
@@ -1976,6 +2030,10 @@ app.post('/api/v3/complete', async (req, res) => {
   const affId       = req.body.affId   || '';
   const c1          = req.body.c1      || '';
 
+  // Cancel any pending abandon-recovery check for this email — checkout fired.
+  const ciForCancel = req.body.contactInfo || {};
+  if (ciForCancel.email) cancelAbandonCheck({ email: ciForCancel.email });
+
   let resolvedSessionId = sessionId;
   if (!resolvedSessionId) {
     const ci = req.body.contactInfo || {};
@@ -2071,6 +2129,570 @@ app.post('/api/v3/complete', async (req, res) => {
     ok: true,
     checkoutUrl: finalCheckoutUrl,
     product: productDisplay,
+    sessionId: resolvedSessionId,
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// V4 FUNNEL — Short CRO funnel, FDA patch + progesterone priority (2026-07)
+// ═══════════════════════════════════════════════════════════════════════════════
+// Design: frontend/v4/DESIGN.md
+// - Values are validated byte-exact against CANON (generated from live
+//   GET /questions/ tenant 32, 2026-07-04). A mismatch fails loudly BEFORE
+//   anything is sent to Dosable.
+// - Q3228 (vaginal symptoms) derives ONLY from the single buried "vaginal
+//   dryness or discomfort" option in the S2 symptom stack. Never injected.
+// - Q3242 default emphasis is FDA-approved (patch + micronized progesterone).
+// - Honest answers only; hard DQs never reach this endpoint.
+
+// ─── V4 CANONICAL QUESTION MAP ─────────────────────────────────────────────
+// Generated 2026-07-04 from GET https://intake.dosable.com/questions/ (tenant 32).
+// option strings are byte-exact — DO NOT hand-edit. Regenerate from the API.
+const CANON = {
+  3200: {
+    type: "textarea",
+    mappedField: "medicalConditions",
+    label: "Please identify all your current medical conditions",
+  },
+  3201: {
+    type: "textarea",
+    mappedField: "selfReportedMeds",
+    label: "Please list all your current medications including dosages",
+  },
+  3202: {
+    type: "textarea",
+    mappedField: "allergies",
+    label: "Please list all of your known allergies",
+  },
+  3203: {
+    type: "radio",
+    mappedField: "sex",
+    label: "What was your sex assigned at birth?",
+    options: ["Male", "Female"],
+  },
+  3204: {
+    type: "consent",
+    label: "Consent (pregnancy)",
+    options: ["I have read and understand the above information. I understand the risks and wish to proceed", "I have read the information and do NOT wish to proceed"],
+  },
+  3205: {
+    type: "radio",
+    label: "Are you currently pregnant or planning to become pregnant?",
+    options: ["Yes", "No"],
+  },
+  3206: {
+    type: "radio",
+    label: "Is there any possibility of you being pregnant?",
+    options: ["Yes", "No"],
+  },
+  3207: {
+    type: "radio",
+    label: "Are you currently breastfeeding?",
+    options: ["Yes", "No"],
+  },
+  3208: {
+    type: "radio",
+    label: "Over the past 6 months, have you had ABNORMAL and UNDIAGNOSED vaginal bleeding that is different from your usual period?",
+    options: ["Yes", "No"],
+  },
+  3209: {
+    type: "radio",
+    label: "Do you have a known diagnosis of liver cirrhosis, liver failure, or late stage chronic kidney disease (CKD stage 4 and beyond)?",
+    options: ["Yes", "No"],
+  },
+  3210: {
+    type: "radio",
+    label: "Have you noticed any changes in your menstrual cycle (e.g., irregular or absent periods) OR other menopausal symptoms (such as hot flashes, night sweats), and do you believe that or has your provider told you that you might be experiencing perimenopause or menopause?",
+    options: ["Yes", "No"],
+  },
+  3211: {
+    type: "checkbox",
+    label: "Tell us more about the symptoms that you experience? (Check all that apply)",
+    options: ["Irregular periods", "Hot flashes", "Night sweats", "Mood swings", "Sleep disturbances", "Reduce libido", "Vaginal dryness", "Recurrent urinary tract infections", "Dry skin", "Thinning hair", "Weight gain around the abdomen", "Other", "None of these"],
+  },
+  3212: {
+    type: "textarea",
+    label: "Tell us more about your other symptom(s)",
+  },
+  3213: {
+    type: "checkbox",
+    label: "Do you have any of the following? (Check all that apply)",
+    options: ["I have been diagnosed with breast cancer, uterine cancer, or ovarian cancer?", "I have a strong FAMILY History of breast cancer, uterine cancer, or ovarian cancer?", "I have a known history of stroke, or \"mini stroke\" known as a transient ischemic attack (TIA)?", "I have known coronary artery disease (CAD), congestive heart failure, or uncontrolled hypertension (blood pressure)?", "I have a had current or recent gallbladder issues", "I do NOT have any of these"],
+  },
+  3214: {
+    type: "checkbox",
+    label: "Do you have any of the following? (Check all that apply)",
+    options: ["I have a known history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?", "I have inherited blood clotting disorder such as Systemic Lupus Erythematous WITH antibodies that increase by risk of clotting such as a positive antiphospholipid antibodies (lupus anticoagulant, anticardiolipin antibody, anti-β2-glycoprotein)", "I do NOT have any of these"],
+  },
+  3215: {
+    type: "radio",
+    label: "Do you have an adhesive allergy?",
+    options: ["Yes", "No"],
+  },
+  3216: {
+    type: "radio",
+    label: "How long have you experienced symptoms of menopause?",
+    options: ["Less than 5 years", "Greater than 5 years"],
+  },
+  3217: {
+    type: "radio",
+    label: "Are you currently or have you ever been on hormone replacement therapy (HRT)?",
+    options: ["Yes, I'm currently taking HRT", "Yes, I have taken HRT in the past", "No, I have never taken HRT"],
+  },
+  3218: {
+    type: "textarea",
+    label: "What HRT formulation are you on or have you tried?",
+  },
+  3219: {
+    type: "radio",
+    label: "Have you ever experienced side effects from your HRT?",
+    options: ["Yes", "No"],
+  },
+  3220: {
+    type: "textarea",
+    label: "Please tell us which product you had side effects to and what symptoms that you experienced",
+  },
+  3221: {
+    type: "radio",
+    label: "Have you ever had side effects to TRANSDERMAL gel, spray, or cream estrogen products?",
+    options: ["Yes", "No"],
+  },
+  3222: {
+    type: "textarea",
+    label: "Please tell us about your reaction to TRANSDERMAL estrogen products",
+  },
+  3223: {
+    type: "checkbox",
+    label: "Do you have any of the following? (Check all that apply)",
+    options: ["Do you currently use nicotine products?", "Do you have a family history of blood clots such as a deep vein thrombosis (DVT) or pulmonary embolism (PE)?", "None of these apply to me"],
+  },
+  3224: {
+    type: "radio",
+    label: "Have you had a surgical resection of your uterus (hysterectomy)?",
+    options: ["Yes", "No"],
+  },
+  3225: {
+    type: "textarea",
+    label: "Please provide further information about why you have had a hysterectomy",
+  },
+  3226: {
+    type: "radio",
+    label: "Do you experience difficulty with your sleep or breast tenderness?",
+    options: ["Yes", "No"],
+  },
+  3227: {
+    type: "radio",
+    label: "Have you had intolerance to micronized progesterone in the past?",
+    options: ["Yes", "No"],
+  },
+  3228: {
+    type: "checkbox",
+    label: "Do you experience any of the following? (Check all that apply)",
+    options: ["Painful intercourse", "Vaginal dryness", "Vaginal irritation", "Urinary urgency", "Recurrent UTIs", "I do not experience any of these"],
+  },
+  3229: {
+    type: "radio",
+    label: "Do you have thinning of your bones such as osteopenia or osteoporosis?",
+    options: ["Yes", "No"],
+  },
+  3230: {
+    type: "checkbox",
+    label: "Are you currently taking any of the following medications?",
+    options: ["Carbamazepine", "Felbamate", "Oxcarbazepine", "Phenytoin", "Primidone", "Rufinamide", "Topiramate (> 200mg/day)", "Lamotrigine", "St. John's Wort", "Rifampin", "Rifabutin", "Barbiturates", "Bosentan", "None apply"],
+  },
+  3231: {
+    type: "radio",
+    label: "What has your blood pressure been over the last six months?",
+    options: ["<90/50", "90-139/50-89", "140-159/90-99", "160/100 or above", "My blood pressure has always been normal", "I don't know my blood pressure"],
+  },
+  3232: {
+    type: "consent",
+    label: "Consent (Fibroid)",
+    options: ["I have read and understand the above information and I wish to proceed with therapy", "I have read and understand the information and I DO NOT wish to proceed"],
+  },
+  3233: {
+    type: "radio",
+    label: "Do you have uterine fibroids?",
+    options: ["Yes", "No"],
+  },
+  3234: {
+    type: "radio",
+    label: "Do you have polycystic ovary syndrome (PCOS)?",
+    options: ["Yes", "No"],
+  },
+  3235: {
+    type: "consent",
+    label: "Consent (PCOS)",
+    options: ["I have read and understand the above information and I wish to proceed with therapy", "I have read and understand the information and I DO NOT wish to proceed"],
+  },
+  3236: {
+    type: "radio",
+    label: "Do you have a diagnosis of endometriosis?",
+    options: ["Yes", "No"],
+  },
+  3237: {
+    type: "consent",
+    label: "Consent (endometriosis)",
+    options: ["I have read and understand the above information and I wish to proceed with therapy", "I have read and understand the information and I DO NOT wish to proceed"],
+  },
+  3238: {
+    type: "consent",
+    label: "Acknowledgement of Continued Screening",
+    options: ["I have read and understand the above information and I wish to proceed with therapy", "I have read and understand the information and I do NOT wish to proceed"],
+  },
+  3239: {
+    type: "textarea",
+    label: "What other information or questions do you have for the doctor?",
+  },
+  3240: {
+    type: "consent",
+    label: "Consent (Hormone Replacement Therapy (HRT))",
+    options: ["I have read the above information, I understand the risks, and I would like to proceed.", "I have read the above information, and I do NOT wish to proceed."],
+  },
+  3241: {
+    type: "consent",
+    label: "Consent (Truthfulness)",
+    options: ["I have read the above information and I do consent and wish to move forward", "I have read the above information and I do not wish to continue"],
+  },
+  3242: {
+    type: "radio",
+    label: "Standard of care menopause treatment typically involves FDA-approved estrogen and progesterone products prescribed separately. Compounded combination hormone creams may be considered in certain situations but are not FDA-approved and are generally used when commercially available options are not suitable. If you qualify for hormone therapy, which option would you prefer?",
+    options: ["FDA-approved estrogen and progesterone products (standard of care)", "Compounded estrogen/progesterone cream (combined formulation)"],
+  },
+};
+
+// Validate a v4 answer payload against CANON. Throws on ANY mismatch so a
+// drifted string can never silently reach Dosable.
+function validateV4Answers(apiAnswers) {
+  const errors = [];
+  for (const [qidStr, entry] of Object.entries(apiAnswers)) {
+    const qid = parseInt(qidStr, 10);
+    if (!Number.isFinite(qid)) continue; // meta keys
+    const canon = CANON[qid];
+    if (!canon) { errors.push(`Q${qid}: unknown question id`); continue; }
+    if (!entry || typeof entry !== 'object') { errors.push(`Q${qid}: malformed entry`); continue; }
+    const { value, question } = entry;
+    if (typeof question !== 'string' || !question.length) errors.push(`Q${qid}: missing question label`);
+    if (canon.options) {
+      const vals = Array.isArray(value) ? value : [value];
+      if (!vals.length) errors.push(`Q${qid}: empty answer`);
+      for (const v of vals) {
+        if (!canon.options.includes(v)) {
+          errors.push(`Q${qid}: value not in canonical options: ${JSON.stringify(v)}`);
+        }
+      }
+      if (canon.type === 'radio' || canon.type === 'consent') {
+        if (Array.isArray(value)) errors.push(`Q${qid}: radio/consent must be a single string`);
+      }
+      if (canon.type === 'checkbox' && !Array.isArray(value)) {
+        errors.push(`Q${qid}: checkbox must be an array`);
+      }
+    } else {
+      // textarea — must be a non-empty string
+      if (typeof value !== 'string' || !value.trim().length) errors.push(`Q${qid}: textarea requires non-empty string`);
+    }
+  }
+  return errors;
+}
+
+// ─── V4 Answer Remapper ───────────────────────────────────────────────────────
+// Input: clean v4 quizAnswers object from frontend/v4/js/quiz.js.
+// Output: { apiAnswers, flags }. Every option value is pulled from CANON —
+// never typed inline — so it is impossible to send a drifted string.
+function remapAnswersV4(a) {
+  const opt = (qid, idx) => CANON[qid].options[idx];
+  const q   = (qid) => CANON[qid].label;
+  const apiAnswers = {};
+  const put = (qid, value) => { apiAnswers[qid] = { value, question: q(qid) }; };
+
+  const symptoms  = Array.isArray(a.symptoms)  ? a.symptoms  : [];
+  const diagnoses = Array.isArray(a.diagnoses) ? a.diagnoses : [];
+  const lifestyle = Array.isArray(a.lifestyle) ? a.lifestyle : [];
+
+  // ── Named fields ──────────────────────────────────────────────────────────
+  const DIAG_TEXT = { osteoporosis: 'Osteoporosis', fibroids: 'Uterine fibroids', pcos: 'PCOS', endometriosis: 'Endometriosis' };
+  const condParts = diagnoses.filter(d => DIAG_TEXT[d]).map(d => DIAG_TEXT[d]);
+  if (a.otherConditionText && String(a.otherConditionText).trim()) condParts.push(String(a.otherConditionText).trim());
+  put(3200, condParts.length ? condParts.join(', ') : 'None');
+
+  const medsText = (a.takingMeds === 'yes' && a.medsText && String(a.medsText).trim()) ? String(a.medsText).trim() : 'None';
+  put(3201, medsText);
+
+  const allergyText = (a.allergies === 'yes' && a.allergyText && String(a.allergyText).trim()) ? String(a.allergyText).trim() : 'No known allergies';
+  put(3202, allergyText);
+
+  put(3203, opt(3203, 1)); // "Female" — males are DQ'd on the frontend
+
+  // ── Pregnancy consent + trio (all DQ'd on frontend if not clear) ──────────
+  put(3204, opt(3204, 0));
+  put(3205, opt(3205, 1)); // No
+  put(3206, opt(3206, 1)); // No
+  put(3207, opt(3207, 1)); // No
+
+  // ── Bleeding / organ safety (DQ'd on frontend if selected) ────────────────
+  put(3208, opt(3208, 1)); // No
+  put(3209, opt(3209, 1)); // No
+
+  // ── Menopause confirmation + symptom checklist ────────────────────────────
+  put(3210, opt(3210, 0)); // Yes — "None of these" symptom pick is DQ'd on frontend
+
+  // S2 symptom keys → exact Q3211 option indexes
+  const SYMPTOM_OPT = {
+    'irregular-periods': 0,   // Irregular periods
+    'hot-flashes':       1,   // Hot flashes
+    'night-sweats':      2,   // Night sweats
+    'mood-swings':       3,   // Mood swings
+    'trouble-sleeping':  4,   // Sleep disturbances
+    'low-libido':        5,   // Reduce libido
+    'vaginal-dryness':   6,   // Vaginal dryness (the buried Q3228 trigger)
+    'dry-skin-hair':     8,   // Dry skin (+ Thinning hair added below)
+    'weight-gain':       10,  // Weight gain around the abdomen
+    'other':             11,  // Other
+  };
+  const q3211 = [];
+  for (const s of symptoms) {
+    if (SYMPTOM_OPT[s] !== undefined) q3211.push(opt(3211, SYMPTOM_OPT[s]));
+    if (s === 'dry-skin-hair') q3211.push(opt(3211, 9)); // Thinning hair
+  }
+  let otherSymptomText = (symptoms.includes('other') && a.otherSymptomText && String(a.otherSymptomText).trim())
+    ? String(a.otherSymptomText).trim() : null;
+  // Edge: only "breast tenderness" selected (a Q3226 signal, not a Q3211 option) —
+  // report it honestly via Other so the checklist is never empty.
+  if (!q3211.length) {
+    q3211.push(opt(3211, 11)); // Other
+    otherSymptomText = otherSymptomText || 'Breast tenderness';
+  }
+  put(3211, [...new Set(q3211)]);
+  if (q3211.includes(opt(3211, 11))) {
+    put(3212, otherSymptomText || 'None');
+  }
+
+  // ── Condition groups (completed users are all-clear by definition) ────────
+  put(3213, [opt(3213, 5)]); // I do NOT have any of these
+  put(3214, [opt(3214, 2)]); // I do NOT have any of these
+
+  // ── Adhesive allergy (honest; steers gel instead of patch when Yes) ───────
+  const adhesiveAllergy = lifestyle.includes('adhesive');
+  put(3215, adhesiveAllergy ? opt(3215, 0) : opt(3215, 1));
+
+  // ── Duration → dose tier ──────────────────────────────────────────────────
+  const durationLong = (a.duration === 'more-5');
+  put(3216, durationLong ? opt(3216, 1) : opt(3216, 0));
+
+  // ── HRT history chain (honest pass-through, doc-exact conditionals) ───────
+  const HRT_OPT = { current: 0, past: 1, never: 2 };
+  const hrtKey = HRT_OPT[a.hrtHistory] !== undefined ? a.hrtHistory : 'never';
+  put(3217, opt(3217, HRT_OPT[hrtKey]));
+  const transdermalSE = (hrtKey !== 'never') && (a.hrtSideEffects === 'yes') && (a.transdermalSE === 'yes');
+  if (hrtKey !== 'never') {
+    put(3218, (a.hrtProduct && String(a.hrtProduct).trim()) ? String(a.hrtProduct).trim() : 'Not sure of the exact product');
+    const hadSE = (a.hrtSideEffects === 'yes');
+    put(3219, hadSE ? opt(3219, 0) : opt(3219, 1));
+    if (hadSE) {
+      put(3220, (a.hrtSideEffectDetail && String(a.hrtSideEffectDetail).trim()) ? String(a.hrtSideEffectDetail).trim() : 'Side effects — details not provided');
+      put(3221, transdermalSE ? opt(3221, 0) : opt(3221, 1));
+      if (transdermalSE) {
+        put(3222, (a.transdermalDetail && String(a.transdermalDetail).trim()) ? String(a.transdermalDetail).trim() : 'Skin reaction to transdermal estrogen product');
+      }
+    }
+  }
+
+  // ── Nicotine / family clots (honest; both route transdermal = patch) ──────
+  const nicotine    = lifestyle.includes('nicotine');
+  const familyClots = lifestyle.includes('family-clots');
+  const q3223 = [];
+  if (nicotine)    q3223.push(opt(3223, 0));
+  if (familyClots) q3223.push(opt(3223, 1));
+  if (!q3223.length) q3223.push(opt(3223, 2));
+  put(3223, q3223);
+
+  // ── Hysterectomy chain ────────────────────────────────────────────────────
+  const hysterectomy = (a.hysterectomy === 'yes');
+  put(3224, hysterectomy ? opt(3224, 0) : opt(3224, 1));
+  if (hysterectomy) {
+    put(3225, (a.hysterectomyReason && String(a.hysterectomyReason).trim()) ? String(a.hysterectomyReason).trim() : 'Medical necessity');
+  }
+
+  // ── Sleep / breast tenderness → progesterone signal ───────────────────────
+  // Required question for ALL patients (black in Beluga doc).
+  const sleepTenderness = symptoms.includes('trouble-sleeping') || symptoms.includes('breast-tenderness');
+  put(3226, sleepTenderness ? opt(3226, 0) : opt(3226, 1));
+
+  // Q3227 conditional: Beluga doc — "No >>> SKIP following conditional question".
+  const progIntolerance = lifestyle.includes('prog-reaction');
+  if (sleepTenderness) {
+    put(3227, progIntolerance ? opt(3227, 0) : opt(3227, 1));
+  }
+
+  // ── Vaginal symptoms — ONLY from the single buried S2 option ──────────────
+  const vaginalSymptoms = symptoms.includes('vaginal-dryness');
+  put(3228, vaginalSymptoms ? [opt(3228, 1)] : [opt(3228, 5)]);
+
+  // ── Osteoporosis / enzyme meds / BP ───────────────────────────────────────
+  put(3229, diagnoses.includes('osteoporosis') ? opt(3229, 0) : opt(3229, 1));
+  put(3230, [opt(3230, 13)]); // "None apply" — any enzyme med is DQ'd on frontend
+
+  const BP_OPT = { 'low': 0, '90-139': 1, '140-159': 2, 'normal-always': 4, 'dont-know': 5 }; // 160+ is DQ
+  put(3231, opt(3231, BP_OPT[a.bloodPressure] !== undefined ? BP_OPT[a.bloodPressure] : 4));
+
+  // ── Gyn conditions + consents (consents always proceed; decliners DQ'd) ───
+  const fibroids = diagnoses.includes('fibroids');
+  const pcos     = diagnoses.includes('pcos');
+  const endo     = diagnoses.includes('endometriosis');
+  put(3233, fibroids ? opt(3233, 0) : opt(3233, 1));
+  put(3232, opt(3232, 0));
+  put(3234, pcos ? opt(3234, 0) : opt(3234, 1));
+  put(3235, opt(3235, 0));
+  put(3236, endo ? opt(3236, 0) : opt(3236, 1));
+  put(3237, opt(3237, 0));
+  put(3238, opt(3238, 0));
+
+  // ── Doctor note / final consents / preference ─────────────────────────────
+  put(3239, (a.doctorNote && String(a.doctorNote).trim()) ? String(a.doctorNote).trim() : 'No additional information');
+  put(3240, opt(3240, 0));
+  put(3241, opt(3241, 0)); // submitted via final_answers on /complete
+
+  // Q3242 — the routing key. Default funnel outcome: FDA-approved (patch + prog).
+  const wantsCompounded = (a.preference === 'compounded');
+  put(3242, wantsCompounded ? opt(3242, 1) : opt(3242, 0));
+
+  const flags = {
+    adhesiveAllergy, nicotine, familyClots, transdermalSE,
+    hysterectomy, sleepTenderness, progIntolerance, vaginalSymptoms,
+    durationLong, wantsCompounded,
+    doseTier: durationLong ? 'low' : 'normal',
+    needsProgesterone: hysterectomy ? (sleepTenderness && !progIntolerance) : true,
+  };
+
+  return { apiAnswers, flags };
+}
+
+// ─── ROUTE: POST /api/v4/complete ────────────────────────────────────────────
+// CRITICAL: never mutates the products= param on the Dosable checkout URL.
+app.post('/api/v4/complete', async (req, res) => {
+  const sessionId   = req.body.sessionId;
+  const quizAnswers = req.body.quizAnswers || {};
+  const clickId     = req.body.clickId || '';
+  const affId       = req.body.affId   || '';
+  const c1          = req.body.c1      || '';
+  const contactInfo = req.body.contactInfo || {};
+
+  // Cancel any pending abandon-recovery check for this email — checkout fired.
+  if (contactInfo.email) cancelAbandonCheck({ email: contactInfo.email });
+
+  // Session resolution (lead-first, production-proven).
+  // NOTE (known edge): Dosable dedupes leads (e.g. by phone) and returns the
+  // SAME session for a returning taker, so conditional answers from a prior
+  // run can linger when the new payload legitimately omits them (Beluga skip
+  // rules). Fresh-minted /sessions/ can't complete (bare-user validation), so
+  // we accept this pre-existing v1/v2/v3 behavior for repeat takers.
+  let resolvedSessionId = sessionId;
+  if (!resolvedSessionId) {
+    const ci = contactInfo;
+    if (ci.email && ci.firstName && ci.lastName && ci.phone) {
+      console.log('v4: No sessionId - creating session from contact info');
+      // Full lead payload (mirrors /api/lead) — Dosable's completion validator
+      // requires the LEAD RECORD itself to carry these fields; a minimal lead
+      // cannot be completed even if /complete supplies them.
+      const leadPayload = {
+        tenant_id:  TENANT_ID,
+        first_name: ci.firstName,
+        last_name:  ci.lastName,
+        email:      ci.email,
+        phone:      ci.phone.replace(/\D/g, ''),
+        birthday:   formatDob(ci.dob) || undefined,
+        lead_state: normalizeState(ci.state) || undefined,
+        zip_code:   '00000',
+        gender:     'Female',
+      };
+      Object.keys(leadPayload).forEach(k => leadPayload[k] === undefined && delete leadPayload[k]);
+      const leadRes = await dosable('post', '/leads/', leadPayload);
+      if (leadRes.ok && leadRes.data && leadRes.data.session_id) {
+        resolvedSessionId = leadRes.data.session_id;
+      } else if (leadRes.status === 409) {
+        const sessRes = await dosable('post', '/sessions/', { tenant_id: TENANT_ID, email: ci.email });
+        if (sessRes.ok && sessRes.data) resolvedSessionId = sessRes.data.session_id;
+      }
+    }
+  }
+  if (!resolvedSessionId) {
+    return res.status(400).json({ error: 'No session available. Please retake the quiz.' });
+  }
+
+  const { apiAnswers, flags } = remapAnswersV4(quizAnswers);
+
+  // Byte-exact validation against the canonical live question set.
+  const validationErrors = validateV4Answers(apiAnswers);
+  if (validationErrors.length) {
+    console.error('v4: CANONICAL VALIDATION FAILED — NOT submitting to Dosable:\n  ' + validationErrors.join('\n  '));
+    return res.status(500).json({ error: 'Internal answer-mapping error. Please contact support.', detail: validationErrors });
+  }
+
+  console.log('v4: Submitting answers for session', resolvedSessionId, 'flags:', JSON.stringify(flags));
+
+  const bulkAnswersV4 = Object.fromEntries(
+    Object.entries(apiAnswers).filter(([k]) => parseInt(k) !== Q.consent_truthfulness)
+  );
+  const bulkRes = await dosable('put', `/sessions/${resolvedSessionId}`, bulkAnswersV4);
+  if (!bulkRes.ok) {
+    console.error('v4: Bulk save failed:', JSON.stringify(bulkRes.data).slice(0, 800));
+    return res.status(502).json({ error: 'Answer submission failed', detail: bulkRes.data });
+  }
+
+  const completeLead = {
+    ...(contactInfo.firstName && { first_name: contactInfo.firstName }),
+    ...(contactInfo.lastName  && { last_name:  contactInfo.lastName }),
+    ...(contactInfo.dob       && { birthday:   formatDob(contactInfo.dob) }),
+    ...(contactInfo.state     && { lead_state: normalizeState(contactInfo.state) }),
+    gender: 'Female',
+  };
+  const completePayload = {
+    ...completeLead,
+    schedule: 'monthly',
+    final_answers: {
+      [Q.consent_truthfulness]: apiAnswers[Q.consent_truthfulness],
+    },
+  };
+  if (clickId) completePayload.cc_custom_cid = clickId;
+  if (affId)   completePayload.aff_id        = affId;
+  if (c1)      completePayload.c1            = c1;
+
+  const completeRes = await dosable('post', `/sessions/${resolvedSessionId}/complete`, completePayload);
+  if (!completeRes.ok) {
+    console.error('v4: Session complete failed:', JSON.stringify(completeRes.data).slice(0, 800));
+    return res.status(502).json({ error: 'Session completion failed', detail: completeRes.data });
+  }
+
+  // CRITICAL: pass through Dosable's checkout URL unchanged on products= param
+  const rawCheckoutUrl = completeRes.data.checkout_url || CHECKOUT_BASE;
+  const finalCheckoutUrl = appendCheckoutParams(rawCheckoutUrl, clickId, affId, c1);
+
+  const products = parseCheckoutProducts(finalCheckoutUrl);
+  const productDisplay = buildProductDisplay(products);
+
+  console.log('v4: Checkout URL:', finalCheckoutUrl);
+  console.log('v4: Product match:', productDisplay.name, '($' + productDisplay.totalPrice + ')');
+
+  logSubmission('v4', {
+    email: contactInfo.email || '',
+    sessionId: resolvedSessionId,
+    clickId,
+    product: productDisplay.name,
+    checkoutUrl: finalCheckoutUrl,
+    state: contactInfo.state || '',
+  });
+  logToSheet('v4', {
+    quizAnswers, contactInfo, apiAnswers,
+    sessionId: resolvedSessionId, clickId, affId, c1,
+    checkoutUrl: finalCheckoutUrl, productName: productDisplay.name,
+    lastStep: 20, submissionStatus: 'complete',
+  });
+
+  return res.json({
+    ok: true,
+    checkoutUrl: finalCheckoutUrl,
+    product: productDisplay,
+    flags,
     sessionId: resolvedSessionId,
   });
 });

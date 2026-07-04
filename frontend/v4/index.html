@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Your Treatment | ClearedRx</title>
+  <meta name="description" content="Take our 2-minute assessment to find the right HRT treatment for your menopause symptoms.">
+  <link rel="icon" href="../images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/quiz.css">
+  <link rel="stylesheet" href="css/v4.css">
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '3455971567888613');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=3455971567888613&ev=PageView&noscript=1"
+  /></noscript>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16906106213"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-16906106213');
+  </script>
+</head>
+<body>
+
+  <nav class="quiz-nav">
+    <a href="https://clearedrx.com" class="quiz-nav-logo">Cleared<span>Rx</span></a>
+  </nav>
+
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-track">
+      <div class="quiz-progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <button class="quiz-back-btn" id="quizBackBtn" aria-label="Go back">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back
+  </button>
+
+  <div class="quiz-container">
+
+    <!-- STEP sex -->
+    <div class="quiz-step" id="step-sex">
+      <span class="step-eyebrow">Let&#x2019;s get started</span>
+      <h2 class="step-question">What was your sex assigned at birth?</h2>
+      <p class="step-sub">Hormone therapy is prescribed based on your biology.</p>
+      <div class="options-list">
+        <button class="option-btn" data-value="female">Female</button>
+        <button class="option-btn" data-value="male">Male</button>
+      </div>
+    </div>
+
+    <!-- STEP symptoms (Q3210/Q3211/Q3226/Q3228 stack — vaginal option buried mid-list) -->
+    <div class="quiz-step" id="step-symptoms">
+      <span class="step-eyebrow">Your symptoms</span>
+      <h2 class="step-question">Which of these are you dealing with?</h2>
+      <p class="step-sub">Tap everything that applies &mdash; even things you weren&#x2019;t sure were related.</p>
+      <div class="options-grid multi" id="symptoms-list">
+        <button class="option-btn" data-value="hot-flashes">Hot flashes</button>
+        <button class="option-btn" data-value="night-sweats">Night sweats</button>
+        <button class="option-btn" data-value="trouble-sleeping">Trouble sleeping</button>
+        <button class="option-btn" data-value="mood-swings">Mood swings</button>
+        <button class="option-btn" data-value="irregular-periods">Irregular or missing periods</button>
+        <button class="option-btn" data-value="weight-gain">Weight gain</button>
+        <button class="option-btn" data-value="low-libido">Low sex drive</button>
+        <button class="option-btn" data-value="vaginal-dryness">Vaginal dryness or discomfort</button>
+        <button class="option-btn" data-value="dry-skin-hair">Dry skin or thinning hair</button>
+        <button class="option-btn" data-value="breast-tenderness">Breast tenderness</button>
+        <button class="option-btn" data-value="other">Something else</button>
+        <button class="option-btn" data-value="none">None of these</button>
+      </div>
+      <div id="other-symptom-wrap" class="freetext-wrap" style="display:none;margin-top:12px;">
+        <textarea class="quiz-textarea" id="other-symptom-text" rows="2" placeholder="Tell us what else you're experiencing..." style="font-size:16px"></textarea>
+      </div>
+      <button class="quiz-next-btn" id="step-symptoms-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP duration (Q3216) -->
+    <div class="quiz-step" id="step-duration">
+      <span class="step-eyebrow">Your symptoms</span>
+      <h2 class="step-question">How long has this been going on?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="less-5">Less than 5 years</button>
+        <button class="option-btn" data-value="more-5">More than 5 years</button>
+      </div>
+    </div>
+
+    <!-- STEP safety (Q3213 + Q3214 + Q3209 + Q3208 stack — any selection disqualifies) -->
+    <div class="quiz-step" id="step-safety">
+      <span class="step-eyebrow">Health &amp; safety check</span>
+      <h2 class="step-question">Have you ever had any of these?</h2>
+      <p class="step-sub">Tap all that apply. Your safety comes first &mdash; please answer honestly.</p>
+      <div class="options-list multi" id="safety-list">
+        <button class="option-btn" data-value="cancer">Breast, uterine, or ovarian cancer</button>
+        <button class="option-btn" data-value="family-cancer">Strong family history of those cancers</button>
+        <button class="option-btn" data-value="stroke">Stroke or mini-stroke (TIA)</button>
+        <button class="option-btn" data-value="heart">Heart disease or heart failure</button>
+        <button class="option-btn" data-value="clots">Blood clots (DVT or pulmonary embolism)</button>
+        <button class="option-btn" data-value="clotting-disorder">A blood clotting disorder</button>
+        <button class="option-btn" data-value="gallbladder">Recent gallbladder problems</button>
+        <button class="option-btn" data-value="liver-kidney">Serious liver or kidney disease</button>
+        <button class="option-btn" data-value="bleeding">Unusual vaginal bleeding (last 6 months, undiagnosed)</button>
+        <button class="option-btn" data-value="none">None of these</button>
+      </div>
+      <button class="quiz-next-btn" id="step-safety-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP pregnancy (Q3205 + Q3206 + Q3207 stack) -->
+    <div class="quiz-step" id="step-pregnancy">
+      <span class="step-eyebrow">Health &amp; safety check</span>
+      <h2 class="step-question">Do any of these apply to you right now?</h2>
+      <div class="options-list multi" id="pregnancy-list">
+        <button class="option-btn" data-value="pregnant">I&#x2019;m pregnant or planning to become pregnant</button>
+        <button class="option-btn" data-value="possibly-pregnant">There&#x2019;s a chance I could be pregnant</button>
+        <button class="option-btn" data-value="breastfeeding">I&#x2019;m currently breastfeeding</button>
+        <button class="option-btn" data-value="none">None of these</button>
+      </div>
+      <button class="quiz-next-btn" id="step-pregnancy-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP meds (selfReportedMeds + Q3230) -->
+    <div class="quiz-step" id="step-meds">
+      <span class="step-eyebrow">Medications</span>
+      <h2 class="step-question">Are you taking any medications right now?</h2>
+      <p class="step-sub">Include prescriptions, over-the-counter meds, and supplements.</p>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No</button>
+        <button class="option-btn" data-value="yes">Yes</button>
+      </div>
+      <div id="meds-detail-wrap" style="display:none;margin-top:14px;">
+        <div class="freetext-wrap">
+          <label style="font-size:14px;font-weight:600;display:block;margin-bottom:6px;">List them here (name + dose if you know it)</label>
+          <textarea class="quiz-textarea" id="meds-text" rows="2" placeholder="e.g., Levothyroxine 50mcg, Vitamin D..." style="font-size:16px"></textarea>
+        </div>
+        <p class="step-sub" style="margin-top:14px;margin-bottom:8px;">Do any of these match what you take?</p>
+        <div class="chip-row" id="meds-dq-list">
+          <button class="chip-btn" data-value="Carbamazepine">Carbamazepine</button>
+          <button class="chip-btn" data-value="Felbamate">Felbamate</button>
+          <button class="chip-btn" data-value="Oxcarbazepine">Oxcarbazepine</button>
+          <button class="chip-btn" data-value="Phenytoin">Phenytoin</button>
+          <button class="chip-btn" data-value="Primidone">Primidone</button>
+          <button class="chip-btn" data-value="Rufinamide">Rufinamide</button>
+          <button class="chip-btn" data-value="Topiramate (> 200mg/day)">Topiramate</button>
+          <button class="chip-btn" data-value="Lamotrigine">Lamotrigine</button>
+          <button class="chip-btn" data-value="St. John's Wort">St. John&#x2019;s Wort</button>
+          <button class="chip-btn" data-value="Rifampin">Rifampin</button>
+          <button class="chip-btn" data-value="Rifabutin">Rifabutin</button>
+          <button class="chip-btn" data-value="Barbiturates">Barbiturates</button>
+          <button class="chip-btn" data-value="Bosentan">Bosentan</button>
+        </div>
+        <button class="quiz-next-btn visible" id="step-meds-next">None of these &#8594;</button>
+      </div>
+    </div>
+
+    <!-- STEP diagnoses (Q3229 + Q3233 + Q3234 + Q3236 + medicalConditions) -->
+    <div class="quiz-step" id="step-diagnoses">
+      <span class="step-eyebrow">Medical history</span>
+      <h2 class="step-question">Has a doctor ever diagnosed you with any of these?</h2>
+      <p class="step-sub">Tap all that apply.</p>
+      <div class="options-list multi" id="diagnoses-list">
+        <button class="option-btn" data-value="osteoporosis">Osteoporosis or osteopenia (thinning bones)</button>
+        <button class="option-btn" data-value="fibroids">Uterine fibroids</button>
+        <button class="option-btn" data-value="pcos">PCOS (polycystic ovary syndrome)</button>
+        <button class="option-btn" data-value="endometriosis">Endometriosis</button>
+        <button class="option-btn" data-value="other">Another condition</button>
+        <button class="option-btn" data-value="none">None of these</button>
+      </div>
+      <div id="other-condition-wrap" class="freetext-wrap" style="display:none;margin-top:12px;">
+        <textarea class="quiz-textarea" id="other-condition-text" rows="2" placeholder="e.g., Hypothyroidism, diabetes, arthritis..." style="font-size:16px"></textarea>
+      </div>
+      <button class="quiz-next-btn" id="step-diagnoses-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP hrt (Q3217) -->
+    <div class="quiz-step" id="step-hrt">
+      <span class="step-eyebrow">Treatment history</span>
+      <h2 class="step-question">Have you used hormone replacement therapy before?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="never">No, never</button>
+        <button class="option-btn" data-value="current">Yes, I&#x2019;m taking it now</button>
+        <button class="option-btn" data-value="past">Yes, in the past</button>
+      </div>
+    </div>
+
+    <!-- STEP hrt-product (Q3218, conditional) -->
+    <div class="quiz-step" id="step-hrt-product">
+      <span class="step-eyebrow">Treatment history</span>
+      <h2 class="step-question">Which HRT product did you use?</h2>
+      <p class="step-sub">Best guess is fine &mdash; e.g., patch, pills, cream, pellets.</p>
+      <div class="freetext-wrap">
+        <textarea class="quiz-textarea" id="hrt-product-text" rows="2" placeholder="e.g., Estradiol patch, Prempro..." style="font-size:16px"></textarea>
+      </div>
+      <button class="quiz-next-btn visible" id="step-hrt-product-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP hrt-se (Q3219, conditional) -->
+    <div class="quiz-step" id="step-hrt-se">
+      <span class="step-eyebrow">Treatment history</span>
+      <h2 class="step-question">Did you have any side effects from it?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No</button>
+        <button class="option-btn" data-value="yes">Yes</button>
+      </div>
+    </div>
+
+    <!-- STEP hrt-se-detail (Q3220 + Q3221, conditional) -->
+    <div class="quiz-step" id="step-hrt-se-detail">
+      <span class="step-eyebrow">Treatment history</span>
+      <h2 class="step-question">Tell us what happened</h2>
+      <p class="step-sub">Which product caused it, and what did you experience?</p>
+      <div class="freetext-wrap">
+        <textarea class="quiz-textarea" id="hrt-se-detail-text" rows="3" placeholder="e.g., Breast tenderness on the pills..." style="font-size:16px"></textarea>
+      </div>
+      <p class="step-sub" style="margin-top:14px;margin-bottom:8px;">Was it a skin reaction to a gel, spray, or cream applied to your skin?</p>
+      <div class="options-list" id="transdermal-se-list">
+        <button class="option-btn" data-value="no">No</button>
+        <button class="option-btn" data-value="yes">Yes</button>
+      </div>
+      <div id="transdermal-detail-wrap" class="freetext-wrap" style="display:none;margin-top:12px;">
+        <label style="font-size:14px;font-weight:600;display:block;margin-bottom:6px;">What was the reaction?</label>
+        <textarea class="quiz-textarea" id="transdermal-detail-text" rows="2" placeholder="e.g., Red itchy rash where I applied it..." style="font-size:16px"></textarea>
+      </div>
+      <button class="quiz-next-btn" id="step-hrt-se-detail-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP lifestyle (Q3223 + Q3215 + Q3227 stack) -->
+    <div class="quiz-step" id="step-lifestyle">
+      <span class="step-eyebrow">Almost done with health questions</span>
+      <h2 class="step-question">Do any of these apply to you?</h2>
+      <p class="step-sub">Tap all that apply.</p>
+      <div class="options-list multi" id="lifestyle-list">
+        <button class="option-btn" data-value="nicotine">I use nicotine (smoking, vaping, gum)</button>
+        <button class="option-btn" data-value="family-clots">Blood clots run in my family (DVT/PE)</button>
+        <button class="option-btn" data-value="adhesive">Adhesives or bandage glue irritate my skin</button>
+        <button class="option-btn" data-value="prog-reaction">I&#x2019;ve reacted badly to progesterone before</button>
+        <button class="option-btn" data-value="none">None of these</button>
+      </div>
+      <button class="quiz-next-btn" id="step-lifestyle-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP hysterectomy (Q3224) -->
+    <div class="quiz-step" id="step-hysterectomy">
+      <span class="step-eyebrow">Medical history</span>
+      <h2 class="step-question">Have you had surgery to remove your uterus?</h2>
+      <p class="step-sub">A hysterectomy.</p>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No</button>
+        <button class="option-btn" data-value="yes">Yes</button>
+      </div>
+    </div>
+
+    <!-- STEP hyst-reason (Q3225, conditional) -->
+    <div class="quiz-step" id="step-hyst-reason">
+      <span class="step-eyebrow">Medical history</span>
+      <h2 class="step-question">What was the reason?</h2>
+      <p class="step-sub">This helps your physician understand your history.</p>
+      <div class="chip-row" id="hyst-chips">
+        <button class="chip-btn" data-value="Fibroids">Fibroids</button>
+        <button class="chip-btn" data-value="Heavy bleeding">Heavy bleeding</button>
+        <button class="chip-btn" data-value="Endometriosis">Endometriosis</button>
+        <button class="chip-btn" data-value="Cancer prevention">Cancer prevention</button>
+        <button class="chip-btn" data-value="Prolapse">Prolapse</button>
+        <button class="chip-btn" data-value="Other">Other</button>
+      </div>
+      <div class="freetext-wrap" style="margin-top:10px;">
+        <textarea class="quiz-textarea" id="hyst-reason-text" rows="2" placeholder="Any additional details (optional)..." style="font-size:16px"></textarea>
+      </div>
+      <button class="quiz-next-btn" id="step-hyst-reason-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP bp (Q3231) -->
+    <div class="quiz-step" id="step-bp">
+      <span class="step-eyebrow">One quick vital</span>
+      <h2 class="step-question">How&#x2019;s your blood pressure been over the last six months?</h2>
+      <div class="options-list">
+        <button class="option-btn" data-value="normal-always">Normal &mdash; always has been</button>
+        <button class="option-btn" data-value="90-139">In the normal range (90&#x2013;139 / 50&#x2013;89)</button>
+        <button class="option-btn" data-value="140-159">A little elevated (140&#x2013;159 / 90&#x2013;99)</button>
+        <button class="option-btn" data-value="160-plus">High (160/100 or above)</button>
+        <button class="option-btn" data-value="low">On the low side (below 90/50)</button>
+        <button class="option-btn" data-value="dont-know">I don&#x2019;t know</button>
+      </div>
+    </div>
+
+    <!-- STEP preference (Q3242 — FDA patch + progesterone featured) -->
+    <div class="quiz-step" id="step-preference">
+      <span class="step-eyebrow">Your treatment</span>
+      <h2 class="step-question">Which treatment approach do you prefer?</h2>
+      <p class="step-sub">Standard of care is FDA-approved estrogen + progesterone prescribed together. Compounded creams exist for special cases.</p>
+      <div class="pref-cards">
+        <button class="pref-card recommended" data-value="fda" id="pref-card-fda">
+          <span class="pref-card-badge">&#9733; Most chosen &middot; FDA-approved</span>
+          <span class="pref-card-title">Estradiol Patch + Progesterone</span>
+          <span class="pref-card-body">The standard of care. A small patch changed twice a week delivers steady estrogen, with progesterone to protect your body. Doctor-recommended, FDA-approved products.</span>
+        </button>
+        <button class="pref-card" data-value="compounded" id="pref-card-compound">
+          <span class="pref-card-title">Compounded combination cream</span>
+          <span class="pref-card-body">Estrogen + progesterone blended in one daily cream. Not FDA-approved &mdash; generally used when standard options aren&#x2019;t suitable.</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP allergies (named field) -->
+    <div class="quiz-step" id="step-allergies">
+      <span class="step-eyebrow">Last health question</span>
+      <h2 class="step-question">Do you have any allergies?</h2>
+      <p class="step-sub">Medications, foods, or anything else.</p>
+      <div class="options-list">
+        <button class="option-btn" data-value="no">No</button>
+        <button class="option-btn" data-value="yes">Yes</button>
+      </div>
+      <div id="allergy-detail-wrap" class="freetext-wrap" style="display:none;margin-top:12px;">
+        <textarea class="quiz-textarea" id="allergy-text" rows="2" placeholder="e.g., Penicillin, peanuts..." style="font-size:16px"></textarea>
+        <button class="quiz-next-btn visible" id="step-allergies-next" style="margin-top:10px;">Continue &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ═══ CONTACT RUN (state → dob → name → email → phone) ═══ -->
+
+    <!-- STEP state -->
+    <div class="quiz-step" id="step-state">
+      <span class="step-eyebrow">Almost there</span>
+      <h2 class="step-question">Which state do you live in?</h2>
+      <div class="contact-field">
+        <select class="quiz-input quiz-select" id="state-select" style="font-size:16px">
+          <option value="">Select your state</option>
+        </select>
+      </div>
+      <button class="quiz-next-btn visible" id="step-state-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP dob -->
+    <div class="quiz-step" id="step-dob">
+      <span class="step-eyebrow">Almost there</span>
+      <h2 class="step-question">What is your date of birth?</h2>
+      <div class="contact-field">
+        <label>Date of birth</label>
+        <input type="text" class="quiz-input" id="dob-input" placeholder="MM/DD/YYYY" inputmode="numeric" autocomplete="bday" style="font-size:16px">
+        <div class="contact-field-hint" id="dob-error" style="color:var(--rose);display:none;"></div>
+      </div>
+      <button class="quiz-next-btn visible" id="step-dob-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP name -->
+    <div class="quiz-step" id="step-name">
+      <span class="step-eyebrow">Almost there</span>
+      <h2 class="step-question">What&#x2019;s your name?</h2>
+      <div class="contact-field">
+        <label>First name</label>
+        <input type="text" class="quiz-input" id="first-name-input" placeholder="First name" autocomplete="given-name" style="font-size:16px">
+      </div>
+      <div class="contact-field" style="margin-top:12px">
+        <label>Last name</label>
+        <input type="text" class="quiz-input" id="last-name-input" placeholder="Last name" autocomplete="family-name" style="font-size:16px">
+      </div>
+      <button class="quiz-next-btn visible" id="step-name-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP email -->
+    <div class="quiz-step" id="step-email">
+      <span class="step-eyebrow">Almost there</span>
+      <h2 class="step-question">Where should we send your personalized plan?</h2>
+      <div class="contact-field">
+        <label>Email address</label>
+        <input type="email" class="quiz-input" id="email-input" placeholder="you@email.com" autocomplete="email" style="font-size:16px">
+        <div class="contact-field-hint">&#128274; We never share your email. No spam, ever.</div>
+      </div>
+      <button class="quiz-next-btn visible" id="step-email-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP phone -->
+    <div class="quiz-step" id="step-phone">
+      <span class="step-eyebrow">Almost there</span>
+      <h2 class="step-question">What&#x2019;s your phone number?</h2>
+      <p class="step-sub">Your physician may need to reach you. We won&#x2019;t spam you.</p>
+      <div class="contact-field">
+        <label>Phone number</label>
+        <input type="tel" class="quiz-input" id="phone-input" placeholder="(555) 000-0000" autocomplete="tel" style="font-size:16px">
+        <div class="contact-field-hint">By providing your number, you consent to receive SMS updates about your order. Reply STOP to opt out at any time.</div>
+      </div>
+      <button class="quiz-next-btn visible" id="step-phone-next">Continue &#8594;</button>
+    </div>
+
+    <!-- STEP consents — accordion bodies injected from /api/v4/consents at load -->
+    <div class="quiz-step" id="step-consents">
+      <span class="step-eyebrow">Final step</span>
+      <h2 class="step-question">Review &amp; agree</h2>
+      <p class="step-sub">Your physician needs your acknowledgment before reviewing your case. Tap any item to read the full text.</p>
+      <div class="consent-list" id="consent-list"><!-- accordions injected by quiz.js --></div>
+      <div style="margin-top:14px;">
+        <button type="button" id="doctor-note-toggle" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--charcoal-60,#6b6560);text-decoration:underline;padding:4px 0;font-family:inherit;">+ Anything you&#x2019;d like the doctor to know? (optional)</button>
+        <div id="doctor-note-wrap" class="freetext-wrap" style="display:none;margin-top:8px;">
+          <textarea class="quiz-textarea" id="doctor-note-text" rows="2" placeholder="Optional — questions or extra context for your physician..." style="font-size:16px"></textarea>
+        </div>
+      </div>
+      <button class="consent-agree-all-btn" id="consent-agree-all-btn">I&#x2019;ve read &amp; agree to all &#8594;</button>
+    </div>
+
+    <!-- STEP loading -->
+    <div class="quiz-step" id="step-loading">
+      <div class="loading-screen">
+        <div class="loading-content" id="loading-content">
+          <div class="loading-spinner"></div>
+          <h2 class="loading-headline">Finding your treatment match&hellip;</h2>
+          <p class="loading-sub">Matching your answers to the right treatment for you</p>
+          <div class="loading-bar-wrap">
+            <div class="loading-bar-fill" id="loading-bar"></div>
+          </div>
+          <p class="loading-status" id="loading-status">Reviewing your symptoms&hellip;</p>
+        </div>
+        <div class="loading-success" id="loading-success">
+          <div style="width:56px;height:56px;margin:0 auto 16px;background:var(--sage);border-radius:50%;display:flex;align-items:center;justify-content:center;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M6 12l4 4 8-8" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h2 class="loading-headline">Your profile is ready!</h2>
+          <p class="loading-sub" id="loading-success-sub">Taking you to your personalized treatment&hellip;</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /quiz-container -->
+
+  <!-- DISQUALIFY SCREEN -->
+  <div id="disqualify-screen" class="disqualify-overlay" style="display:none;">
+    <div class="disqualify-box">
+      <span class="disqualify-icon">&#9888;&#65039;</span>
+      <h2 class="disqualify-headline" id="dqHeadline">We want to make sure you&#x2019;re safe.</h2>
+      <p class="disqualify-body" id="dqBody">Based on one of your answers, our physicians may not be able to prescribe this treatment at this time. This is for your safety. We recommend speaking with your primary care physician or OB-GYN who can review your full history.</p>
+      <div class="dq-guide-offer" style="margin-top:24px;padding:20px;background:var(--cream-dark);border-radius:var(--radius);text-align:center;">
+        <p style="font-size:14px;color:var(--charcoal);margin:0 0 12px;font-family:var(--font-sans);">We&#x2019;ve put together a <strong>free guide</strong> on non-hormonal approaches to managing menopause symptoms.</p>
+        <input type="email" class="quiz-input" id="dq-email-input" placeholder="Enter your email" style="font-size:16px;margin-bottom:8px;width:100%;box-sizing:border-box;">
+        <button class="interstitial-cta" id="dq-guide-btn" style="width:100%;margin-top:4px;font-size:14px;padding:12px;">Send Me the Free Guide</button>
+        <p id="dq-guide-sent" style="display:none;color:var(--sage);font-size:13px;margin-top:8px;font-family:var(--font-sans);">Check your inbox! We&#x2019;ve sent your guide.</p>
+      </div>
+      <button id="dq-back-btn" style="display:block;width:100%;margin-top:12px;background:none;border:1.5px solid var(--taupe);cursor:pointer;font-size:14px;color:var(--charcoal-60);font-family:var(--font-sans);padding:12px;border-radius:var(--radius);transition:all 0.15s;">&larr; Go back &amp; change my answer</button>
+    </div>
+  </div>
+
+  <script src="js/quiz.js"></script>
+</body>
+</html>
