@@ -174,7 +174,10 @@
     }
   }
   // Multi-select with "none"-style exclusive values. Returns getter.
-  function wireMulti(listId, exclusiveValues, onChange) {
+  // Tapping an exclusive option is a ONE-TAP action: it selects and immediately
+  // fires onExclusiveTap (no Continue needed) — CRO: fastest path for the
+  // majority answer.
+  function wireMulti(listId, exclusiveValues, onChange, onExclusiveTap) {
     var list = document.getElementById(listId);
     if (!list) return function() { return []; };
     var btns = list.querySelectorAll('.option-btn');
@@ -191,13 +194,15 @@
           if (isExclusive) {
             for (var j = 0; j < btns.length; j++) btns[j].classList.remove('selected');
             btn.classList.add('selected');
+            if (onChange) onChange(selected());
+            if (onExclusiveTap) { setTimeout(function() { onExclusiveTap(v); }, 150); return; }
           } else {
             for (var j = 0; j < btns.length; j++) {
               if (exclusiveValues.indexOf(btns[j].getAttribute('data-value')) !== -1) btns[j].classList.remove('selected');
             }
             btn.classList.toggle('selected');
+            if (onChange) onChange(selected());
           }
-          if (onChange) onChange(selected());
         });
       })(btns[i]);
     }
@@ -232,7 +237,11 @@
   /* ── Step: symptoms (Q3210/Q3211/Q3226/Q3228 stack) ───────────────────── */
   var getSymptoms = wireMulti('symptoms-list', ['none'], function(sel) {
     showIf('other-symptom-wrap', sel.indexOf('other') !== -1);
-    nextBtnVisible('step-symptoms-next', sel.length > 0);
+    nextBtnVisible('step-symptoms-next', sel.length > 0 && sel.indexOf('none') === -1);
+  }, function() {
+    // one-tap "None of these" → no menopause symptoms → DQ
+    answers.symptoms = ['none'];
+    disqualify('no-symptoms');
   });
   document.getElementById('step-symptoms-next').addEventListener('click', function() {
     var sel = getSymptoms();
@@ -248,8 +257,8 @@
 
   /* ── Step: safety (any selection besides none = DQ) ───────────────────── */
   var getSafety = wireMulti('safety-list', ['none'], function(sel) {
-    nextBtnVisible('step-safety-next', sel.length > 0);
-  });
+    nextBtnVisible('step-safety-next', sel.length > 0 && sel.indexOf('none') === -1);
+  }, function() { advance(); }); // one-tap "None of these"
   document.getElementById('step-safety-next').addEventListener('click', function() {
     var sel = getSafety();
     if (!sel.length) return;
@@ -259,8 +268,8 @@
 
   /* ── Step: pregnancy ───────────────────────────────────────────────────── */
   var getPregnancy = wireMulti('pregnancy-list', ['none'], function(sel) {
-    nextBtnVisible('step-pregnancy-next', sel.length > 0);
-  });
+    nextBtnVisible('step-pregnancy-next', sel.length > 0 && sel.indexOf('none') === -1);
+  }, function() { advance(); }); // one-tap "None of these"
   document.getElementById('step-pregnancy-next').addEventListener('click', function() {
     var sel = getPregnancy();
     if (!sel.length) return;
@@ -299,7 +308,11 @@
   /* ── Step: diagnoses ───────────────────────────────────────────────────── */
   var getDiagnoses = wireMulti('diagnoses-list', ['none'], function(sel) {
     showIf('other-condition-wrap', sel.indexOf('other') !== -1);
-    nextBtnVisible('step-diagnoses-next', sel.length > 0);
+    nextBtnVisible('step-diagnoses-next', sel.length > 0 && sel.indexOf('none') === -1);
+  }, function() {
+    answers.diagnoses = [];
+    answers.otherConditionText = '';
+    advance(); // one-tap "None of these"
   });
   document.getElementById('step-diagnoses-next').addEventListener('click', function() {
     var sel = getDiagnoses();
@@ -341,7 +354,10 @@
 
   /* ── Step: lifestyle ───────────────────────────────────────────────────── */
   var getLifestyle = wireMulti('lifestyle-list', ['none'], function(sel) {
-    nextBtnVisible('step-lifestyle-next', sel.length > 0);
+    nextBtnVisible('step-lifestyle-next', sel.length > 0 && sel.indexOf('none') === -1);
+  }, function() {
+    answers.lifestyle = [];
+    advance(); // one-tap "None of these"
   });
   document.getElementById('step-lifestyle-next').addEventListener('click', function() {
     var sel = getLifestyle();
@@ -470,8 +486,22 @@
     contact.email = v;
     advance();
   });
+  // Phone: auto-format as (XXX) XXX-XXXX, hard-capped at 10 digits
+  (function wirePhoneMask() {
+    var input = document.getElementById('phone-input');
+    if (!input) return;
+    input.setAttribute('maxlength', '14'); // "(555) 555-0142"
+    input.addEventListener('input', function() {
+      var d = input.value.replace(/\D/g, '').slice(0, 10);
+      var out = d;
+      if (d.length > 6)      out = '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6);
+      else if (d.length > 3) out = '(' + d.slice(0, 3) + ') ' + d.slice(3);
+      else if (d.length > 0) out = '(' + d;
+      input.value = out;
+    });
+  })();
   document.getElementById('step-phone-next').addEventListener('click', function() {
-    var v = (document.getElementById('phone-input').value || '').replace(/\D/g, '');
+    var v = (document.getElementById('phone-input').value || '').replace(/\D/g, '').slice(0, 10);
     if (v.length < 10) { document.getElementById('phone-input').focus(); return; }
     contact.phone = v;
     submitLead();
@@ -507,8 +537,14 @@
       }),
     }).then(function(r) { return r.json(); }).then(function(data) {
       if (data && data.redirect && (data.redirect_url || data.redirectUrl)) {
-        window.location.href = data.redirect_url || data.redirectUrl;
-        return;
+        // SAFETY: only follow returning-patient redirects to our own domains.
+        // Dosable's qualify check has been observed returning ANOTHER tenant's
+        // URL (BraveRx) for phone/email matches outside our tenant.
+        var url = data.redirect_url || data.redirectUrl;
+        var ok = false;
+        try { ok = /(^|\.)clearedrx\.com$/i.test(new URL(url).hostname); } catch (e) {}
+        if (ok) { window.location.href = url; return; }
+        console.warn('Blocked non-ClearedRx redirect:', url);
       }
       if (data && data.sessionId) sessionId = data.sessionId;
       leadCaptured = true;

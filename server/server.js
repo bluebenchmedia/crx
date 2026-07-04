@@ -949,12 +949,24 @@ app.post('/api/lead', async (req, res) => {
     return res.status(400).json({ error: 'Missing required contact fields' });
   }
 
-  // Check for returning patient
+  // Check for returning patient.
+  // SAFETY (2026-07-04): Dosable's qualify endpoint matches leads ACROSS
+  // tenants — a phone/email known to another Dosable client can return that
+  // client's redirect_url (observed: user routed to BraveRx mid-funnel).
+  // Only ever follow redirects to our own domains; otherwise ignore and
+  // proceed with normal lead creation.
+  const REDIRECT_ALLOWLIST = /(^|\.)clearedrx\.com$/i;
   const qualifyRes = await dosable('get',
-    `/leads/qualify?check=redirect&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone.replace(/\D/g, ''))}`
+    `/leads/qualify?check=redirect&tenant_id=${TENANT_ID}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone.replace(/\D/g, ''))}`
   );
   if (qualifyRes.ok && qualifyRes.data && qualifyRes.data.redirect_required) {
-    return res.json({ redirect: true, redirect_url: qualifyRes.data.redirect_url });
+    let allowed = false;
+    try { allowed = REDIRECT_ALLOWLIST.test(new URL(qualifyRes.data.redirect_url).hostname); } catch (e) {}
+    if (allowed) {
+      return res.json({ redirect: true, redirect_url: qualifyRes.data.redirect_url });
+    }
+    console.error('LEAD QUALIFY: BLOCKED cross-tenant redirect to', qualifyRes.data.redirect_url, 'for', email);
+    // fall through — treat as a normal new lead for OUR tenant
   }
 
   const leadPayload = {
