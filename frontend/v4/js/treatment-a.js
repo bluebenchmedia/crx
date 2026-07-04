@@ -363,7 +363,6 @@
       '<div class="pricing-block__prices">' +
         '<span class="pricing-block__orig">$' + totalFull + '</span>' +
         '<span class="pricing-block__disc">$' + totalDisc + '</span>' +
-        '<span class="pricing-block__period">/mo</span>' +
       '</div>' +
       '<div class="pricing-block__then">Then $' + totalFull + '/mo after &bull; Cancel anytime</div>' +
       '<div class="pricing-block__savings">You save $' + savings + ' this month</div>';
